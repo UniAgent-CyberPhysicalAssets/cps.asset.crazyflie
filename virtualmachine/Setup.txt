@@ -1,0 +1,12 @@
+Account
+bitcraze:crazyflie
+
+Change keyboard layout:
+- sudo dpkg-reconfigure keyboard-configuration
+- use generic keyboard 105
+- select german
+- use default settings 
+- reboot
+
+Charset:
+- sudo dpkg-reconfigure console-setup

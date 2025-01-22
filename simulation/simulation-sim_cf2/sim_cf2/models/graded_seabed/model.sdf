@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<!-- Copyright (c) 2016 The UUV Simulator Authors.
+     All rights reserved.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<sdf version="1.5">
+<model name="seabed">
+  <static>true</static>
+  <link name="seabed_link">
+
+  <visual name="surface">
+    <cast_shadows>false</cast_shadows>
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <box>
+        <size>60 60 .1</size>
+      </box>
+    </geometry>
+    <material>
+      <ambient> 0.5 0.5 0.5 0.8</ambient>
+      <diffuse>0.5 0.5 0.5 0.8</diffuse>
+          <pbr>
+              <metal>
+                  <albedo_map>model://graded_seabed/materials/textures/water_water_0076_03_s.jpg</albedo_map>
+              </metal>
+        </pbr>
+      <script>
+      <!-- Use script if Gazebo Classic  -->
+        <uri>model://graded_seabed/materials/scripts/water.material</uri>
+        <name>WindSim/StaticWater</name>
+      </script>
+    </material>
+  </visual>
+
+  <visual name="seafloor">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh><uri>model://graded_seabed/meshes/untitled.stl</uri><scale>1 1 1</scale></mesh>
+    </geometry>
+    <material>
+      <ambient>0.5 0.5 0.5 1.0</ambient>
+      <diffuse>0.5 0.5 0.5 1.0</diffuse>
+      <specular>0.2 0.2 0.2 1.0</specular>
+          <pbr>
+              <metal>
+                  <albedo_map>model://graded_seabed/materials/textures/soil_sand_0045_01.jpg</albedo_map>
+              </metal>
+        </pbr>
+        <!-- Use script if Gazebo Classic  -->
+      <script>
+        <uri>model://graded_seabed/materials/scripts/sand.material</uri>
+        <name>WindSim/SandAndStones</name>
+      </script>
+    </material>
+  </visual>
+
+  <collision name="seafloor">
+    <pose>0 0 0 0 0 0</pose>
+    <geometry>
+      <mesh><uri>model://graded_seabed/meshes/seabed_three_slope.stl</uri><scale>1 1 1</scale></mesh>
+    </geometry>
+  </collision>
+
+  </link>
+</model>
+</sdf>
