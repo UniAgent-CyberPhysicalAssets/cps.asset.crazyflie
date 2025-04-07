@@ -16,13 +16,16 @@ This example demonstrates how to configure and set up three drones (see configur
 # Run this command once to enable GUI display:
 xhost +local:root
 
-# Run this command to start each container:
+# Run this command in a fresh terminal to start each container:
 sudo docker run --rm -it \
---env ROS_DOMAIN_ID=30 \
---net=host --ipc=host --pid=host \
---env DISPLAY \
---volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-cf2_ros2_simu
+  --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host \
+  --env DISPLAY \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" \
+  cf2_ros2_simu
+
+# Command for Terminator Layout (Faster Setup)
+trap $SHELL EXIT; xhost +local:root && sudo docker run --rm -it --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host --env DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" cf2_ros2_simu /bin/bash -c "trap $SHELL EXIT;"
 ```
 
 **Container Setup**
@@ -44,6 +47,7 @@ cf2_ros2_simu
 - Host or Container:
   - `curl -d {} http://127.0.0.1:5000/activate_idle`
     - or multi activation: `curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle && curl -d {} http://127.0.0.1:5002/activate_idle`
+    - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle && curl -d {} http://127.0.0.1:5002/activate_idle && curl -d {} http://127.0.0.1:5003/activate_idle
   - `curl -d {} http://127.0.0.1:5000/begin_takeoff`
     - multi: `curl -d {} http://127.0.0.1:5000/begin_takeoff && curl -d {} http://127.0.0.1:5001/begin_takeoff && curl -d {} http://127.0.0.1:5002/begin_takeoff`
   - `curl -d {} http://127.0.0.1:5000/navigate/1.0/1.0/0.4`

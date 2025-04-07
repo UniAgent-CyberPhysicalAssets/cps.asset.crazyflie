@@ -45,9 +45,9 @@ robots:
       yaw: 0.0
 
   cf4:
-    enabled: false
+    enabled: true
     uri: radio://0/80/2M/E7E7E7E7E4
-    initial_position: [2.0, 2.0, 0.03]
+    initial_position: [3.0, 0.0, 0.03]
     type: cf21
     color_prop_front: Yellow
     color_prop_back: Yellow

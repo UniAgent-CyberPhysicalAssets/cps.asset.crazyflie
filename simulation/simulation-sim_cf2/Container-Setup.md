@@ -15,6 +15,10 @@ The following components are included:
 > - http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-amd64/Packages
 > - http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages 
 
+## Usage
+
+See [Readme](Readme.md)
+
 ## Installation
 
 ### Preparation
@@ -104,7 +108,7 @@ Copy files to the container
 docker ps --filter "ancestor=cf2_ros2_simu" --format "{{.Names}}"
 docker cp ./sim_cf2/launch/main.launch.xml containerName:/home/user/dev_ws/ros2/src/sim_cf2/launch
 # Example:
-docker cp ./sim_cf2/launch/crazyflies.yaml silly_germain:/home/user/dev_ws/ros2/src/sim_cf2/launch
+docker cp ./sim_cf2/launch/crazyflies.yaml elated_hellman:/home/user/dev_ws/ros2/src/sim_cf2/launch
 ```
 
 

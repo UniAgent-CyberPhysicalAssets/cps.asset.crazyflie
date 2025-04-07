@@ -37,7 +37,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ### Building the Docker Image
 
 ```shell
-docker build -t hlc-cf2 -f .devcontainer/Dockerfile .
+docker build -t cf-py-ctrl -f .devcontainer/Dockerfile .
 ```
 
 ## Usage
@@ -63,7 +63,7 @@ sudo docker run --rm -it \
 --net=host --ipc=host --pid=host \
 --env="DISPLAY" \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-hlc-cf2
+cf-py-ctrl
 ```
 
 To sync folders add the following argument (example):
@@ -73,5 +73,6 @@ To sync folders add the following argument (example):
 --mount type=bind,source=$(pwd)/src,target=/home/user/dev_ws/libs/crazyflie-controller/src  \
 # add additional example scripts for testing
 --mount type=bind,source=$(pwd)/examplescripts,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
+--mount type=bind,source=$(pwd)/lpstest,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
 ```
 

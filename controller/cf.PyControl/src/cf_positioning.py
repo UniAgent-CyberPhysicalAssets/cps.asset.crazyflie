@@ -72,7 +72,7 @@ class StateEstimatePositionStrategy(PositionEstimationStrategy):
         logconf.add_variable('stateEstimate.z', 'float')
 
 
-
+# This function helps to see if the position estimate diverges
 def wait_for_position_estimator(scf):
     print('\tWaiting for estimator to find position...')
 
