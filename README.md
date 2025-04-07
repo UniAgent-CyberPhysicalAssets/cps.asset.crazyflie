@@ -9,14 +9,16 @@ The resources here enable integration, simulation, and control of Crazyflie 2.x 
 The repository includes the following components:
 
 1. **Standalone High-Level Controller**:
-   - A RESTful HTTP API, written in Python, to interact with Crazyflie 2.x (both physical and simulated instances). The digital twin makes use of this.
+   - A RESTful HTTP API, written in Python, to interact with Crazyflie 2.x (both physical and simulated instances).
 2. **Digital Twin**:
-   - **Asset Administration Shell (AAS)**: Represents the drone's digital twin using the Eclipse BaSyx Industrie 4.0 middleware. It includes multiple submodels detailing various aspects of the Crazyflie 2.x, e.g., its atomic actions such as takeoff, navigating, and landing.
-   - **Behavioral Runtime Model**: Implements a **Bigraphical Reactive System (BRS)** to simulate the drone's runtime behavior within a cyber-physical space.
+   - **Asset Administration Shell (AAS) Standard**: Represents the drone's digital twin using the Eclipse BaSyx Industrie 4.0 middleware. It includes multiple submodels detailing various aspects of the Crazyflie 2.x, e.g., its atomic actions such as takeoff, navigating, and landing.
+   - **Behavioral Runtime Model**: Includes an executable **Bigraphical Reactive System (BRS)** specification to simulate the drone's runtime behavior within a cyber-physical space.
 3. **Simulation Environments**:
-   - A ROS-based simulation framework to test and validate Crazyflie 2.x in controlled virtual scenarios.
+   - A Gazebo/ROS-based simulation environment to test and validate Crazyflie 2.x in controlled virtual scenarios.
+   - Using crazyswarm2 and sim_cf2 for simulation.
 4. **Virtual Machine**:
    - A pre-configured virtual machine to simplify setup the drone across different development environments.
+   - This is supplied by the developers of Bitcraze AB.
 
 ## Prerequisites
 
@@ -26,3 +28,5 @@ Before using this CPS asset, ensure the following dependencies are installed:
 - ROS Noetic or later for simulation environments
 - BaSyx Middleware for implementing the AAS
 - A virtualization platform (e.g., VirtualBox) for the provided virtual machine
+
+Alternatively, you can use the provided Docker containers for a quick start.
