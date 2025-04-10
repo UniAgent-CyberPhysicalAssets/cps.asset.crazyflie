@@ -20,13 +20,18 @@ The repository includes the following components:
    - A pre-configured virtual machine to simplify setup the drone across different development environments.
    - This is supplied by the developers of Bitcraze AB.
 
-## Prerequisites
+## Software Stack
 
-Before using this CPS asset, ensure the following dependencies are installed:
+This CPS asset relies on the following software stack:
 
 - Python 3.7+ for the standalone high-level controller
 - ROS Noetic or later for simulation environments
 - BaSyx Middleware for implementing the AAS
 - A virtualization platform (e.g., VirtualBox) for the provided virtual machine
 
-Alternatively, you can use the provided Docker containers for a quick start.
+Most components are provided as Docker containers for a quick start.
+
+## Tutorial
+
+For detailed instructions on how to set up and use this CPS asset,
+please refer to the [documentation](https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/).
