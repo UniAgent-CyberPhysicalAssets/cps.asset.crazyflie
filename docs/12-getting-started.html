@@ -99,7 +99,8 @@
         <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x (Cyber-physical Asset)</h1>
 <p>First clone the following GitHub repository, which provides sort of a <strong>cyber-physical representation</strong> of the <strong>Crazyflie 2.x drone</strong>.
 Execute the following command in the terminal:</p>
-<pre class="codehilite"><code class="language-shell">$ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
+<pre class="codehilite"><code class="language-shell">$ mkdir -p ~/uniagent_ws/ &amp;&amp; cd ~/uniagent_ws/
+$ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 </code></pre>
 
 <p>Specifically, this resource enables integration, simulation, and control of Crazyflie 2.x in both physical and virtual environments.</p>
@@ -112,7 +113,9 @@ Execute the following command in the terminal:</p>
 <li>And more...</li>
 </ul>
 <h3>USB Setup</h3>
-<p>Note that to control not only a virtualized Crazyflie drone but also a real Crazyflie, you need to make some USB devices (such as the crazyradio)  available in the <strong>Docker containers</strong>.</p>
+<blockquote>
+<p><strong>Note:</strong> To control not only a virtualized Crazyflie drone but also a real Crazyflie, you need to make some USB devices such as the Crazyradio PA (the long range open USB radio dongle) available in the <strong>Docker containers</strong>.</p>
+</blockquote>
 <ul>
 <li>Use the <code>lsusb</code> command to get a list of all USB devices connected to your system. Each line in the <code>lsusb</code> output represents a USB device with a Bus number and Device number.</li>
 <li>Use <code>udevadm</code> to get detailed information about the device, which includes the associated <code>/dev</code> entry. Below replace <code>001</code> with the Bus number and <code>009</code> with the Device number from the <code>lsusb</code> output. Specifically, use the output of <code>DEVNAME</code>.</li>
@@ -138,7 +141,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 <blockquote>
 <p><strong>Note:</strong> Instead, you can also use the universal but insecure option: <code>--privileged -v /dev/bus/usb:/dev/bus/usb</code>.</p>
 </blockquote>
-<h3>Hardware Requirements</h3>
+<h3>System Hardware Requirements</h3>
 <p>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available. </p>
 <p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p></div>
     </div>
