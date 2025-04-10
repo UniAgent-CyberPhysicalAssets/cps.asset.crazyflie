@@ -61,7 +61,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo">3. Getting Started with the Gazebo Simulation (sim_cf2)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo">3. Getting Started with the Simulation Environment (sim_cf2)</a>
               </li>
           
       
@@ -143,7 +143,20 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 </blockquote>
 <h3>System Hardware Requirements</h3>
 <p>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available. </p>
-<p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p></div>
+<p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p>
+<h3>Convention</h3>
+<p>Terminal commands are prefixed with either <code>$</code> or <code>#</code>.
+The former means that the command is executed in the <strong>host system</strong> (your computer).
+The latter means that the command is executed in the <strong>Docker container</strong>.</p>
+<p>This should be executed inside the Docker container:</p>
+<pre class="codehilite"><code class="language-shell"># lsusb
+</code></pre>
+
+<p>This should be executed in the host system:</p>
+<pre class="codehilite"><code class="language-shell">$ lsusb
+</code></pre>
+
+<p>If nothing is prefixed, this indicates output from the previous command.</p></div>
     </div>
   
     <!-- Bottom Navigation -->
