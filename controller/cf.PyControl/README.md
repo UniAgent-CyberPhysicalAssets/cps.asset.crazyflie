@@ -92,7 +92,7 @@ curl -d {} http://127.0.0.1:5000/activate_idle
 
 ```shell
 curl -X post http://127.0.0.1:5000/navigate/x/y/z
-``` 
+```
 
 Example:
 
@@ -118,23 +118,23 @@ With LPS or Flow deck possible.
 You can initiate the simple drone mission "TakeOff-Landing" as follows by composing HTTP POST requests in a row (order is important)
 
 ```shell
-curl -X post http://127.0.0.1:5000/activate_idle && \
-curl -X post http://127.0.0.1:5000/begin_takeoff && \
-curl -X post http://127.0.0.1:5000/begin_landing
+curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/begin_landing
 ```
 
 #### NavigateToGoal - and - Landing
 
 ```shell
-curl -X post http://127.0.0.1:5000/activate_idle && \
-curl -X post http://127.0.0.1:5000/begin_takeoff && \
-curl -X post http://localhost:5000/navigate/0.2/0.2/0.6 && \
-curl -X post http://127.0.0.1:5000/begin_landing
+curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://localhost:5000/navigate/0.2/0.2/0.6 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
 # And back
-curl -X post http://127.0.0.1:5000/activate_idle && \
-curl -X post http://127.0.0.1:5000/begin_takeoff && \
-curl -X post http://localhost:5000/navigate/0.0/0.0/0.4 && \
-curl -X post http://127.0.0.1:5000/begin_landing
+curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
 ```
 
 #### Navigate to multiple separated goals, each interrupted by a short hovering, and land
@@ -197,9 +197,6 @@ Change Port:
 - use --wsport for web socket server that publishes state information about the drone (e.g., position)
 
 [//]: # (Change Name of drone &#40;important for multi-UAV scenarios&#41;: )
-
-[//]: # ()
-[//]: # (- TODO)
 
 Mode: 
 

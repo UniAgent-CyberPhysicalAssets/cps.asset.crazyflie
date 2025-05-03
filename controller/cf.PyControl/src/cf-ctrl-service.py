@@ -53,7 +53,7 @@ def create_arg_parser():
     ws_group.add_argument('--wsendpoint', action='store_true', help='Add a websocket that publishes CF state (e.g., position/accel/... estimates).')
     ws_group.add_argument('--wshost', type=str, default='0.0.0.0', help='The host of the websocket server.')
     ws_group.add_argument('--wsport', type=int, default=8765, help='Port of the websocket server.')
-
+    ws_group.add_argument('--wsrate', type=int, default=100, help='Sending rate of the websocket server in ms.')
     return parser
 
 #################################################################################
@@ -151,20 +151,33 @@ class FloatConverter(BaseConverter):
 
 #################################################################################
 
-async def send_pos_data(websocket, path):
-    global positionEstimator
-    while True:
-        data = {
-            "message": "Hello from server",
-            "value": ("%s" % positionEstimator.position_estimate),  # Simulate random data
-        }
-        await websocket.send(json.dumps(data))
-        await asyncio.sleep(1)  # Send data every second
+def make_send_pos_data(rate_ms):
+    async def send_pos_data(websocket, path):
+        global positionEstimator
+        while True:
+            data = {
+                "message": "Hello from server",
+                "value": ("%s" % positionEstimator.position_estimate),
+            }
+            await websocket.send(json.dumps(data))
+            await asyncio.sleep(rate_ms / 1000)
+    return send_pos_data
 
-def start_websocket_server(host, port):
+# async def send_pos_data(websocket, path):
+#     global positionEstimator
+#     while True:
+#         data = {
+#             "message": "Hello from server",
+#             "value": ("%s" % positionEstimator.position_estimate),  # Simulate random data
+#         }
+#         await websocket.send(json.dumps(data))
+#         await asyncio.sleep(1)  # Send data every second
+
+def start_websocket_server(host, port, wsrate_ms):
     async def server():
         websocketserver_started.set()
-        async with websockets.serve(send_pos_data, host, port):
+        handler = make_send_pos_data(wsrate_ms)
+        async with websockets.serve(handler, host, port):
             print(f"WebSocket server started on ws://{host}:{port}")
             await asyncio.Future()  # Keeps running the server
         
@@ -337,7 +350,7 @@ if __name__ == '__main__':
         print(f"--[{drone.get_current_state()}] Hardware checks completed.")
         
         if STARTWSSERVER == True:
-            server_thread = threading.Thread(target=start_websocket_server, args=(args.wshost, args.wsport))
+            server_thread = threading.Thread(target=start_websocket_server, args=(args.wshost, args.wsport, args.wsrate))
             server_thread.daemon = True  # Allows the thread to exit when the main program does
             server_thread.start()
             # Wait until websocket server has fully started
