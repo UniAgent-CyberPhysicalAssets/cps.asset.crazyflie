@@ -10,6 +10,7 @@ The repository includes the following components:
 
 1. **Standalone High-Level Controller**:
    - A RESTful HTTP API, written in Python, to interact with Crazyflie 2.x (both physical and simulated instances).
+   - See [cf.PyControl](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl): A Terminal-based RESTful Controller for the Crazyflie 2.X
 2. **Digital Twin**:
    - **Asset Administration Shell (AAS) Standard**: Represents the drone's digital twin using the Eclipse BaSyx Industrie 4.0 middleware. It includes multiple submodels detailing various aspects of the Crazyflie 2.x, e.g., its atomic actions such as takeoff, navigating, and landing.
    - **Behavioral Runtime Model**: Includes an executable **Bigraphical Reactive System (BRS)** specification to simulate the drone's runtime behavior within a cyber-physical space.
