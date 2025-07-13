@@ -30,7 +30,7 @@ chmod +x ./prepare.sh
 ./prepare.sh
 ```
 
-**Allow the Docker Container to Access X Server:**
+**Allow the Docker Container to Access to X Server (GUI):**
 
 ```shell
 xhost +local:root

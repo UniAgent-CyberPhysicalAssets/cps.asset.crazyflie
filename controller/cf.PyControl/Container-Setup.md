@@ -18,16 +18,16 @@ Make Crazyradio available in Docker container
 - Get device major number via `ls -la`using information from `DEVNAME`
 
 ```shell
-lsusb
-sudo udevadm info --query=all --name=/dev/bus/usb/001/009
-ls -la /dev/bus/usb/001/009
+$ lsusb
+$ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
+$ ls -la /dev/bus/usb/001/009
 # Output
 crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ```
 
 - The major device number is in this example "189"
   
-- Add respective rules when starting the Docker container (see below)
+- Add the respective rules when starting the Docker container (see below)
   - the insecure option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
 
 - See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
@@ -40,7 +40,7 @@ docker build -t cf-py-ctrl -f .devcontainer/Dockerfile .
 
 ## Usage
 
-### Allow access to X Server
+### Allow Access to X Server (GUI)
 
 ```shell
 xhost +local:root
