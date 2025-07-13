@@ -74,13 +74,7 @@ The following sections:
   - Describe advanced use cases
   - Show how to configure the service
 
-## Overview
-
-- Requesting a specific URL will show live updates—only if the corresponding transition can actually be triggered.
-
-- Go to **Basic Operations** and **Composed Operations** to explore detailed effects of drone actions like takeoff, landing, and navigation.
-
-### Basic Operations
+## Basic Operations
 
 #### Activate the Drone
 
@@ -114,7 +108,7 @@ Ensure you have enough space.
 You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
  Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
 
-### Composed Operations
+## Composed Operations
 
 #### TakeOff - and - Landing
 
