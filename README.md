@@ -17,6 +17,7 @@ The repository includes the following components:
 3. **Simulation Environments**:
    - A Gazebo/ROS-based simulation environment to test and validate Crazyflie 2.x in controlled virtual scenarios.
    - Using crazyswarm2 and sim_cf2 for simulation.
+   - See [Usage Guide for sim_cf2](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/simulation/simulation-sim_cf2).
 4. **Virtual Machine**:
    - A pre-configured virtual machine to simplify setup the drone across different development environments.
    - This is supplied by the developers of Bitcraze AB.
