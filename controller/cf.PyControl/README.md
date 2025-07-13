@@ -6,7 +6,7 @@ The high-level actions of the drone are internally managed by a *StateChart* and
 
 ----
 
-Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, BatteryCheck, MotorCheck, and so forth. The state machine, i.e., the drone actions, is accessible via a RESTful API (see [Overview](#overview)), which makes it easy to integrate cf.PyControl with other systems or user interfaces. 
+Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, BatteryCheck, MotorCheck, and so forth. The drone actions are accessible via a RESTful API (see [Overview](#overview)), which makes it easy to integrate cf.PyControl with other systems or user interfaces. 
 Here, the state machine of the Crazyflie 2.X is specified as described in ["Drone Software Controller Specification"](Development.md#drone-software-controller-specification). 
 Note that this is a custom design choice. 
 It is general enough to be used in different use cases and applications.
