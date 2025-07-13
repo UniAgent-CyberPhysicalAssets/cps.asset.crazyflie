@@ -1,5 +1,4 @@
 # cf.PyControl: A Terminal-based RESTful Controller for the Crazyflie 2.X
-----
 
 **cf.PyControl** is a Terminal-based **Web Service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
 
@@ -24,19 +23,19 @@ It is general enough to be used in different use cases and applications.
 - curl -d {} http://127.0.0.1:5000/begin_takeoff
 - curl -d {} http://127.0.0.1:5000/begin_landing
 
-----
-
 **Screenshot**
 
 <img src="docs/cf-pycontrol-terminal-screenshot.jpg" alt="" style="zoom: 54%;" />
 
-## Getting Started
+## Installation
 
 > [!NOTE]
 >
 > - Start quickly using the Docker image — see [Container-Setup.md](Container-Setup.md).
 >
 > - Otherwise, see [Development.md](Development.md) for instructions on setting up the local workspace for cf.PyControl and getting started with development.
+
+## Getting Started
 
 > [!NOTE]
 >
