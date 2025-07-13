@@ -2,14 +2,12 @@
 
 This document describes how to create and use a containerized environment with the following components installed:
 
-- cf.PyControl: high-level Python controller for the Crazyflie
--  cfclient (LPS GUI not working though)
+- **cf.PyControl**: High-level Python controller for the Crazyflie
+-  [**cfclient**](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/): The Crazyflie PC client
 
 ## Installation
 
-### Preparation
-
-**Allowing USB:**
+### Allowing USB
 
 Make Crazyradio available in Docker container
 
@@ -48,11 +46,7 @@ docker build -t cf-py-ctrl -f .devcontainer/Dockerfile .
 xhost +local:root
 ```
 
-Revert the `xhost` settings to their original state afterward:
-
-```shell
-xhost -
-```
+Revert the `xhost` settings to their original state afterward: `xhost -`
 
 ### Running the Docker Container
 
@@ -63,6 +57,7 @@ sudo docker run --rm -it \
 --net=host --ipc=host --pid=host \
 --env="DISPLAY" \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+--mount type=bind,source=$(pwd)/lpstest,target=/home/user/dev_ws/libs/crazyflie-controller/examples \
 cf-py-ctrl
 ```
 

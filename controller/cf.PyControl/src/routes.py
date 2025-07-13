@@ -1,11 +1,25 @@
 import importlib
 from flask import Blueprint, jsonify, request, current_app
+from werkzeug.routing import BaseConverter, ValidationError
 from statemachine import exceptions
 from cf_positioning import Point3D
 
 # Define a blueprint
 drone_blueprint = Blueprint('drone', __name__)
 DEBUG = False
+
+# Custom converter to handle negative float values
+class FloatConverter(BaseConverter):
+    regex = r'-?\d+(\.\d+)?'
+
+    def to_python(self, value):
+        try:
+            return float(value)
+        except ValueError:
+            raise ValidationError()
+
+    def to_url(self, value):
+        return str(value)
 
 @drone_blueprint.errorhandler(exceptions.TransitionNotAllowed)
 def handle_transition_not_allowed_error(error):

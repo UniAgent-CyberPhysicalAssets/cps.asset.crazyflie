@@ -32,7 +32,8 @@ class Point3D():
         self.z = _z
 
 class PositionEstimationStrategy(ABC):
-    def __init__(self):
+    def __init__(self, log_values):
+        self.log_values = log_values
         # Event to signal when the position estimate is available
         self.position_estimate_event = threading.Event() 
         # Vector to store the last position estimate
@@ -46,12 +47,17 @@ class PositionEstimationStrategy(ABC):
     def add_variables(self, logconf):
         pass
 
+    def get_log_values(self):
+        return self.log_values
 
 class KalmanEstimatePositionStrategy(PositionEstimationStrategy):
     def estimatePositionLogCallback(self, timestamp, data, logconf):
         self.position_estimate[0] = data['kalman.stateX']
         self.position_estimate[1] = data['kalman.stateY']
         self.position_estimate[2] = data['kalman.stateZ']
+        self.log_values['x'] = data['kalman.stateX']
+        self.log_values['y'] = data['kalman.stateY']
+        self.log_values['z'] = data['kalman.stateZ']
         self.position_estimate_event.set()
 
     def add_variables(self, logconf):
@@ -64,6 +70,9 @@ class StateEstimatePositionStrategy(PositionEstimationStrategy):
         self.position_estimate[0] = data['stateEstimate.x']
         self.position_estimate[1] = data['stateEstimate.y']
         self.position_estimate[2] = data['stateEstimate.z']
+        self.log_values['x'] = data['stateEstimate.x']
+        self.log_values['y'] = data['stateEstimate.y']
+        self.log_values['z'] = data['stateEstimate.z']
         self.position_estimate_event.set()
 
     def add_variables(self, logconf):
@@ -73,8 +82,8 @@ class StateEstimatePositionStrategy(PositionEstimationStrategy):
 
 
 # This function helps to see if the position estimate diverges
-def wait_for_position_estimator(scf):
-    print('\tWaiting for estimator to find position...')
+def wait_for_position_estimator(scf, console):
+    console.print('\tWaiting for estimator to find position...')
 
     log_config = LogConfig(name='Kalman Variance', period_in_ms=500)
     log_config.add_variable('kalman.varPX', 'float')
@@ -105,17 +114,20 @@ def wait_for_position_estimator(scf):
             min_z = min(var_z_history)
             max_z = max(var_z_history)
 
-            print("\t{} {} {}".format(max_x - min_x, max_y - min_y, max_z - min_z))
+
+            line = "\t{} {} {}".format(max_x - min_x, max_y - min_y, max_z - min_z)
+            console.print(line, end="\r", soft_wrap=True, highlight=False)
+            # print("\t{} {} {}".format(max_x - min_x, max_y - min_y, max_z - min_z))
 
             if (max_x - min_x) < threshold and (
                     max_y - min_y) < threshold and (
                     max_z - min_z) < threshold:
                 break
 
-def reset_estimator(scf):
+def reset_estimator(scf, console):
     cf = scf.cf
     cf.param.set_value('kalman.resetEstimation', '1')
     time.sleep(0.1)
     cf.param.set_value('kalman.resetEstimation', '0')
 
-    wait_for_position_estimator(cf)
+    wait_for_position_estimator(cf, console)
