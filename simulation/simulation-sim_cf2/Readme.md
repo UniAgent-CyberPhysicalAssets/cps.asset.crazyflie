@@ -14,18 +14,18 @@ This example demonstrates how to configure and set up three drones (see configur
 
 ```shell
 # Run this command once to enable GUI display:
-xhost +local:root
+$ xhost +local:root
 
 # Run this command in a fresh terminal to start each container:
-sudo docker run --rm -it \
+$ sudo docker run --rm -it \
   --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host \
   --env DISPLAY \
   --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
   --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" \
-  cf2_ros2_simu
+  cf2_ros2_sim
 
 # Command for Terminator Layout (Faster Setup)
-trap $SHELL EXIT; xhost +local:root && sudo docker run --rm -it --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host --env DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" cf2_ros2_simu /bin/bash -c "trap $SHELL EXIT;"
+trap $SHELL EXIT; xhost +local:root && sudo docker run --rm -it --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host --env DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" cf2_ros2_sim /bin/bash -c "trap $SHELL EXIT;"
 ```
 
 **Container Setup**
@@ -33,7 +33,7 @@ trap $SHELL EXIT; xhost +local:root && sudo docker run --rm -it --env ROS_DOMAIN
 - Container 1:
   - `ros2 launch sim_cf2 main.launch.py use_sim_time:=True`
   - You can override the YAML configuration by specifying options via the command line:
-    - `ros2 launch sim_cf2 main.launch.py x_cf1:=0.0 y_cf2:=0.0 use_sim_time:=True`
+    - `ros2 launch sim_cf2 main.launch.py x_cf1:=-1.0 y_cf2:=-1.0 use_sim_time:=True`
     - Note the drone prefix specified in the configuration file
 - Container 2:
   - `cd /home/user/dev_ws/libs/crazyflie-firmware/scripts/sim_cf2`

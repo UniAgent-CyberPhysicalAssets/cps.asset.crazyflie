@@ -36,11 +36,7 @@ chmod +x ./prepare.sh
 xhost +local:root
 ```
 
-Revert the `xhost` settings to their original state afterward:
-
-```shell
-xhost -
-```
+Revert the `xhost` settings to their original state afterward: `xhost -`
 
 **Allowing USB:**
 
@@ -51,9 +47,9 @@ Make Crazyradio available in Docker container
 - Get device major number via `ls -la`using information from `DEVNAME`
 
 ```shell
-lsusb
-sudo udevadm info --query=all --name=/dev/bus/usb/001/009
-ls -la /dev/bus/usb/001/009
+$ lsusb
+$ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
+$ ls -la /dev/bus/usb/001/009
 # Output
 crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ```
@@ -67,7 +63,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ### Build the Docker Image
 
 ```shell
-docker build --network=host -t cf2_ros2_simu -f .devcontainer/Dockerfile .
+docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
 ```
 
 ### Running the Docker Container
@@ -81,7 +77,7 @@ sudo docker run --rm -it \
 --net=host --ipc=host --pid=host \
 --env DISPLAY \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-cf2_ros2_simu
+cf2_ros2_sim
 ```
 
 Without sharing usb devices:
@@ -92,7 +88,7 @@ sudo docker run --rm -it \
 --net=host --ipc=host --pid=host \
 --env DISPLAY \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-cf2_ros2_simu
+cf2_ros2_sim
 ```
 
 To expose endpoints while not using `--net=host`, simply add `-p`:
@@ -105,7 +101,7 @@ Copy files to the container
 
 ```shell
 #containerName=
-docker ps --filter "ancestor=cf2_ros2_simu" --format "{{.Names}}"
+docker ps --filter "ancestor=cf2_ros2_sim" --format "{{.Names}}"
 docker cp ./sim_cf2/launch/main.launch.xml containerName:/home/user/dev_ws/ros2/src/sim_cf2/launch
 # Example:
 docker cp ./sim_cf2/launch/crazyflies.yaml elated_hellman:/home/user/dev_ws/ros2/src/sim_cf2/launch
