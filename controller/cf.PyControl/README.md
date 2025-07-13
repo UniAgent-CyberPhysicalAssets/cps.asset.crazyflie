@@ -108,6 +108,19 @@ Ensure you have enough space.
 You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
  Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
 
+#### Drone State Updates via WebSocket Endpoint
+
+With websocat installed on your system, you can use the following command to test the WebSocket endpoint of cf.PyControl:
+```shell
+$ websocat ws://localhost:8765
+```
+
+It provides you with live updates of the drone’s state (e.g., position).
+Some output will be also visible in the terminal where cf.PyControl is running.
+
+Therefore, the controller must be started with the `--wsendpoint --wsport 8765` flag.
+The last argument is the port of the WebSocket endpoint, which can be changed.
+
 ## Composed Operations
 
 #### TakeOff - and - Landing
