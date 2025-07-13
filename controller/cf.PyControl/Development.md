@@ -92,6 +92,9 @@ You have to install the required python libraries yourself. See `requirements.tx
 
 ## Drone Software Controller Specification
 
+A state machine is a model that describes the behavior of the Crazyflie 2.X using the notion of states and transitions. 
+Each transition is labeled with an action. 
+Thus, each transition maps to an action, which represents and implements the specific low-level code of the cflib Python library for this specific state and transition of the drone.
 
 The version of the state machine employed in cf.PyControl can be used for many use cases.
 

@@ -1,20 +1,20 @@
-# cf.PyControl: A Terminal-based RESTful Controller for the Crazyflie 2.X 
+# cf.PyControl: A Terminal-based RESTful Controller for the Crazyflie 2.X
+----
 
-**tl;dr;** This Python package provides a web service to control a Crazyflie 2.X and a nice terminal output to observe the state of the Crazyflie at every time. The high-level actions of the drone are internally managed by a *StateChart* and can be triggered via *web endpoints*.
+**cf.PyControl** is a Terminal-based **Web Service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
+
+The high-level actions of the drone are internally managed by a *StateChart* and can be triggered via *web endpoints*.
 
 ----
 
-**cf.PyControl** is a **web service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
-
-Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, BatteryCheck, MotorCheck, and so forth. The state machine, i.e., the drone actions, is accessible via a RESTful API (see [section](#controlling-the-state-machine)), which makes it easy to integrate cf.PyControl with other systems or user interfaces. In this project, the state machine of the Crazyflie 2.X
-
-[^1]: A state machine is a model that describes the behavior of the Crazyflie 2.X using the notion of states and transitions. Each transition is labeled with an action. Thus, each transition maps to an action, which represents and implements the specific low-level code of the cflib Python library for this specific state and transition of the drone.
-
- is modeled as described in [section](#drone-system-specification). Note that this is a custom design choice. It is general enough to be used in different use cases and applications.
+Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, BatteryCheck, MotorCheck, and so forth. The state machine, i.e., the drone actions, is accessible via a RESTful API (see [Overview](#overview)), which makes it easy to integrate cf.PyControl with other systems or user interfaces. 
+Here, the state machine of the Crazyflie 2.X is specified as described in ["Drone Software Controller Specification"](Development.md). 
+Note that this is a custom design choice. 
+It is general enough to be used in different use cases and applications.
 
 ----
 
-**tldr (2);**
+**tl;dr;**
 
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
@@ -26,7 +26,7 @@ Technically, this service implements the *state machine pattern* to model and ex
 
 ----
 
-**Screenshot of the Terminal Window**
+**Screenshot**
 
 <img src="docs/cf-pycontrol-terminal-screenshot.jpg" alt="" style="zoom: 54%;" />
 
