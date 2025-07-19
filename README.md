@@ -37,3 +37,7 @@ Most components are provided as Docker containers for a quick start.
 
 For detailed instructions on how to set up and use this CPS asset,
 please refer to the [documentation](https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/).
+
+## Acknowledgment
+
+Thanks to Bitcraze AB for developing and maintaining the Crazyflie ecosystem.
