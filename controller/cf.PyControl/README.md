@@ -6,9 +6,9 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 
 **tl;dr;**
 
-- cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
-- cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-- cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001
+- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
+- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
+- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001
 - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
 - curl -d {} http://127.0.0.1:5000/begin_takeoff
 - curl -d {} http://127.0.0.1:5000/begin_landing
@@ -34,10 +34,11 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 Start the Crazyflie control service with the following argument:
 
 ```shell
-$ cf.pycontrol-start.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
+$ cf-ctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
 ```
 
-The shell script is located in the `bin` folder.
+`cf-ctrl.sh` is a convenient startup shell script located in the `bin` directory. 
+It simplifies the process of running the main Python service script by handling arguments and execution.
 
 > [!NOTE]
 >
@@ -74,10 +75,12 @@ It is general enough to be used in different use cases and applications.
 
 **Before You Start**
 
-It is recommended to check if everything is fine with the Crazyflie
-- Connect the Crazyradio 2.0 to a USB port
-- Switch on the Crazyflie 2.X drone
-- Start the Crazyflie Client: `cfclient`
+When running cf.PyControl for the first time or after a long time, it's recommended to verify that your Crazyflie setup is working correctly:
+- Connect the Crazyradio PA 2.0 to a USB port on your computer.
+- Power on the Crazyflie 2.X drone.
+- Launch the Crazyflie Client inside the Docker container to test the connection: `cfclient`
+- Confirm that the drone connects and functions as expected within the client.
+- Once verified, close the client and proceed with the rest of this section.
 
 
 ### Activate the Drone
@@ -127,24 +130,50 @@ Some output will be also visible in the terminal where cf.PyControl is running.
 Therefore, the controller must be started with the `--wsendpoint --wsport 8765` flag.
 The last argument is the port of the WebSocket endpoint, which can be changed.
 
-### Drone State Updates via WebView
+### Live State Update via WebView
 
+> This assumes that you have build the Docker image and started the container — see [Container-Setup.md](Container-Setup.md).
 
-✅ Option 1: Use a Bind Mount (if you know the folder beforehand)
+First, check that the host has the directory for the shared data configured: `mkdir -p shared`.
 
-This is the cleanest way if you can plan ahead.
+Second, find out the container name:
 
-Step 1: Create a host directory for the shared data
+```shell
+$ sudo docker ps --filter "ancestor=cf-pyctrl:latest" --format "{{.ID}}"
+8205624872ec
+7f39caff4dbd
+[...]
+```
 
-mkdir -p /host/path/for/container-data
+Select one of the possible outputs. 
+There is one ID per running Docker container.
 
-Step 2: Start the container with a bind mount pointing the container's folder to that host directory
+Then, execute the following shell script inside the `shared` folder for convenience:
+```shell
+# Change Folder
+$ cd shared
+# Make Executable
+$ chmod +x ./sync-webview.sh
 
-docker run -v /host/path/for/container-data:/container/folder busybox
+# Show Usage
+$ ./sync-webview.sh
+Usage: ./sync-webview.sh <container_id_or_name> [--verbose]
 
-    This will mirror changes from /container/folder back to /host/path/for/container-data.
+Arguments:
+  <container_id_or_name>   Name or ID of the Docker container
+  --verbose                Enable verbose output (shows docker cp output)
 
-If your container is already running, this won’t help unless you restart it.
+# Example  
+$ ./sync-webview.sh 8205624872ec
+$ ./sync-webview.sh --verbose 8205624872ec 
+```
+
+This script uses a loop that periodically copies data from container to host.
+
+Change - in this example - into the `shared/8205624872ec/webview` folder of this project on your host system.
+Open the `webview.html` in the browser to the see the drones status.
+
+For each container, a separate folder is created on the host to enable live updates of each drone's internal state machine for parallel monitoring and debugging purposes.
 
 ## Composed Operations
 

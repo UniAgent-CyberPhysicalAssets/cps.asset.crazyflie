@@ -44,9 +44,9 @@ trap $SHELL EXIT; xhost +local:$USER && sudo docker run --rm -it --env ROS_DOMAI
 - Container 3, 4, and 5 (as defined in YAML config file):
   - Container 3:
     - `cd /home/user/dev_ws/libs/crazyflie-controller/bin`
-    - `./cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E701 --port 5000 --wsendpoint --wsport 8765 --sim`
-  - Container 4: `./cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim`
-  - Container 5`./cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E703 --port 5002 --wsendpoint --wsport 8767 --sim`
+    - `./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E701 --port 5000 --wsendpoint --wsport 8765 --sim`
+  - Container 4: `./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim`
+  - Container 5`./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E703 --port 5002 --wsendpoint --wsport 8767 --sim`
 - Host or Container:
   - `curl -d {} http://127.0.0.1:5000/activate_idle`
     - or multi activation: `curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle && curl -d {} http://127.0.0.1:5002/activate_idle`

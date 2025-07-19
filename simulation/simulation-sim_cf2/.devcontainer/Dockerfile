@@ -108,7 +108,7 @@ RUN apt-get install -y \
 COPY ./cf.PyControl/src /home/$USERNAME/dev_ws/libs/crazyflie-controller/src
 COPY ./cf.PyControl/bin /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin
 COPY ./cf.PyControl/.devcontainer/requirements_nocf.txt /home/$USERNAME/dev_ws/libs/crazyflie-controller/requirements.txt
-RUN chmod +x /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin/cf.pycontrol-start.sh
+RUN chmod +x /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin/cf-ctrl.sh
 RUN cd /home/$USERNAME/dev_ws/libs/crazyflie-controller && \
     pip3 install -r requirements.txt
 
