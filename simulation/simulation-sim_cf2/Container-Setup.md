@@ -33,7 +33,7 @@ chmod +x ./prepare.sh
 **Allow the Docker Container to Access to X Server (GUI):**
 
 ```shell
-xhost +local:root
+xhost +local:$USER
 ```
 
 Revert the `xhost` settings to their original state afterward: `xhost -`
@@ -60,7 +60,11 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
   - the insecure option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
 - See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
 
-### Build the Docker Image
+**Enable GPU-accelerated containers**
+
+- Install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+
+### Building the Docker Image
 
 ```shell
 docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
@@ -75,7 +79,10 @@ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
---env DISPLAY \
+--env="DISPLAY" \
+--env="XAUTHORITY=$XAUTHORITY" \
+--volume="$XAUTHORITY:$XAUTHORITY" \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
 cf2_ros2_sim
 ```
@@ -86,7 +93,10 @@ Without sharing usb devices:
 sudo docker run --rm -it \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
---env DISPLAY \
+--env="DISPLAY" \
+--env="XAUTHORITY=$XAUTHORITY" \
+--volume="$XAUTHORITY:$XAUTHORITY" \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
 cf2_ros2_sim
 ```

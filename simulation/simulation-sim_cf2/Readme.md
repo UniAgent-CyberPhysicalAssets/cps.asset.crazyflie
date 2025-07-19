@@ -14,18 +14,21 @@ This example demonstrates how to configure and set up three drones (see configur
 
 ```shell
 # Run this command once to enable GUI display:
-$ xhost +local:root
+$ xhost +local:$USER
 
 # Run this command in a fresh terminal to start each container:
 $ sudo docker run --rm -it \
   --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host \
-  --env DISPLAY \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-  --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" \
+  --env="DISPLAY" \
+  --env="XAUTHORITY=$XAUTHORITY" \
+  --volume="$XAUTHORITY:$XAUTHORITY" \
+  --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  --volume="$(pwd)/.devcontainer/.bash_history:/root/.bash_history" \
   cf2_ros2_sim
 
 # Command for Terminator Layout (Faster Setup)
-trap $SHELL EXIT; xhost +local:root && sudo docker run --rm -it --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host --env DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" cf2_ros2_sim /bin/bash -c "trap $SHELL EXIT;"
+trap $SHELL EXIT; xhost +local:$USER && sudo docker run --rm -it --env ROS_DOMAIN_ID=30 --net=host --ipc=host --pid=host --env DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" cf2_ros2_sim /bin/bash -c "trap $SHELL EXIT;"
 ```
 
 **Container Setup**

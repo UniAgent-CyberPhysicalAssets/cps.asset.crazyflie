@@ -3,6 +3,8 @@ ENV USERNAME=user
 ENV USER_UID=1000
 ENV USER_GID=$USER_UID
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 SHELL ["/bin/bash", "-c"]
 WORKDIR /home/$USERNAME/dev_ws
 
