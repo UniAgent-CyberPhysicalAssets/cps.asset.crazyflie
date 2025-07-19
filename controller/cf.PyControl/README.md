@@ -255,8 +255,6 @@ What usually helps is the following:
 
 ## Acknowledgment
 
-Thanks to Bitcraze AB for developing and maintaining the Crazyflie ecosystem.
-
 This tool is developed and maintained by the UniAgent Developers and contributors:
 - Thanks to Mikhail Belov for providing the initial version of this script and the webview for the internal state machine.
 - Thanks to Tianxiong Zhang for continuous testing.
