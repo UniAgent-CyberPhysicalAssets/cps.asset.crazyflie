@@ -34,7 +34,7 @@ RUN apt-get install -y \
     python3-virtualenv python3-venv python3-pip python3-pyqt5 libxcb-xinerama0 libxcb-cursor0
 COPY ./src /home/$USERNAME/dev_ws/libs/crazyflie-controller/src
 COPY ./bin /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin
-COPY .devcontainer/requirements.txt /home/$USERNAME/dev_ws/libs/crazyflie-controller
+COPY requirements.txt /home/$USERNAME/dev_ws/libs/crazyflie-controller
 RUN chmod +x /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin/cf.pycontrol-start.sh
 RUN cd /home/$USERNAME/dev_ws/libs/crazyflie-controller && \
     pip3 install -r requirements.txt

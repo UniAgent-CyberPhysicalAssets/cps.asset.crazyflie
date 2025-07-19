@@ -1,7 +1,7 @@
 appdirs==1.4.4
 blinker==1.8.2
-cfclient==2024.11
-cflib==0.1.27
+cfclient==2025.2
+cflib==0.1.28
 click==8.1.7
 Flask==3.0.3
 freetype-py==2.4.0
@@ -12,7 +12,8 @@ kiwisolver==1.4.5
 libusb-package==1.0.26.1
 MarkupSafe==2.1.5
 numpy==1.26.4
-packaging==24.1
+packaging==24.2
+paho-mqtt==2.1.0
 pydot==2.0.0
 PyOpenGL==3.1.7
 pyparsing==3.1.2
@@ -26,7 +27,7 @@ pyserial==3.5
 python-statemachine==2.3.4
 pyusb==1.2.1
 PyYAML==6.0.1
-pyzmq==25.1.2
+pyzmq==26.4.0
 rich==14.0.0
 scipy==1.14.0
 setuptools==72.1.0

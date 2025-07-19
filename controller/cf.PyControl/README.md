@@ -4,15 +4,6 @@
 
 The high-level actions of the drone are internally managed by a *StateChart* and can be triggered via *web endpoints*.
 
-----
-
-Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, BatteryCheck, MotorCheck, and so forth. The drone actions are accessible via a RESTful API (see [Overview](#overview)), which makes it easy to integrate cf.PyControl with other systems or user interfaces. 
-Here, the state machine of the Crazyflie 2.X is specified as described in ["Drone Software Controller Specification"](Development.md#drone-software-controller-specification). 
-Note that this is a custom design choice. 
-It is general enough to be used in different use cases and applications.
-
-----
-
 **tl;dr;**
 
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
@@ -76,6 +67,12 @@ The following sections:
 
 ## Basic Operations
 
+Technically, this service implements the *state machine pattern* to model and execute basic drone operations such as **TakeOff**, **Landing**, **Navigate**, and so forth. 
+The drone actions are accessible via a RESTful API, which makes it easy to integrate cf.PyControl with other systems or user interfaces. 
+The state machine of the Crazyflie 2.X in cf.PyControl is specified as described in ["Drone Software Controller Specification"](Development.md#drone-software-controller-specification). 
+Note that this is a custom design choice. 
+It is general enough to be used in different use cases and applications.
+
 #### Activate the Drone
 
 This is usually the <u>first command</u> you need to run to allow the Crazyflie to fly.
@@ -89,28 +86,30 @@ curl -d {} http://127.0.0.1:5000/activate_idle
 #### Drone Mission: NavigateToTarget (x,y,z)
 
 ```shell
-curl -X post http://127.0.0.1:5000/navigate/x/y/z
+curl -d {} http://127.0.0.1:5000/navigate/x/y/z
 ```
 
 Example:
 
 ```shell
-curl -X post http://localhost:5000/navigate/1.0/1.0/0.5
+curl -d {} http://localhost:5000/navigate/1.0/1.0/0.5
 ```
 
 Moves to `(1, 1, 0.5)` from the current position and then hovers.
 
 Ensure you have enough space.
 
-- With the Flow deck, the initial position is approximately `(0, 0, 0)` on the ground.
+- With the Flow deck, the initial position is approximately `(0, 0, 0)` on the ground, when the drone is started.
 - With LPS, the initial position depends on the LPS node system’s origin and the drone’s placement.
 
-You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
- Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
+> **Note:**
+> You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
+> Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
+> This can be changed in `cf-ctrl-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
 
 #### Drone State Updates via WebSocket Endpoint
 
-With websocat installed on your system, you can use the following command to test the WebSocket endpoint of cf.PyControl:
+With [websocat](https://github.com/vi/websocat) installed on your system, you can use the following command to test the WebSocket endpoint of cf.PyControl:
 ```shell
 $ websocat ws://localhost:8765
 ```
@@ -154,13 +153,13 @@ curl -d {} http://127.0.0.1:5000/begin_landing
 - Hovering->Flying-Hovering->Flying->Hovering->Flying-Hovering->Flying->Hovering->Landed
 
 ```shell
-curl -X post http://127.0.0.1:5000/activate_idle && \
-curl -X post http://127.0.0.1:5000/begin_takeoff && \
-curl -X post http://127.0.0.1:5000/navigate/0.3/0.0/0.4 && \
-curl -X post http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
-curl -X post http://127.0.0.1:5000/navigate/0.0/0.3/0.4 && \
-curl -X post http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
-curl -X post http://127.0.0.1:5000/begin_landing
+curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/navigate/0.3/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.3/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
 ```
 
 - Each target is represented as one Flying state
@@ -168,13 +167,13 @@ curl -X post http://127.0.0.1:5000/begin_landing
 #### Navigate a path of multiple goals without pause, and land
 
 ```shell
-curl -X post http://127.0.0.1:5000/activate_idle && \
-curl -X post http://127.0.0.1:5000/begin_takeoff && \
-curl -X post http://127.0.0.1:5000/navigate/append/0.3/0.3/0.6
-curl -X post http://127.0.0.1:5000/navigate/append/0.2/0.2/0.6
-curl -X post http://127.0.0.1:5000/navigate/append/0.1/0.1/0.6
-curl -X post http://localhost:5000/navigate/0.0/0.0/0.4 && \
-curl -X post http://127.0.0.1:5000/begin_landing
+curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/navigate/append/0.3/0.3/0.6
+curl -d {} http://127.0.0.1:5000/navigate/append/0.2/0.2/0.6
+curl -d {} http://127.0.0.1:5000/navigate/append/0.1/0.1/0.6
+curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
 ```
 
 **Hovering → Flying → Landed**
@@ -200,14 +199,14 @@ curl -X post http://127.0.0.1:5000/begin_landing
 
 ## Controller Configuration
 
-Change Port:
+**Change Port:**
 
-- use --port for web server (UAV operations)
-- use --wsport for web socket server that publishes state information about the drone (e.g., position)
+- use `--port` for web server (UAV operations)
+- use `--wsport` for web socket server that publishes state information about the drone (e.g., position)
 
 [//]: # (Change Name of drone &#40;important for multi-UAV scenarios&#41;: )
 
-Mode: 
+**Mode:** 
 
 - `--sim` when using with sim_cf2
 - `--debug` for more debug and verbose output in the terminal
