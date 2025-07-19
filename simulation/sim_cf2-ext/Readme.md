@@ -127,3 +127,7 @@ robots:
       pitch: 0.0
       yaw: 0.0
 ```
+
+---
+
+Copyright © 2025 The UniAgent Developers and Contributors.
