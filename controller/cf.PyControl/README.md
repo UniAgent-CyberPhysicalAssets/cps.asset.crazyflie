@@ -2,15 +2,14 @@
 
 **cf.PyControl** is a Terminal-based **Web Service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
 
-The high-level actions of the drone are internally managed by a *StateChart* and can be triggered via *web endpoints*.
+The high-level actions of the drone are internally managed by a [*State Machine*](Development.md#drone-software-controller-specification) and can be triggered via [*Web Endpoints*](#basic-operations).
 
 **tl;dr;**
 
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
 - cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001
-- cf.pycontrol-start.sh --uri radio://0/80/2M/E7E7E7E7E3 --port 5002
-- curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle && curl -d {} http://127.0.0.1:5002/activate_idle
+- curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
 - curl -d {} http://127.0.0.1:5000/begin_takeoff
 - curl -d {} http://127.0.0.1:5000/begin_landing
 
@@ -22,9 +21,9 @@ The high-level actions of the drone are internally managed by a *StateChart* and
 
 > [!NOTE]
 >
-> - Start quickly using the Docker image — see [Container-Setup.md](Container-Setup.md).
+> (Default) Start quickly using the Docker image — see [Container-Setup.md](Container-Setup.md).
 >
-> - Otherwise, see [Development.md](Development.md) for instructions on setting up the local workspace for cf.PyControl and getting started with development.
+> (For Developers) For instructions on setting up the local workspace for cf.PyControl and getting started with development — see [Development.md](Development.md).
 
 ## Getting Started
 
