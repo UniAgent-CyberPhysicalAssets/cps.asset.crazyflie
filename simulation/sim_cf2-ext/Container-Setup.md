@@ -13,54 +13,58 @@ The following components are included:
 > This setup does not work for arm64 platforms since not for all ROS2 packages an arm64 binary is available. For example, "ros-humble-gazebo-no-physics" has no arm64 binary:
 >
 > - http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-amd64/Packages
-> - http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages 
-
-## Usage
-
-See [Readme](Readme.md)
+> - http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages
 
 ## Installation
 
 ### Preparation
 
-**Get the cf.PyControl controller service:**
+This section explains the one-time setup you need to complete before building the image and getting started.
+
+#### Get the cf.PyControl Controller Service
 
 ```shell
 $ chmod +x ./prepare.sh
 $ ./prepare.sh
 ```
 
-**Allow the Docker Container to Access to X Server (GUI):**
+#### Allowing USB
 
-```shell
-xhost +local:$USER
-```
-
-Revert the `xhost` settings to their original state afterward: `xhost -`
-
-**Allowing USB:**
-
-Make Crazyradio available in Docker container
-- Use the `lsusb` command to get a list of all USB devices connected to your system. Each line in the `lsusb` output represents a USB device with a Bus number and Device number.
-- Use `udevadm` to get detailed information about the device, which includes the associated `/dev` entry.
-  Below replace `001` with the Bus number and `009` with the Device number from the `lsusb` output. Specifically, use the output of `DEVNAME`.
-- Get device major number via `ls -la`using information from `DEVNAME`
-
+Make Crazyradio available in Docker container:
+- First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/)
+- After, open the terminal and use the `lsusb` command to get a list of all USB devices connected to your system. Each line in the `lsusb` output represents a USB device with a Bus number and Device number.
+- Then, you can select either way:
+  - Use `udevadm` to get detailed information about the device, which includes the associated `/dev` entry.
+  - Get device major number via `ls -la`
+  - In both commands above, replace `001` with the Bus number and `009` with the Device number as shown in the output of `lsusb`.
+- Example:
 ```shell
 $ lsusb
+[...]
+Bus 001 Device 009: ID 1915:7777 Nordic Semiconductor ASA Bitcraze Crazyradio (PA) dongle
+[...]
+
 $ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
+[...]
+U: usb
+T: usb_device
+D: c 189:262
+N: bus/usb/001/009
+[...]
+
 $ ls -la /dev/bus/usb/001/009
-# Output
 crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ```
 
-- The major device number is in this example "189"
-  
-- Add respective rules when starting the Docker container (see below)
-  - the insecure option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
+- Important is the **major device number**, which is in this example `189`
+
+- Add the respective rule when starting the Docker container (see example below):
+  - `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
+  - The *insecure*, ready-to-go option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
+
 - See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
 
-**Enable GPU-accelerated containers**
+#### Enable GPU-accelerated Containers
 
 - Install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
@@ -70,9 +74,20 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 $ docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
 ```
 
-## Running the Docker Container
+## Usage 
 
-This makes also the USB devices available in the container:
+**First, allow the Docker Container to Access to X Server (GUI):**
+
+```shell
+xhost +local:$USER
+```
+
+Revert the `xhost` settings to their original state afterward: `xhost -`
+
+### Running the Docker Container
+
+Run the Docker container as follows.
+This command also makes the USB devices available inside the container:
 
 ```shell
 $ sudo docker run --rm -it \
@@ -110,11 +125,11 @@ To expose endpoints while not using `--net=host`, simply add `-p`:
 Copy files to the container
 
 ```shell
-#containerName=
-$ docker ps --filter "ancestor=cf2_ros2_sim" --format "{{.Names}}"
+$ docker ps --filter "ancestor=cf2_ros2_sim:latest" --format "{{.Names}}"
+[...]
+
+# containerName=
 $ docker cp ./sim_cf2/launch/main.launch.xml containerName:/home/user/dev_ws/ros2/src/sim_cf2/launch
-# Example:
-$ docker cp ./sim_cf2/launch/crazyflies.yaml elated_hellman:/home/user/dev_ws/ros2/src/sim_cf2/launch
 ```
 
 

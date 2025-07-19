@@ -139,7 +139,7 @@ First, check that the host has the directory for the shared data configured: `mk
 Second, find out the container name:
 
 ```shell
-$ sudo docker ps --filter "ancestor=cf-pyctrl:latest" --format "{{.ID}}"
+$ docker ps --filter "ancestor=cf-pyctrl:latest" --format "{{.ID}}"
 8205624872ec
 7f39caff4dbd
 [...]

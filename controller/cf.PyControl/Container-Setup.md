@@ -9,10 +9,13 @@ Usage instructions for the components can be found in the [README](README.md).
 
 ## Installation
 
-### Allowing USB
+### Preparation
 
-Make Crazyradio available in Docker container
+This section explains the one-time setup you need to complete before building the image and getting started.
 
+#### Allowing USB
+
+Make Crazyradio available in Docker container:
 - First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/) 
 - After, open the terminal and use the `lsusb` command to get a list of all USB devices connected to your system. Each line in the `lsusb` output represents a USB device with a Bus number and Device number.
 - Then, you can select either way:
@@ -46,21 +49,21 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 
 - See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
 
-### Enable GPU-accelerated containers
+#### Enable GPU-accelerated Containers
 
 - Install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
 ### Building the Docker Image
 
 ```shell
-docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
+$ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 ```
 
 > **Note:** If you encounter a "permission denied" error, you may need to run `docker` with `sudo`.
 
 ## Usage
 
-### Allow Access to X Server (GUI)
+**First, allow the Docker Container to Access to X Server (GUI):**
 
 ```shell
 xhost +local:$USER
