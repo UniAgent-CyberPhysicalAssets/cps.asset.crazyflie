@@ -26,8 +26,8 @@ See [Readme](Readme.md)
 **Get the cf.PyControl controller service:**
 
 ```shell
-chmod +x ./prepare.sh
-./prepare.sh
+$ chmod +x ./prepare.sh
+$ ./prepare.sh
 ```
 
 **Allow the Docker Container to Access to X Server (GUI):**
@@ -67,15 +67,15 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 ### Building the Docker Image
 
 ```shell
-docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
+$ docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
 ```
 
-### Running the Docker Container
+## Running the Docker Container
 
 This makes also the USB devices available in the container:
 
 ```shell
-sudo docker run --rm -it \
+$ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
@@ -90,7 +90,7 @@ cf2_ros2_sim
 Without sharing usb devices:
 
 ```shell
-sudo docker run --rm -it \
+$ sudo docker run --rm -it \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
 --env="DISPLAY" \
@@ -111,10 +111,10 @@ Copy files to the container
 
 ```shell
 #containerName=
-docker ps --filter "ancestor=cf2_ros2_sim" --format "{{.Names}}"
-docker cp ./sim_cf2/launch/main.launch.xml containerName:/home/user/dev_ws/ros2/src/sim_cf2/launch
+$ docker ps --filter "ancestor=cf2_ros2_sim" --format "{{.Names}}"
+$ docker cp ./sim_cf2/launch/main.launch.xml containerName:/home/user/dev_ws/ros2/src/sim_cf2/launch
 # Example:
-docker cp ./sim_cf2/launch/crazyflies.yaml elated_hellman:/home/user/dev_ws/ros2/src/sim_cf2/launch
+$ docker cp ./sim_cf2/launch/crazyflies.yaml elated_hellman:/home/user/dev_ws/ros2/src/sim_cf2/launch
 ```
 
 
