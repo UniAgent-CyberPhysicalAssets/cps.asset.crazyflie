@@ -142,7 +142,7 @@ Just the cf.PyControl web interface.</p>
 <p>The simulation asset featuring the <strong>sim_cf2</strong> Gazebo simulation environment also includes cf.PyControl.
 This assumes that you have installed the <code>cf2_ros2_simu</code> Docker container as explained in the <a href="13-getting-started-gazebo">previous page</a>.
 Start it like this:</p>
-<pre class="codehilite"><code>$ cd ~/uniagent_ws/cps.asset.crazyflie/simulation/simulation-sim_cf2
+<pre class="codehilite"><code>$ cd ~/uniagent_ws/cps.asset.crazyflie/simulation/sim_cf2-ext
 $ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --env ROS_DOMAIN_ID=30 \
@@ -250,7 +250,7 @@ If one request fails, the state machine will remain in the last working state.</
 <h3>Websocket Server</h3>
 <p>The websocket server is started with the <code>--wsendpoint --wsport</code> flag.
 Therefore, open a new Docker container and connect to the websocket server:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps.asset.crazyflie/simulation/simulation-sim_cf2/test
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps.asset.crazyflie/simulation/sim_cf2-ext/test
 $ chmod +x ./websocat
 $ ./websocat ws://localhost:8765
 </code></pre>

@@ -57,5 +57,5 @@ while true; do
     sudo docker cp "$CONTAINER_NAME":"$SRC_PATH" "$DEST_PATH" 2>/dev/null
   fi
   sudo chown -R $USER:$USER $DEST_PATH
-  sleep 2
+  sleep 1
 done
