@@ -72,7 +72,15 @@ The state machine of the Crazyflie 2.X in cf.PyControl is specified as described
 Note that this is a custom design choice. 
 It is general enough to be used in different use cases and applications.
 
-#### Activate the Drone
+**Before You Start**
+
+It is recommended to check if everything is fine with the Crazyflie
+- Connect the Crazyradio 2.0 to a USB port
+- Switch on the Crazyflie 2.X drone
+- Start the Crazyflie Client: `cfclient`
+
+
+### Activate the Drone
 
 This is usually the <u>first command</u> you need to run to allow the Crazyflie to fly.
 
@@ -82,7 +90,7 @@ The security lock is released that prevents accepting commands right after the d
 curl -d {} http://127.0.0.1:5000/activate_idle
 ```
 
-#### Drone Mission: NavigateToTarget (x,y,z)
+### Drone Mission: NavigateToTarget (x,y,z)
 
 ```shell
 curl -d {} http://127.0.0.1:5000/navigate/x/y/z
@@ -106,7 +114,7 @@ Ensure you have enough space.
 > Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
 > This can be changed in `cf-ctrl-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
 
-#### Drone State Updates via WebSocket Endpoint
+### Drone State Updates via WebSocket Endpoint
 
 With [websocat](https://github.com/vi/websocat) installed on your system, you can use the following command to test the WebSocket endpoint of cf.PyControl:
 ```shell
@@ -118,6 +126,25 @@ Some output will be also visible in the terminal where cf.PyControl is running.
 
 Therefore, the controller must be started with the `--wsendpoint --wsport 8765` flag.
 The last argument is the port of the WebSocket endpoint, which can be changed.
+
+### Drone State Updates via WebView
+
+
+✅ Option 1: Use a Bind Mount (if you know the folder beforehand)
+
+This is the cleanest way if you can plan ahead.
+
+Step 1: Create a host directory for the shared data
+
+mkdir -p /host/path/for/container-data
+
+Step 2: Start the container with a bind mount pointing the container's folder to that host directory
+
+docker run -v /host/path/for/container-data:/container/folder busybox
+
+    This will mirror changes from /container/folder back to /host/path/for/container-data.
+
+If your container is already running, this won’t help unless you restart it.
 
 ## Composed Operations
 
@@ -222,3 +249,18 @@ What usually helps is the following:
 - Try to disconnect crazyflie, Crazyradio first. Then reconnect the antenna first to the host computer, then connect CF via usb, switch it on, start the cfclient and try to connect, check battery and then disconnect. Switch off the Crazyflie and unplug the USB from it. 
 - Place the Crazyflie somewhere with enough space, switch it on, then start the controller again.
 
+## License
+
+**cf.PyControl** is Open Source software released under the Apache 2.0 license.
+
+## Acknowledgment
+
+Thanks to Bitcraze AB for developing and maintaining the Crazyflie ecosystem.
+
+This tool is developed and maintained by the UniAgent Developers and contributors:
+- Thanks to Mikhail Belov for providing the initial version of this script and the webview for the internal state machine.
+- Thanks to Tianxiong Zhang for continuous testing.
+
+---
+
+Copyright © 2025 The UniAgent Developers and Contributors.
