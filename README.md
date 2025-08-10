@@ -1,3 +1,5 @@
+<img src="docs/icon/cpa-cf2-logo.png" alt="Cyber-physical Badge of the Crazyflie" width="26%">
+
 # [CPA] Crazyflie 2.x
 
 This repository provides a cyber-physical representation of the **Crazyflie 2.x drone**, positioning it as an asset within the **Industry 4.0 ecosystem**. 
