@@ -103,22 +103,35 @@
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Swarm Equations</h1> -->
         <div id="content" class="scroll-mt-20"><h1>Introduction to Bigraphical Models for Algebraic Swarm Equations</h1>
-<p>Wait—<strong>equations</strong> for swarms?</p>
-<p>Yes—algebraic equations, but with a twist: they come with <strong>visual notations</strong> built from <strong>(bi)graphical structures</strong>.</p>
-<p>This might sound abstract, but it makes a lot of sense when working with systems like drones—where agents operate in <strong>space</strong>, and their <strong>behaviors</strong> are deeply tied to both <strong>geometry</strong> and <strong>topology</strong>. 
-Algebra isn't just about numbers; it's also a language for structure, and when applied visually, it becomes a useful tool for modeling collective drone behaviors.</p>
+<h2>Wait—equations for swarms?</h2>
+<p>Yes—algebraic equations, but with a twist: they come with <strong>visual notations built from (bi)graphical structures</strong>.  </p>
+<p>This matters when working with systems like drone swarms or robot collectives—where agents move in space, interact locally, and must coordinate globally. Algebra here isn’t just numbers; it’s a <strong>language for structure</strong>. Combined with visual bigraphs, it becomes a powerful tool for describing collective behaviors.</p>
 <h3>Algebraic Spaces</h3>
-<p>By using algebraic models that are inherently visual—such as <strong>bigraphs</strong>—we can describe both <strong>how drones behave</strong> and <strong>how they relate spatially</strong> to one another and to their environment.</p>
-<p>Simply speaking, bigraphs are a type of <strong>graph</strong> that can represent both <strong>spatial</strong> and <strong>temporal</strong> relationships.</p>
-<p>The foundation of UniAgent relies on several so-called <strong>bigrid axioms</strong>.
-These are illustrated below and serve as fundamental algebraic building blocks for defining the connectedness between dimensionless local, discrete spaces.</p>
-<p><img alt="Bigraphical Landscape of the Axioms" src="static/images/bigraph-algebra-1.png" />
-<small>This figures presents an overview of the bigrid axioms.</small></p>
-<p>Read more about it here: <a href="https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-908655">A Bigraphical Framework for Modeling and Simulation of UAV-based Inspection Scenarios</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Bigraph">Bigraphs</a> extend ordinary graphs with two complementary dimensions:  </p>
+<ul>
+<li><strong>Locality</strong> – who is “inside” or “near” whom  </li>
+<li><strong>Connectivity</strong> – who is linked or able to communicate  </li>
+</ul>
+<p>By combining these, bigraphs provide a <strong>unified algebraic and visual framework</strong> for systems where <em>geometry meets interaction</em>.  </p>
+<p>We extend bigraphs into so-called <strong>bi-spatial structures</strong> — modular, grid-like building blocks that define discrete spatial layouts. <br />
+These can model drones flying in formation, robots sorting themselves on a grid, or agents exploring an environment.  </p>
 <h3>Examples</h3>
 <p>The following figures illustrate exemplary topological structures built from this “syntax of space” (which are formalized using our bigraphical axioms):</p>
 <p><img alt="Bigraphical Landscape of the Axioms" src="static/images/bigraph-algebra-2.png" /></p>
-<h3>Bigraphical Models</h3>
+<h3>Why It Matters</h3>
+<ul>
+<li><strong>Concrete + formal</strong>: Models are both visually intuitive <em>and</em> mathematically precise.  </li>
+<li><strong>Composable</strong>: Complex swarms are built from simple axioms (“bi-spatial axioms”), ensuring modularity.  </li>
+<li><strong>Dynamic</strong>: Agents evolve via reaction rules, giving rise to algebraic swarm equations that capture both motion and coordination.  </li>
+<li><strong>Debuggable</strong>: Equations can be analyzed by calculators and through extensions like 3D raycasting, swarm evolution can be <em>observed</em> in real time. </li>
+</ul>
+<h3>Foundations of UniAgent: Bigraphical Models</h3>
+<p>The UniAgent platform builds on a small set of <strong>bi-spatial axioms</strong>—algebraic rules that define how discrete locales connect. These axioms form the backbone for modeling swarms as <strong>algebraic spaces</strong>, where agents move, interact, and adapt.  </p>
+<p>Think of them as the Lego-bricks of swarm modeling: simple, composable, and grounded in both algebra and geometry.  </p>
+<p><img alt="Bigraphical Landscape of the Axioms" src="static/images/bigraph-algebra-1.png" />
+<small>This figures presents an overview of the bi-spatial axioms.</small></p>
+<p>Read more about it here: <a href="https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-908655">A Bigraphical Framework for Modeling and Simulation of UAV-based Inspection Scenarios</a></p>
+<hr />
 <p>The following pages explore drone equations through the lens of <strong>bigraphical reactive systems (BRS)</strong>—a form of <strong>graphical, rule-based system</strong>. These systems are <strong>evolutionary</strong> and <strong>causally closed</strong>, providing a modular framework for modeling dynamic interactions.</p>
 <p>BRSs allow representing and reasoning about dynamic, spatially organized systems. 
 Discrete states are expressed as algebraic equations.
