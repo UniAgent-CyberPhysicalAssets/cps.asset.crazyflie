@@ -1,12 +1,12 @@
 # Container Workspace Setup: sim_cf2
 
-This document describes the workspace installation procedure for the ROS2 package sim_cf2.
+This document describes the workspace installation procedure for the [ROS2 package sim_cf2](https://github.com/CrazyflieTHI/sim_cf2).
 
 The following components are included:
 
-- sim_cf2
-- cf.PyControl
-- crazyflie-firmware with SITL
+- [sim_cf2](https://github.com/CrazyflieTHI/sim_cf2)
+- [cf.PyControl](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl)
+- [crazyflie-firmware with SITL](https://github.com/CrazyflieTHI/crazyflie-firmware)
 
 > [!Note]
 >
