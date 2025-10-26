@@ -102,22 +102,37 @@
   <main class="flex-1 p-6">
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Initial Setup</h1> -->
-        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x (Cyber-physical Asset)</h1>
+        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x</h1>
 <p>First clone the following GitHub repository, which provides sort of a <strong>cyber-physical representation</strong> of the <strong>Crazyflie 2.x drone</strong>.
 Execute the following command in the terminal:</p>
 <pre class="codehilite"><code class="language-shell">$ mkdir -p ~/uniagent_ws/ &amp;&amp; cd ~/uniagent_ws/
 $ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 </code></pre>
 
-<p>Specifically, this resource enables integration, simulation, and control of Crazyflie 2.x in both physical and virtual environments.</p>
-<p>It is a prerequisite for all subsequent steps in this tutorial, including:</p>
+<p>This resource is a prerequisite for all subsequent steps in this tutorial, including:</p>
 <ul>
 <li>Using the <strong>Gazebo simulation environment</strong> for Crazyflie drones</li>
 <li>Controlling and monitoring Crazyflies via RESTful <strong>web endpoints</strong> and WebSockets</li>
 <li>Launching the <strong>cfclient</strong> tool to configure Crazyflie hardware</li>
-<li>Extending the simulation with custom <strong>Gazebo plugins</strong></li>
 <li>And more...</li>
 </ul>
+<h3>System Hardware Requirements</h3>
+<p>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available.</p>
+<p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p>
+<h3>Convention</h3>
+<p>Terminal commands are prefixed with either <code>$</code> or <code>#</code>.
+The former means that the command is executed in the <strong>host system</strong> (your computer).
+The latter means that the command is executed in the <strong>Docker container</strong>.</p>
+<p>Consider the <code>lsusb</code> command.
+This should be executed inside the Docker container:</p>
+<pre class="codehilite"><code class="language-shell">user@host: # lsusb
+</code></pre>
+
+<p>This should be executed in the host system:</p>
+<pre class="codehilite"><code class="language-shell">$ lsusb
+</code></pre>
+
+<p>If nothing is prefixed, this indicates output from the previous command.</p>
 <h3>USB Setup</h3>
 <blockquote>
 <p><strong>Note:</strong> To control not only a virtualized Crazyflie drone but also a real Crazyflie, you need to make some USB devices such as the Crazyradio PA (the long range open USB radio dongle) available in the <strong>Docker containers</strong>.</p>
@@ -146,23 +161,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 <p>In the following pages, you have to add this rule when starting the Docker container.</p>
 <blockquote>
 <p><strong>Note:</strong> Instead, you can also use the universal but insecure option: <code>--privileged -v /dev/bus/usb:/dev/bus/usb</code>.</p>
-</blockquote>
-<h3>System Hardware Requirements</h3>
-<p>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available. </p>
-<p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p>
-<h3>Convention</h3>
-<p>Terminal commands are prefixed with either <code>$</code> or <code>#</code>.
-The former means that the command is executed in the <strong>host system</strong> (your computer).
-The latter means that the command is executed in the <strong>Docker container</strong>.</p>
-<p>This should be executed inside the Docker container:</p>
-<pre class="codehilite"><code class="language-shell"># lsusb
-</code></pre>
-
-<p>This should be executed in the host system:</p>
-<pre class="codehilite"><code class="language-shell">$ lsusb
-</code></pre>
-
-<p>If nothing is prefixed, this indicates output from the previous command.</p></div>
+</blockquote></div>
     </div>
   
     <!-- Bottom Navigation -->
