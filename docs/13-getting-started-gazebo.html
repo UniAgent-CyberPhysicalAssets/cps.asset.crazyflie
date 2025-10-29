@@ -121,10 +121,13 @@ This is plenty of time to prepare a coffee.</p>
 <p>Execute the following to get to the entry point for starting the simulation.
 First, allow the Docker container to access X server.
 Then, start the Docker container <code>cf2_ros2_simu</code>:</p>
-<pre class="codehilite"><code class="language-shell">$ xhost +local:root 
+<pre class="codehilite"><code class="language-shell"># This allows to show the UI on the host system
+$ xhost +local:$USER 
 non-network local connections being added to access control list
+</code></pre>
 
-$ sudo docker run --rm -it \
+<p>To start the container (Default):</p>
+<pre class="codehilite"><code class="language-shell">$ sudo docker run --rm -it \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
 --env DISPLAY \
@@ -132,6 +135,19 @@ $ sudo docker run --rm -it \
 cf2_ros2_simu
 </code></pre>
 
+<p>To use GPU-accelerated containers:</p>
+<pre class="codehilite"><code class="language-shell">$ sudo docker run --rm -it \
+--env ROS_DOMAIN_ID=30 \
+--net=host --ipc=host --pid=host \
+--env=DISPLAY \
+--env=&quot;XAUTHORITY=$XAUTHORITY&quot; \
+--volume=&quot;$XAUTHORITY:$XAUTHORITY&quot; \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
+--volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+cf2_ros2_sim
+</code></pre>
+
+<p>Therefore, you have to <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/simulation/sim_cf2-ext/Container-Setup.md#enable-gpu-accelerated-containers">"Enable GPU-accelerated Containers"</a>.</p>
 <p>Now, you are in the Docker container inside the folder <code>/home/user/dev_ws</code>:</p>
 <pre class="codehilite"><code class="language-shell">root@lenovo:/home/user/dev_ws#
 </code></pre>
