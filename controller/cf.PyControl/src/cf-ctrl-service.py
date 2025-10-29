@@ -47,7 +47,7 @@ def create_arg_parser():
     parser.add_argument('--host', type=str, default='0.0.0.0', help='The host of the web server.')
     parser.add_argument('--port', type=int, default=5000, help='Port of the web server.')
     parser.add_argument('--uri', type=str, help='The URI of the crazyflie 2.x drone.')
-    parser.add_argument('--sim', action='store_false',
+    parser.add_argument('--sim', action='store_true',
                         help='Specify whether you want to run this controller with sim_cf2.')
     parser.add_argument('--debug', action='store_true', help='Outputs many additional debug messages to the console.')
     parser.add_argument('--logging', action='store_true',
@@ -56,7 +56,7 @@ def create_arg_parser():
             '--ps',
             type=str,
             choices=['LPS', 'bcFlow2', 'LPS|bcFlow2'],
-            default='LPS',
+            default='bcFlow2',
             help='Specify the positioning system to use (LPS, bcFlow2, or LPS|bcFlow2).'
     )
     ws_group = parser.add_argument_group('WebSocket settings')
