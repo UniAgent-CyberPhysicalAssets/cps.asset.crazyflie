@@ -8,10 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 WORKDIR /home/$USERNAME/dev_ws
 
-# Create the user
+# Create the user and add sudo support
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    # Add sudo support
     && apt update \
     && apt install -y sudo udev curl usbutils nano graphviz git \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
@@ -44,10 +43,14 @@ RUN git clone https://github.com/CrazyflieTHI/crazyflie-firmware.git && \
     git submodule update --init --recursive --depth 1
 
 #### GSL
-ADD https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz /home/$USERNAME/dev_ws/libs/gsl-2.8.tar.gz
+# Copy remote GSL source into the image
+#ADD https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz /home/$USERNAME/dev_ws/libs/gsl-2.8.tar.gz
+ADD https://ftp.uni-hannover.de/gnu/gsl/gsl-2.8.tar.gz /home/$USERNAME/dev_ws/libs/gsl-2.8.tar.gz
 RUN mkdir /home/$USERNAME/dev_ws/libs/gsl-2.8 \
     && tar -xzf gsl-2.8.tar.gz -C /home/$USERNAME/dev_ws/libs/gsl-2.8 --strip-components=1 \
     && rm gsl-2.8.tar.gz
+# Copy local GSL source directory into the image
+# COPY gsl-2.8 /home/$USERNAME/dev_ws/libs/gsl-2.8
 RUN cd /home/$USERNAME/dev_ws/libs/gsl-2.8 && \
     ./configure && \
     make -j && \
@@ -65,8 +68,10 @@ RUN cd crazyflie-firmware && \
 
 #### cflib with Crazyflie CRTP sim driver
 RUN pip3 install posix-ipc
-RUN git clone https://github.com/CrazyflieTHI/crazyflie-lib-python.git
-RUN cd crazyflie-lib-python && \
+RUN pip3 install --upgrade pip setuptools wheel
+# (!) make sure to run ./sync-upstream.sh first (!)
+COPY crazyflie-lib-python /home/${USERNAME}/dev_ws/libs/crazyflie-lib-python
+RUN cd /home/${USERNAME}/dev_ws/libs/crazyflie-lib-python && \
     pip install -e .
 
 

@@ -26,7 +26,16 @@ This section explains the one-time setup you need to complete before building th
 ```shell
 $ chmod +x ./prepare.sh
 $ ./prepare.sh
+
 ```
+
+#### Download and Upgrade cflib
+
+```shell
+$ chmod +x ./sync-upstream.sh
+$ ./sync-upstream.sh
+```
+
 
 #### Allowing USB
 
@@ -79,7 +88,7 @@ $ docker build --network=host -t cf2_ros2_sim -f .devcontainer/Dockerfile .
 **First, allow the Docker Container to Access to X Server (GUI):**
 
 ```shell
-xhost +local:$USER
+$ xhost +local:$USER
 ```
 
 Revert the `xhost` settings to their original state afterward: `xhost -`
@@ -102,27 +111,13 @@ $ sudo docker run --rm -it \
 cf2_ros2_sim
 ```
 
-Without sharing usb devices:
+**Configuration:**
 
-```shell
-$ sudo docker run --rm -it \
---env ROS_DOMAIN_ID=30 \
---net=host --ipc=host --pid=host \
---env="DISPLAY" \
---env="XAUTHORITY=$XAUTHORITY" \
---volume="$XAUTHORITY:$XAUTHORITY" \
---gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
---volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-cf2_ros2_sim
-```
+- To remove GPU-acceleration, omit `--gpus`
+- Without sharing usb devices, omit `--device-cgroup-rule`
+- To expose endpoints while not using `--net=host`, simply add `-p`: `-p 5000:5000 -p 8765:8765 \`
 
-To expose endpoints while not using `--net=host`, simply add `-p`:
-
-```shell
--p 5000:5000 -p 8765:8765 \
-```
-
-Copy files to the container
+**Copy files to the container:**
 
 ```shell
 $ docker ps --filter "ancestor=cf2_ros2_sim:latest" --format "{{.Names}}"

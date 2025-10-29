@@ -4,24 +4,21 @@ set -e
 # Configuration
 FORK_URL="https://github.com/PioBeat/crazyflie-lib-python.git"
 UPSTREAM_URL="https://github.com/bitcraze/crazyflie-lib-python.git"
-COMMIT="38e8a5a1a07de30d9d874be1f9cee3e1f761a962" #cflib==0.1.29
+COMMIT="38e8a5a1a07de30d9d874be1f9cee3e1f761a962" # cflib==0.1.29
 BRANCH="master"
 
 echo "Syncing fork (${FORK_URL}) with upstream commit ${COMMIT} from ${UPSTREAM_URL}"
-echo "Merge direction: base=${UPSTREAM_URL}@${COMMIT}  ←  head=${FORK_URL}@${BRANCH}"
+echo "Merge direction: base=${UPSTREAM_URL}@${COMMIT} <<-- head=${FORK_URL}@${BRANCH}"
 echo "Conflict strategy: keep fork's version (-X ours)"
 
 # Clone your fork if not present
 if [ ! -d "crazyflie-lib-python" ]; then
-  git clone --depth 1 -b ${BRANCH} ${FORK_URL} crazyflie-lib-python
+  git clone -b ${BRANCH} ${FORK_URL} crazyflie-lib-python
 fi
 
 cd crazyflie-lib-python
 
-# Add upstream if missing
-if ! git remote | grep -q upstream; then
-  git remote add upstream ${UPSTREAM_URL}
-fi
+git remote add upstream ${UPSTREAM_URL}
 
 # Fetch both remotes
 echo "Fetching both remotes..."
@@ -40,7 +37,7 @@ git checkout -B ${UPSTREAM_BRANCH} ${COMMIT} || git checkout ${COMMIT}
 git checkout ${TMP_BRANCH}
 
 # Merge upstream commit into fork branch, keeping fork’s version on conflict
-echo "🔁 Merging upstream commit ${COMMIT} into fork (using -X ours)..."
+echo "Merging upstream commit ${COMMIT} into fork (using -X ours)..."
 git merge ${UPSTREAM_BRANCH} --allow-unrelated-histories -X ours --no-edit || true
 
 # Commit merge if any new state exists
