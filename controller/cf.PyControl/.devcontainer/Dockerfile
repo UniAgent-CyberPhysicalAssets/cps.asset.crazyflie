@@ -8,10 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 WORKDIR /home/$USERNAME/dev_ws
 
-# Create the user
+# Create the user and add sudo support
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    # Add sudo support
     && apt update \
     && apt install -y sudo udev curl usbutils nano graphviz git \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \

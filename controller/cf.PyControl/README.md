@@ -94,7 +94,28 @@ The security lock is released that prevents accepting commands right after the d
 curl -d {} http://127.0.0.1:5000/activate_idle
 ```
 
-### Drone Mission: NavigateToTarget (x,y,z)
+### Begin Takeoff
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/begin_takeoff
+```
+
+Initiates the takeoff sequence for the Crazyflie.
+The controller will command the Crazyflie to ascend to its default takeoff altitude and stabilize in hover mode before awaiting further mission commands.
+
+- DEFAULT_HEIGHT = 0.5cm
+- DEFAULT_VELOCITY = 0.3
+- Modify Parameter: [`src/cf_drone_ops.py`](src/cf_drone_ops.py)
+
+### Begin Landing
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/begin_landing
+```
+
+Initiates the landing sequence for the Crazyflie.
+
+### NavigateToTarget (x,y,z)
 
 ```shell
 curl -d {} http://127.0.0.1:5000/navigate/x/y/z
@@ -115,7 +136,7 @@ Ensure you have enough space.
 
 > **Note:**
 > You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
-> Accuracy depends on the positioning system in use—both LPS and Flow deck support this.
+> Accuracy depends on the positioning system in use (both LPS and Flow deck support this).
 > This can be changed in `cf-ctrl-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
 
 ### Drone State Updates via WebSocket Endpoint

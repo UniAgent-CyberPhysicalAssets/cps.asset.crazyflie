@@ -66,7 +66,7 @@ $ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 **First, allow the Docker Container to Access to X Server (GUI):**
 
 ```shell
-xhost +local:$USER
+$ xhost +local:$USER
 ```
 
 Revert the `xhost` settings to their original state afterward: `xhost -`
@@ -76,8 +76,10 @@ Revert the `xhost` settings to their original state afterward: `xhost -`
 **Standard**
 
 ```shell
-# With USB devices
-sudo docker run --rm -it \
+# + USB devices
+# + GPU-accelerated Container (Nvidia)
+
+$ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
 --env="DISPLAY" \
