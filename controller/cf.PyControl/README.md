@@ -8,7 +8,8 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 
 - cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
 - cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001
+- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps LPS|bcFlow2
+- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps LPS
 - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
 - curl -d {} http://127.0.0.1:5000/begin_takeoff
 - curl -d {} http://127.0.0.1:5000/begin_landing
@@ -265,6 +266,14 @@ curl -X post http://127.0.0.1:5000/begin_landing
 
 - `--sim` when using with sim_cf2
 - `--debug` for more debug and verbose output in the terminal
+
+**Positioning System:**
+
+- use `--ps` to specify which positioning backend to use for the drone
+- available options:
+    - `LPS` Local Positioning System (default)
+    - `bcFlow2` Flow deck–based optical positioning
+    - `LPS|bcFlow2` hybrid mode (uses both)
 
 ## Error Handling
 

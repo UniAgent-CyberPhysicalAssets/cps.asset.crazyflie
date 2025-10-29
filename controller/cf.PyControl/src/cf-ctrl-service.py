@@ -47,11 +47,18 @@ def create_arg_parser():
     parser.add_argument('--host', type=str, default='0.0.0.0', help='The host of the web server.')
     parser.add_argument('--port', type=int, default=5000, help='Port of the web server.')
     parser.add_argument('--uri', type=str, help='The URI of the crazyflie 2.x drone.')
-    parser.add_argument('--sim', action='store_true',
+    parser.add_argument('--sim', action='store_false',
                         help='Specify whether you want to run this controller with sim_cf2.')
     parser.add_argument('--debug', action='store_true', help='Outputs many additional debug messages to the console.')
     parser.add_argument('--logging', action='store_true',
                         help='Add a logger that writes CF states to a file (e.g., position estimates).')
+    parser.add_argument(
+            '--ps',
+            type=str,
+            choices=['LPS', 'bcFlow2', 'LPS|bcFlow2'],
+            default='LPS',
+            help='Specify the positioning system to use (LPS, bcFlow2, or LPS|bcFlow2).'
+    )
     ws_group = parser.add_argument_group('WebSocket settings')
     ws_group.add_argument('--wsendpoint', action='store_true',
                           help='Add a websocket that publishes CF state (e.g., position/accel/... estimates).')
@@ -64,17 +71,14 @@ def create_arg_parser():
 # ######################################################################################################################
 
 global drone
-SIM_MODE = True
 DEBUG = False
 
 global ISRUNNING  # MainAppLoop
 ISRUNNING = True
-lock = threading.Lock()
 
 # Positioning Strategy
 global positionEstimator
 positionEstimator = None  # KalmanEstimatePositionStrategy(), StateEstimatePositionStrategy()
-POSITIONING_SYSTEM = "LPS"  # "bcFlow2" # "LPS" # "LPS|bcFlow2"
 POSITION_ESTIMATE_FILTER = "kalman"  # "state" # "kalman"
 
 websocketserver_started = threading.Event()  # websocket server signal
@@ -261,6 +265,7 @@ if __name__ == '__main__':
     DEBUG = args.debug
     LOGGING = args.logging
     STARTWSSERVER = args.wsendpoint
+    POSITIONING_SYSTEM = args.ps
     # print("Arguments supplied: %s" % args)
 
     if LOGGING:
@@ -360,13 +365,13 @@ if __name__ == '__main__':
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
 
         if not SIM_MODE:
-            if POSITIONING_SYSTEM == "bcFlow2" or POSITIONING_SYSTEM == "LPS|bcFlow2":
+            if POSITIONING_SYSTEM in ["bcFlow2", "LPS|bcFlow2"]:
                 scf.cf.param.add_update_callback(group='deck', name='bcFlow2', cb=param_deck_flow)
                 if not deck_attached_event.wait(timeout=5):
                     console.print(f'🚫 --[{drone.get_current_state()}] No flow deck detected!', style="bold red",
                                   markup=False)
                     sys.exit(1)
-            if POSITIONING_SYSTEM == "LPS" or POSITIONING_SYSTEM == "LPS|bcFlow2":
+            if POSITIONING_SYSTEM in ["LPS", "LPS|bcFlow2"]:
                 cf_positioning.reset_estimator(scf, console)
             console.print(f'--[{drone.get_current_state()}] Flow deck detected! [OK]', markup=False)
 
