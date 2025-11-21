@@ -87,14 +87,12 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
 
     def take_off_simple(self):
         self.printDebug(f"\ttake off simple")
-        self.mc.take_off(velocity=DEFAULT_VELOCITY+0.15) #take_off(self, height=None, velocity=0.2)
-        #time.sleep(0.1)
+        self.mc.take_off(velocity=DEFAULT_VELOCITY+0.15)
         self.printDebug("Take off finished : I am hovering now")
 
     def landing_simple(self):
         self.printDebug("I am landing now!")
         self.mc.land()
-        #time.sleep(0.1)
         self.printDebug("Technically, I am on the ground!")
 
     def navigate_to_simple(self, targetPoint: Point3D):
@@ -109,7 +107,7 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         # x=0.0, y=0.0, z=0.0 # initial position
         #controller=CONTROLLER_MELLINGER #=2
         self.mc = PositionHlCommander(self._scf, default_height=DEFAULT_HEIGHT, default_velocity=DEFAULT_VELOCITY)
-        activate_mellinger_controller(cf=self._scf.cf)
+        # activate_mellinger_controller(cf=self._scf.cf)
         time.sleep(self.timeSleep)
         self.printDebug("\tI am idling now!!")
 

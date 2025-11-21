@@ -6,37 +6,37 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 
 **tl;dr;**
 
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps LPS|bcFlow2
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps LPS
-- cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps bcFlow2 # default
+- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
+- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
+- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
+- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
+- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
 - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
 - curl -d {} http://127.0.0.1:5000/begin_takeoff
 - curl -d {} http://127.0.0.1:5000/begin_landing
 
 **Screenshot**
 
-<img src="docs/cf-pycontrol-terminal-screenshot.jpg" alt="" style="zoom: 54%;" />
+<img src="docs/cf-pycontrol-terminal-screenshot-v1.png" alt="" style="zoom: 54%;" />
 
 ## Installation
 
 > [!NOTE]
 >
-> (Default) Start quickly using the Docker image — see [Container-Setup.md](Container-Setup.md).
+> (For End-users) Start quickly using the Docker image: [Container-Setup.md](Container-Setup.md).
 >
-> (For Developers) For instructions on setting up the local workspace for cf.PyControl and getting started with development — see [Development.md](Development.md).
+> (For Developers) For instructions on setting up the local workspace for cf.PyControl and getting started with development: [Development.md](Development.md).
 
 ## Getting Started
 
 > [!NOTE]
 >
-> This example doesn’t directly control the Crazyflie 2.x — it’s a quick demo to illustrate the intended usage.
+> This example doesn’t directly control the Crazyflie 2.x. It’s a quick demo to illustrate the intended usage.
 
 Start the Crazyflie control service with the following argument:
 
 ```shell
-$ cf-ctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
+$ ./cf-ctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
 ```
 
 `cf-ctrl.sh` is a convenient startup shell script located in the `bin` directory. 
@@ -155,7 +155,7 @@ The last argument is the port of the WebSocket endpoint, which can be changed.
 
 ### Live State Update via WebView
 
-> This assumes that you have build the Docker image and started the container — see [Container-Setup.md](Container-Setup.md).
+> This assumes that you have build the Docker image and started the container: [Container-Setup.md](Container-Setup.md).
 
 First, check that the host has the directory for the shared data configured: `mkdir -p shared`.
 
@@ -293,9 +293,9 @@ curl -X post http://127.0.0.1:5000/begin_landing
 
 - use `--ps` to specify which positioning backend to use for the drone
 - available options:
-    - `bcFlow2` Flow deck–based optical positioning (default)
-    - `LPS` Local Positioning System 
-    - `LPS|bcFlow2` hybrid mode (uses both)
+    - `"bcFlow2"` Flow deck–based optical positioning (default)
+    - `"LPS"` Local Positioning System 
+    - `"LPS|bcFlow2"` hybrid mode (uses both)
 
 ## Error Handling
 
@@ -321,4 +321,5 @@ This tool is developed and maintained by the UniAgent Developers and contributor
 
 ---
 
-Copyright © 2025 The UniAgent Developers and Contributors.
+Copyright © 2025 The UniAgent Developers and Contributors. <br/>
+(Main Developer: Dominik Grzelak)

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import time
@@ -192,6 +193,9 @@ class StateMachineDrone(StateMachine):
         return "after_transition"
 
     def writeSMGraph(self):
+        asyncio.run(self.writePNG())
+
+    async def writePNG(self):
         # Generate the state diagram
         smGraph = DotGraphMachine(self)
         smGraphPath = "./webview/img/" + self._uav_name + ".png"

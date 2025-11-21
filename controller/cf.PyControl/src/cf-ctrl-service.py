@@ -12,7 +12,8 @@ import json
 
 from rich.live import Live
 from rich.table import Table
-from rich.console import Console
+from rich.console import Console, Group
+from rich.text import Text
 
 from flask import Flask, jsonify, request
 from routes import drone_blueprint  # Import the blueprint
@@ -41,7 +42,7 @@ from routes import FloatConverter
 
 def create_arg_parser():
     # Create the parser.
-    parser = argparse.ArgumentParser(description='Crazyflie 2.x RESTful Drone Controller Service')
+    parser = argparse.ArgumentParser(description='Crazyflie 2.x Drone Controller WebService')
 
     # Add the arguments.
     parser.add_argument('--host', type=str, default='0.0.0.0', help='The host of the web server.')
@@ -94,8 +95,8 @@ logging.basicConfig(level=logging.ERROR)
 # Terminal Output
 console = Console()
 
-# Shared state
-log_values = {
+# Shared state of the drone
+logValues = {
     'roll': 0.0,
     'pitch': 0.0,
     'yaw': 0.0,
@@ -115,38 +116,40 @@ log_values = {
 # ######################################################################################################################
 
 def power_log_callback(timestamp, data, logconf):
-    global log_values
-    log_values['battery'] = data['pm.vbat']
-    log_values['batteryLevel'] = data['pm.batteryLevel']
-    log_values['batteryState'] = data['pm.state']
-    if log_values['battery'] < 3.4:
+    global logValues
+    logValues['battery'] = data['pm.vbat']
+    logValues['batteryLevel'] = data['pm.batteryLevel']
+    logValues['batteryState'] = data['pm.state']
+    if logValues['battery'] < 3.4:
         print("⚠️ Battery low! Consider landing soon.")
 
 
+def render_view(drone, positionEstimator):
+    table = create_table_terminal()
+    status_line = Text("", style="dim", markup=False)
+    return Group(status_line, table)
+
 def create_table_terminal():
-    global log_values
+    global logValues
     global positionEstimator
 
     table = Table(title="Crazyflie Telemetry (Live)")
 
-    table.add_column("Stabilizer", justify="right")
+    table.add_column("Key", justify="right")
     table.add_column("Value")
 
-    battery_state = "Charging 🔌" if log_values['batteryState'] else "Discharging 🔋"
-    table.add_row("Latency (ms)", f"{log_values['latency']:.1f}")
-    table.add_row("Battery Voltage (V)", f"{log_values['battery']:.2f}")
-    table.add_row("Battery Level (%)", f"{log_values['batteryLevel']:.2f}")
+    battery_state = "Charging 🔌" if logValues['batteryState'] else "Discharging 🔋"
+    table.add_row("Latency (ms)", f"{logValues['latency']:.1f}")
+    table.add_row("Battery Voltage (V)", f"{logValues['battery']:.2f}")
+    table.add_row("Battery Level (%)", f"{logValues['batteryLevel']:.2f}")
     table.add_row("Battery State", battery_state)
 
-    table.add_row("Roll (°)", f"{log_values['roll']:.2f}")
-    table.add_row("Pitch (°)", f"{log_values['pitch']:.2f}")
-    table.add_row("Yaw (°)", f"{log_values['yaw']:.2f}")
-    table.add_row("Acc X (m/s²)", f"{log_values['acc_x']:.2f}")
-    table.add_row("Acc Y (m/s²)", f"{log_values['acc_y']:.2f}")
-    table.add_row("Acc Z (m/s²)", f"{log_values['acc_z']:.2f}")
-    table.add_row("X (m)", f"{log_values['x']:.2f}")
-    table.add_row("Y (m)", f"{log_values['y']:.2f}")
-    table.add_row("Z (m)", f"{log_values['z']:.2f}")
+    table.add_row("Roll (°)", f"{logValues['roll']:.2f}")
+    table.add_row("Pitch (°)", f"{logValues['pitch']:.2f}")
+    table.add_row("Yaw (°)", f"{logValues['yaw']:.2f}")
+    table.add_row("Acc X (m/s²)", f"{logValues['acc_x']:.2f}")
+    table.add_row("Acc Y (m/s²)", f"{logValues['acc_y']:.2f}")
+    table.add_row("Acc Z (m/s²)", f"{logValues['acc_z']:.2f}")
     table.add_row("X (m)", f"{positionEstimator.get_log_values()['x']:.2f}")
     table.add_row("Y (m)", f"{positionEstimator.get_log_values()['y']:.2f}")
     table.add_row("Z (m)", f"{positionEstimator.get_log_values()['z']:.2f}")
@@ -164,12 +167,12 @@ def logCallback_isFlying(timestamp, data, logconf):
     global drone
     global positionEstimator
 
-    log_values['roll'] = data['stabilizer.roll']
-    log_values['pitch'] = data['stabilizer.pitch']
-    log_values['yaw'] = data['stabilizer.yaw']
-    log_values['acc_x'] = data['acc.x']
-    log_values['acc_y'] = data['acc.y']
-    log_values['acc_z'] = data['acc.z']
+    logValues['roll'] = data['stabilizer.roll']
+    logValues['pitch'] = data['stabilizer.pitch']
+    logValues['yaw'] = data['stabilizer.yaw']
+    logValues['acc_x'] = data['acc.x']
+    logValues['acc_y'] = data['acc.y']
+    logValues['acc_z'] = data['acc.z']
 
     isMovedByHand = (abs(data['acc.x']) > 0.04 or abs(data['acc.y']) > 0.04)
 
@@ -180,21 +183,24 @@ def logCallback_isFlying(timestamp, data, logconf):
         drone.isFlying = False
 
     LOG(f"[{drone.get_current_state()}]: {positionEstimator.position_estimate}")
-    if drone.get_current_state() == "flying" or (
-            isMovedByHand and (drone.get_current_state() == "idle" or drone.get_current_state() == "active")):
-        console.print(f"\t--[S({drone.get_current_state()})]: Position Estimate={positionEstimator.position_estimate}",
-                      style="dim", markup=False)
+    # if drone.get_current_state() == "flying" or (
+    #         isMovedByHand and (drone.get_current_state() == "idle" or drone.get_current_state() == "active")):
+        #console.print(f"\t--[S({drone.get_current_state()})]: Position Estimate={positionEstimator.position_estimate}",
+        #              style="dim", markup=False)
 
 
 # ######################################################################################################################
 
+# Try to land the drone and stop MotionCommander
 def cleanup():
     global drone
     try:
         if drone.uavOpStrategyImpl.mc is not None:
-            drone.uavOpStrategyImpl.mc.stop()  # Stop MotionCommander
+            drone.uavOpStrategyImpl.landing_simple()
+            time.sleep(500)
+            drone.uavOpStrategyImpl.mc.stop()
     except:
-        console.print(f"--[{drone.get_current_state()}] Quitting program: exception when stopping motor", markup=False)
+        console.print(f"[{drone.get_current_state()}] Quitting program: exception when stopping motor", markup=False)
 
 
 # ######################################################################################################################
@@ -249,7 +255,7 @@ def start_websocket_server(host, port, wsrate_ms):
         websocketserver_started.set()
         handler = make_send_pos_data(wsrate_ms)
         async with websockets.serve(handler, host, port):
-            console.print(f"--[{drone.get_current_state()}] WebSocket server started on ws://{host}:{port}", markup=False)
+            console.print(f"[{drone.get_current_state()}] WebSocket server started on ws://{host}:{port}", markup=False)
             await asyncio.Future()  # Keeps running the server
     # Launching the asyncio event loop inside the thread
     loop = asyncio.new_event_loop()
@@ -283,7 +289,7 @@ if __name__ == '__main__':
     uav_name = "uav1"
     drone = cf_sm.StateMachineDrone(drone_id=uav_name, debug=DEBUG)
     drone.writeSMGraph()
-    console.print(f"--[{drone.get_current_state()}]\tInitialize Crazyflie drivers ...", style="dim", markup=False)
+    console.print(f"[{drone.get_current_state()}]\tInitialize Crazyflie drivers ...", style="dim", markup=False)
     # Initialize the low-level drivers
     cflib.crtp.radiodriver.set_retries_before_disconnect(1500)
     cflib.crtp.radiodriver.set_retries(3)
@@ -291,21 +297,21 @@ if __name__ == '__main__':
         cflib.crtp.init_drivers(enable_sim_driver=True)
     else:
         cflib.crtp.init_drivers()
-    console.print(f"--[{drone.get_current_state()}] Crazyflie drivers initialized. [OK]", markup=False)
-    console.print(f"--[{drone.get_current_state()}] SIM_MODE = {SIM_MODE}", markup=False)
+    console.print(f"[{drone.get_current_state()}] Crazyflie drivers initialized.", markup=False)
+    console.print(f"[{drone.get_current_state()}] SIM_MODE = {SIM_MODE}", markup=False)
     URI = None
     if args.uri:
         cfURI = args.uri
         URI = uri_helper.uri_from_env(default=cfURI)
     else:
-        console.print(f"--[{drone.get_current_state()}] No Crazyflie URI specified. Scanning interfaces now ...",
+        console.print(f"[{drone.get_current_state()}] No Crazyflie URI specified. Scanning interfaces now ...",
                       style="dim", markup=False)
         found = False
         for a in range(7):
             available = cflib.crtp.scan_interfaces(0xe7e7e7e700 + a)
             if (len(available) > 0):
                 console.print(
-                    f"--[{drone.get_current_state()}] Crazyflies found %s ... taking first one:" % len(available),
+                    f"[{drone.get_current_state()}] Crazyflies found %s ... taking first one:" % len(available),
                     style="dim", markup=False)
                 for i in available:
                     URI = uri_helper.uri_from_env(default=i[0])
@@ -316,14 +322,14 @@ if __name__ == '__main__':
         if not found:
             console.print("🚫 No interfaces found ...")
             sys.exit(-1)
-    console.print(f"--[{drone.get_current_state()}] URI of drone = {URI}", markup=False)
+    console.print(f"[{drone.get_current_state()}] URI of drone = {URI}", markup=False)
     # Installation
-    console.print(f"--[{drone.get_current_state()}] Installing software packages now ... [OK]", markup=False)
+    console.print(f"[{drone.get_current_state()}] Installing software packages now ...", markup=False)
     drone.install()
     drone.writeSMGraph()
 
-    console.print(f"--[{drone.get_current_state()}] Resolving Dependencies now ... [OK]", markup=False)
-    # TODO wrap in lambda function: tryRepeat(lambda: Function(Void) -> {}, maxFailCnt)
+    console.print(f"[{drone.get_current_state()}] Resolving Dependencies now ...", markup=False)
+    # TODO tryRepeat(Function(void), maxFailCnt)
     failCnt = 0
     failCntMax = 3
     while drone.current_state != drone.starting:
@@ -331,18 +337,19 @@ if __name__ == '__main__':
             drone.writeSMGraph()
             drone.start()
         except:
-            console.print(f"--[{drone.get_current_state()}] Try restart ...", markup=False)
+            console.print(f"[{drone.get_current_state()}] Try restart ...", markup=False)
             drone.writeSMGraph()
             time.sleep(1)
             if failCnt > failCntMax:
                 console.print()
-                console.print(f"🚫 --[{drone.get_current_state()}] FailCounter Max reached", style="bold red",
+                console.print(f"[{drone.get_current_state()}] FailCounter Max reached", style="bold red",
                               markup=False)
                 sys.exit()
+
     drone.writeSMGraph()
 
     # Start Flask app in a separate thread
-    console.print(f"--[{drone.get_current_state()}] Starting Flask Command WebServer now ...", style="dim",
+    console.print(f"[{drone.get_current_state()}] Starting Flask Command WebServer now ...", style="dim",
                   markup=False)
     app = Flask(__name__)
     app.register_blueprint(drone_blueprint)  # Register the blueprint with the app
@@ -358,54 +365,54 @@ if __name__ == '__main__':
     flask_thread.start()
     # Wait until Flask has fully started
     flask_started.wait()
-    console.print(f"--[{drone.get_current_state()}] Flask WebServer started [OK]", markup=False)
+    console.print(f"[{drone.get_current_state()}] Flask WebServer started", markup=False)
 
     # "Main Loop"
-    console.print(f"--[{drone.get_current_state()}] Connecting to drone now ...", style="dim", markup=False)
+    console.print(f"[{drone.get_current_state()}] Connecting to drone now ...", style="dim", markup=False)
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
 
         if not SIM_MODE:
             if POSITIONING_SYSTEM in ["bcFlow2", "LPS|bcFlow2"]:
                 scf.cf.param.add_update_callback(group='deck', name='bcFlow2', cb=param_deck_flow)
                 if not deck_attached_event.wait(timeout=5):
-                    console.print(f'🚫 --[{drone.get_current_state()}] No flow deck detected!', style="bold red",
+                    console.print(f'[{drone.get_current_state()}] No flow deck detected!', style="bold red",
                                   markup=False)
                     sys.exit(1)
             if POSITIONING_SYSTEM in ["LPS", "LPS|bcFlow2"]:
-                cf_positioning.reset_estimator(scf, console)
-            console.print(f'--[{drone.get_current_state()}] Flow deck detected! [OK]', markup=False)
+                cf_positioning.reset_estimator0(scf, console)
+            console.print(f'[{drone.get_current_state()}] Flow deck detected!', markup=False)
 
         if SIM_MODE:
-            cf_positioning.reset_estimator(scf, console)
+            cf_positioning.reset_estimator0(scf, console)
 
         # State Estimates
         # Create a logging configurations
         console.print("", end="\r")
-        console.print(f"--[{drone.get_current_state()}] Start logging interface to get state estimates", markup=False)
+        console.print(f"[{drone.get_current_state()}] Start logging interface to get state estimates", markup=False)
         # Battery Logger
         scf.cf.log.add_config(log_power)
         log_power.data_received_cb.add_callback(power_log_callback)
         log_power.start()
-        console.print(f"--[{drone.get_current_state()}] POSITIONING_SYSTEM: {POSITIONING_SYSTEM}", markup=False)
-        console.print(f"--[{drone.get_current_state()}] POSITION ESTIMATE FILTER: {POSITION_ESTIMATE_FILTER}",
+        console.print(f"[{drone.get_current_state()}] Positioning System Activated: {POSITIONING_SYSTEM}", markup=False)
+        console.print(f"[{drone.get_current_state()}] Positioning Estimate Filter: {POSITION_ESTIMATE_FILTER}",
                       markup=False)
         logConfig_Pos = None
-        positionEstimator = KalmanEstimatePositionStrategy(log_values)
+        positionEstimator = KalmanEstimatePositionStrategy(logValues)
         if POSITION_ESTIMATE_FILTER == "state":
-            positionEstimator = StateEstimatePositionStrategy(log_values)
+            positionEstimator = StateEstimatePositionStrategy(logValues)
         logConfig_Pos = LogConfig(name='Position', period_in_ms=loggingPeriod_in_ms)
         positionEstimator.add_variables(logConfig_Pos)
         logConfig_Pos.data_received_cb.add_callback(positionEstimator.estimatePositionLogCallback)
         scf.cf.log.add_config(logConfig_Pos)
         logConfig_Pos.start()
-        console.print(f"--[{drone.get_current_state()}] Waiting until first position estimate is received ...",
+        console.print(f"[{drone.get_current_state()}] Waiting until first position estimate is received ...",
                       style="dim", markup=False)
         if not positionEstimator.position_estimate_event.wait(timeout=5):
-            console.print(f'🚫 --[{drone.get_current_state()}] No position estimate received!', style="bold red",
+            console.print(f'[{drone.get_current_state()}] No position estimate received!', style="bold red",
                           markup=False)
             sys.exit(1)
         console.print(
-            f"--[{drone.get_current_state()}] Got Position State Estimate: {positionEstimator.position_estimate}",
+            f"[{drone.get_current_state()}] Got Position State Estimate: {positionEstimator.position_estimate}",
             markup=False)
 
         # Acceleration, Roll, Pitch, Yaw
@@ -425,28 +432,26 @@ if __name__ == '__main__':
         droneOpsImpl = HlCommanderCFOperationImpl(scf=scf,
                                                   debug=DEBUG)  # DebugLoggingCFOperationImpl(scf=scf, debug=DEBUG) #
         drone.set_uavOpsImpl(droneOpsImpl)
-        console.print(f"--[{drone.get_current_state()}] Drone Operation Implementation set: {droneOpsImpl}",
-                      markup=False)
+        #console.print(f"[{drone.get_current_state()}] Drone Operation Implementation set: {droneOpsImpl}", markup=False)
 
-        # TODO tryRepeat(lambda: )
         drone.initialize()
         drone.writeSMGraph()
-        # console.print(f"--[{drone.get_current_state()}] Hardware checks completed.")
 
         if STARTWSSERVER:
-            console.print(f"--[{drone.get_current_state()}] Waiting until WebSocket Server has been fully started ...",
+            console.print(f"[{drone.get_current_state()}] Waiting until WebSocket Server has been fully started ...",
                           style="dim", markup=False)
             server_thread = threading.Thread(target=start_websocket_server,
                                              args=(args.wshost, args.wsport, args.wsrate))
             server_thread.daemon = True  # Allows the thread to exit when the main program does
             server_thread.start()
             websocketserver_started.wait()
-            console.print(f"--[{drone.get_current_state()}] WebSocket Server started [OK]", markup=False)
+            console.print(f"[{drone.get_current_state()}] WebSocket Server started", markup=False)
+            console.print(f"[{drone.get_current_state()}] \tws://{args.host}:{args.wsport}", markup=False)
 
         # Main Loop
-        console.print(f"--[{drone.get_current_state()}] The drone is ready to take commands.", markup=False)
-        console.print(f"--[{drone.get_current_state()}] Check available commands here:", markup=False)
-        console.print(f"--[{drone.get_current_state()}] http://{args.host}:{args.port}/routes", markup=False)
+        console.print(f"[{drone.get_current_state()}] \r\n\r\nThe drone is ready to take commands.", markup=False)
+        console.print(f"[{drone.get_current_state()}] Check available commands here:", markup=False)
+        console.print(f"[{drone.get_current_state()}] \thttp://{args.host}:{args.port}/routes", markup=False)
 
         # Rich live view
         with Live(create_table_terminal(), refresh_per_second=10, screen=False) as live:
@@ -456,12 +461,13 @@ if __name__ == '__main__':
                     live.update(create_table_terminal())
                     time.sleep(0.1)
             except KeyboardInterrupt:
-                console.print(f"--[{drone.get_current_state()}] Keyboard interrupt detected. Shutting down ...",
+                console.print(f"[{drone.get_current_state()}] Keyboard interrupt detected. Shutting down ...",
                               markup=False)
 
         # Shutdown
         cleanup()
+        time.sleep(500)
         scf.cf.close_link()
+        log_power.stop()
         logConfig_Acc.stop()
         logConfig_Pos.stop()
-        log_power.stop()
