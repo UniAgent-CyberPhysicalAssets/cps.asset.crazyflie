@@ -1,4 +1,4 @@
-# cf.PyControl: A Terminal-based RESTful Controller for the Crazyflie 2.X
+# cf.PyControl: A Terminal-based Controller for the Crazyflie 2.X as WebService
 
 **cf.PyControl** is a Terminal-based **Web Service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
 
