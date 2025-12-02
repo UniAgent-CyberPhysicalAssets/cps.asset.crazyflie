@@ -37,7 +37,7 @@ $ ./sync-upstream.sh
 ```
 
 
-#### Allowing USB
+#### Allowing USB (Optional, Recommended)
 
 Make Crazyradio available in Docker container:
 - First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/)
@@ -73,7 +73,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
 
 - See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
 
-#### Enable GPU-accelerated Containers
+#### Enable GPU-accelerated Containers (Optional, Recommended)
 
 - Install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
@@ -108,11 +108,13 @@ $ sudo docker run --rm -it \
 --volume="$XAUTHORITY:$XAUTHORITY" \
 --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+--volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history" \
 cf2_ros2_sim
 ```
 
 **Configuration:**
 
+- With Persistent Bash History, add: `--volume "$(pwd)/.devcontainer/.bash_history:/root/.bash_history"`
 - To remove GPU-acceleration, omit `--gpus`
 - Without sharing usb devices, omit `--device-cgroup-rule`
 - To expose endpoints while not using `--net=host`, simply add `-p`: `-p 5000:5000 -p 8765:8765 \`

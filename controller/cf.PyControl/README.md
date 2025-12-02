@@ -1,6 +1,6 @@
-# cf.PyControl: A Terminal-based Controller for the Crazyflie 2.X as WebService
+# cf.PyControl: A Terminal-based Controller for the Crazyflie 2.X as a WebService
 
-**cf.PyControl** is a Terminal-based **Web Service** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
+**cf.PyControl** is a Terminal-based **WebService** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
 
 The high-level actions of the drone are internally managed by a [*State Machine*](Development.md#drone-software-controller-specification) and can be triggered via [*Web Endpoints*](#basic-operations).
 
