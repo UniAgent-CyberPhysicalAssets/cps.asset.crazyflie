@@ -31,17 +31,6 @@ WORKDIR /home/$USERNAME/dev_ws/libs
 
 
 
-#### Crazyflie firmware with modifications for SITL 
-# see https://github.com/CrazyflieTHI/crazyflie-firmware
-
-RUN apt install -y make build-essential libncurses5-dev
-# Get the crazyflie-firmware
-# Check network connectivity first
-RUN curl -I https://github.com 
-RUN git clone https://github.com/CrazyflieTHI/crazyflie-firmware.git && \
-    cd crazyflie-firmware && \
-    git submodule update --init --recursive --depth 1
-
 #### GSL
 # Copy remote GSL source into the image
 #ADD https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz /home/$USERNAME/dev_ws/libs/gsl-2.8.tar.gz
@@ -59,12 +48,9 @@ RUN cd /home/$USERNAME/dev_ws/libs/gsl-2.8 && \
 # Check if GSL is installed:
 # ldconfig -p | grep gsl
 
-#### Crazyflie Firmware with SITL
-RUN mkdir -p /home/$USERNAME/dev_ws/libs/crazyflie-firmware/build
-COPY crazyflie-firmware/build/.config /home/$USERNAME/dev_ws/libs/crazyflie-firmware/build
-RUN cd crazyflie-firmware && \
-    make oldconfig && \
-    make -j
+
+#### cfclient (same version as cf.PyControl)
+RUN pip3 install cfclient==2025.9
 
 #### cflib with Crazyflie CRTP sim driver
 RUN pip3 install posix-ipc
@@ -73,6 +59,24 @@ RUN pip3 install --upgrade pip setuptools wheel
 COPY crazyflie-lib-python /home/${USERNAME}/dev_ws/libs/crazyflie-lib-python
 RUN cd /home/${USERNAME}/dev_ws/libs/crazyflie-lib-python && \
     pip install -e .
+
+#### Crazyflie firmware with modifications for SITL 
+# see https://github.com/CrazyflieTHI/crazyflie-firmware
+
+RUN apt install -y make build-essential libncurses5-dev
+# Get the crazyflie-firmware
+# Check network connectivity first
+RUN curl -I https://github.com 
+RUN git clone https://github.com/CrazyflieTHI/crazyflie-firmware.git && \
+    cd crazyflie-firmware && \
+    git submodule update --init --recursive --depth 1
+
+#### Crazyflie Firmware with SITL
+RUN mkdir -p /home/$USERNAME/dev_ws/libs/crazyflie-firmware/build
+COPY crazyflie-firmware/build/.config /home/$USERNAME/dev_ws/libs/crazyflie-firmware/build
+RUN cd crazyflie-firmware && \
+    make oldconfig && \
+    make -j
 
 
 
