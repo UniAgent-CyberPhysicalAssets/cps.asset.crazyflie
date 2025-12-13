@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+FROM osrf/ros:humble-desktop-full
+ENV ROS_DISTRO=humble
 ENV USERNAME=user
 ENV USER_UID=1000
 ENV USER_GID=$USER_UID
@@ -34,9 +35,30 @@ RUN apt-get install -y \
 COPY ./src /home/$USERNAME/dev_ws/libs/crazyflie-controller/src
 COPY ./bin /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin
 COPY requirements.txt /home/$USERNAME/dev_ws/libs/crazyflie-controller
-RUN chmod +x /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin/cf-ctrl.sh
+RUN chmod +x /home/$USERNAME/dev_ws/libs/crazyflie-controller/bin/cf.pyctrl.sh
 RUN cd /home/$USERNAME/dev_ws/libs/crazyflie-controller && \
     pip3 install -r requirements.txt
+
+# ds-crazyflie support
+RUN apt update && apt install -y \
+    python3-colcon-common-extensions \
+    ros-humble-rosidl-default-generators \
+    ros-humble-rosidl-generator-py \
+    ros-humble-std-msgs \
+    ros-humble-geometry-msgs \
+    ros-humble-rmw-cyclonedds-cpp
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+COPY ./vendor/crazyflie_interfaces \
+    /home/$USERNAME/dev_ws/libs/crazyflie-controller/src/crazyflie_interfaces
+COPY ./vendor/crazyflie_webots_gateway_interfaces \
+     /home/$USERNAME/dev_ws/libs/crazyflie-controller/src/crazyflie_webots_gateway_interfaces
+
+
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
+    cd /home/$USERNAME/dev_ws/libs/crazyflie-controller && \
+    colcon build --packages-select crazyflie_interfaces crazyflie_webots_gateway_interfaces"
+RUN echo "source /opt/ros/humble/setup.bash" >> /etc/bash.bashrc && \
+    echo "source /home/$USERNAME/dev_ws/libs/crazyflie-controller/install/setup.bash" >> /etc/bash.bashrc
 
 
 

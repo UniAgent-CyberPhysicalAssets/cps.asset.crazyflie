@@ -1,19 +1,16 @@
-# cf.PyControl: A Terminal-based Controller for the Crazyflie 2.X as a WebService
+# cf.PyControl
 
 **cf.PyControl** is a Terminal-based **WebService** written in **Python** for the **Crazyflie 2.X** used in combination with the **FlowDeck** and/or the **Loco Position System (LPS)**.
 
 The high-level actions of the drone are internally managed by a [*State Machine*](Development.md#drone-software-controller-specification) and can be triggered via [*Web Endpoints*](#basic-operations).
 
-**tl;dr;**
-
-- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
-- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
-- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
-- ./cf-ctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
-- curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
-- curl -d {} http://127.0.0.1:5000/begin_takeoff
-- curl -d {} http://127.0.0.1:5000/begin_landing
+**Features**
+- Supported Actions: TakeOff, Landing, Navigate
+- Controller:
+  - Hardware control
+  - sim_cf2 simulation mode
+  - ds-crazyflie simulation mode
+- WebView (Live State Updates)
 
 **Screenshot**
 
@@ -27,6 +24,36 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 >
 > (For Developers) For instructions on setting up the local workspace for cf.PyControl and getting started with development: [Development.md](Development.md).
 
+## tl;dr;
+
+- **Start**
+  - Connect the Crazyradio 2.0 to a USB port
+  - Switch on the Crazyflie 2.X drone
+  - Start the Crazyflie Client (Test): `cfclient`
+    
+- **Webserver and Websocket Ports**
+  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
+  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
+
+- **Positioning System**
+  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
+  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
+  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
+
+- **Flight Operations**
+  - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
+  - curl -d {} http://127.0.0.1:5000/begin_takeoff
+  - curl -d {} http://127.0.0.1:5000/begin_landing
+
+- **Simulation Mode** _(requires running Simulator)_
+  - ds-crazflie:
+    - ./cf.pyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
+    - ./cf.pyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+  - sim_cf2:
+    - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E701 --wsendpoint --sim
+    - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim
+
+
 ## Getting Started
 
 > [!NOTE]
@@ -36,10 +63,10 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 Start the Crazyflie control service with the following argument:
 
 ```shell
-$ ./cf-ctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
+$ ./cf.pyctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
 ```
 
-`cf-ctrl.sh` is a convenient startup shell script located in the `bin` directory. 
+`cf.pyctrl.sh` is a convenient startup shell script located in the `bin` directory. 
 It simplifies the process of running the main Python service script by handling arguments and execution.
 
 > [!NOTE]
@@ -317,7 +344,7 @@ What usually helps is the following:
 
 This tool is developed and maintained by the UniAgent Developers and contributors:
 - Thanks to Mikhail Belov for providing the initial version of this script and the webview for the internal state machine.
-- Thanks to Tianxiong Zhang for continuous testing.
+- Thanks to Tianxiong Zhang for continuous testing and feature requests.
 
 ---
 

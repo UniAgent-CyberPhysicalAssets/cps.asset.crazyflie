@@ -59,7 +59,10 @@ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
 --env ROS_DOMAIN_ID=30 \
---env DISPLAY \
+--env="DISPLAY" \
+--env="XAUTHORITY=$XAUTHORITY" \
+--volume="$XAUTHORITY:$XAUTHORITY" \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
 crazyswarm2_simu
 ```

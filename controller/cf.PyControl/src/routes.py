@@ -1,7 +1,7 @@
-import importlib
 from flask import Blueprint, jsonify, request, current_app
-from werkzeug.routing import BaseConverter, ValidationError
 from statemachine import exceptions
+from werkzeug.routing import BaseConverter, ValidationError
+
 from cf_positioning import Point3D
 
 # Define a blueprint

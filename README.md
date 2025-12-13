@@ -11,24 +11,18 @@ The resources here enable integration, simulation, and control of Crazyflie 2.x 
 The repository includes the following components:
 
 1. **Standalone High-Level Controller**:
-   - A RESTful HTTP API, written in Python, to interact with Crazyflie 2.x (both physical and simulated instances).
-   - See [cf.PyControl](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl): A Terminal-based RESTful Controller for the Crazyflie 2.X
+   - A Terminal-based Controller for the Crazyflie 2.X as a WebService (both physical and simulated instances).
+   - See [cf.PyControl](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl)
 2. **Simulation Environments**:
-   - A Gazebo/ROS-based simulation environment to test and validate Crazyflie 2.x in controlled virtual scenarios.
-   - Using crazyswarm2 and sim_cf2 for simulation.
-   - See [Usage Guide for sim_cf2](https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/simulation/sim_cf2-ext).
-3. **Virtual Machine**:
-   - A pre-configured virtual machine to simplify setup the drone across different development environments.
-   - This is supplied by the developers of Bitcraze AB.
+   - Support: [ds-crazyflie](simulation/ds-crazyflies-ext), [sim_cf2](simulation/sim_cf2-ext) and [crazyswarm2](simulation/crazyswarm2-ext)
 
 ## Software Stack
 
 This CPS asset relies on the following software stack:
 
-- Python 3.7+ for the standalone high-level controller
-- ROS Noetic or later for simulation environments
-- BaSyx Middleware for implementing the AAS
-- A virtualization platform (e.g., VirtualBox) for the provided virtual machine
+- Python 3.10.12+ for the standalone high-level controller
+- ROS Humble/Jazzy or later for simulation environments
+- BaSyx Middleware for implementing the AAS (WIP)
 
 Most components are provided as Docker containers for a quick start.
 

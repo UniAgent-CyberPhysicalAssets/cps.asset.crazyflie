@@ -1,0 +1,66 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "../protos/Crazyflie.proto"
+EXTERNPROTO "../protos/ControllableWand.proto"
+EXTERNPROTO "../protos/Halle.proto"
+EXTERNPROTO "../protos/HalleTraversen.proto"
+
+
+
+IMPORTABLE EXTERNPROTO "../protos/Crazyflie.proto"
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/CarpetFibers.proto" 
+
+WorldInfo {
+  info [
+    "Bitcraze's Crazyflie drone."
+    "This simulation allows you to pilot the drone with your keyboard."
+  ]
+  title "Crazyflie"
+}
+Viewpoint {
+  orientation -0.2 1 0.5 0.5
+  position -1.5 -0.5 1.8
+  fieldOfView 2
+  follow "Crazyflie"
+}
+TexturedBackground {
+    texture "noon_cloudy_countryside"
+}
+TexturedBackgroundLight {
+  castShadows FALSE
+}
+
+Floor {
+  translation 0.5 0 0  
+  size 15 6
+  appearance CarpetFibers {
+    type "wooly"
+    colorOverride 0.2 0.2 0.2
+  }
+}
+
+
+Halle {
+}
+
+HalleTraversen {
+}
+
+Crazyflie {
+  id 0
+  translation 0 0 0.15
+}
+
+Crazyflie {
+  id 1
+  translation 0.5 0 0.15
+}
+
+ControllableWand {
+  wand_id 1
+  translation -0.5 0 0.5
+}

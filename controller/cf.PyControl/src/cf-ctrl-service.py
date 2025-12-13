@@ -1,40 +1,43 @@
 #!venv/bin/python
-import logging
-import sys
-import time
-from typing import Optional
-from threading import Event
-import threading
 import argparse
 import asyncio
-import websockets
 import json
-
-from rich.live import Live
-from rich.table import Table
-from rich.console import Console, Group
-from rich.text import Text
-
-from flask import Flask, jsonify, request
-from routes import drone_blueprint  # Import the blueprint
-from werkzeug.routing import BaseConverter, ValidationError
-from statemachine import StateMachine, State, exceptions
-from statemachine.contrib.diagram import DotGraphMachine
+import logging
+import threading
+import time
 
 import cflib.crtp
+import websockets
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.motion_commander import MotionCommander
 from cflib.positioning.position_hl_commander import PositionHlCommander
 from cflib.utils import uri_helper
+from flask import Flask, jsonify, request
+from rich.console import Console, Group
+from rich.live import Live
+from rich.table import Table
+from rich.text import Text
+from statemachine import StateMachine, State, exceptions
+from statemachine.contrib.diagram import DotGraphMachine
+from werkzeug.routing import BaseConverter, ValidationError
+
+from routes import drone_blueprint  # Import the blueprint
+
+try:
+    # Optional ROS import. rclpy may not be available on systems that do not use ds-crazyflie.
+    import rclpy
+    from rclpy.executors import MultiThreadedExecutor
+except Exception:
+    rclpy = None
 
 import cf_positioning
-from cf_positioning import Point3D, PositionEstimationStrategy, KalmanEstimatePositionStrategy, \
+from cf_positioning import KalmanEstimatePositionStrategy, \
     StateEstimatePositionStrategy
-from cf_drone_ops import CFOperationStrategy, HlCommanderCFOperationImpl, DebugLoggingCFOperationImpl
+from cf_positioning import RosPoseArrayPositionStrategy
+from cf_drone_ops import HlCommanderCFOperationImpl, RosTopicCFOperationImpl
 import cf_sm
-from cf_logger import FileLogger
 from routes import FloatConverter
 
 
@@ -48,18 +51,30 @@ def create_arg_parser():
     parser.add_argument('--host', type=str, default='0.0.0.0', help='The host of the web server.')
     parser.add_argument('--port', type=int, default=5000, help='Port of the web server.')
     parser.add_argument('--uri', type=str, help='The URI of the crazyflie 2.x drone.')
-    parser.add_argument('--sim', action='store_true',
-                        help='Specify whether you want to run this controller with sim_cf2.')
     parser.add_argument('--debug', action='store_true', help='Outputs many additional debug messages to the console.')
     parser.add_argument('--logging', action='store_true',
                         help='Add a logger that writes CF states to a file (e.g., position estimates).')
     parser.add_argument(
-            '--ps',
-            type=str,
-            choices=['LPS', 'bcFlow2', 'LPS|bcFlow2'],
-            default='bcFlow2',
-            help='Specify the positioning system to use (LPS, bcFlow2, or LPS|bcFlow2).'
+        '--ps',
+        type=str,
+        choices=['LPS', 'bcFlow2', 'LPS|bcFlow2'],
+        default='bcFlow2',
+        help='Specify the positioning system to use (LPS, bcFlow2, or LPS|bcFlow2).'
     )
+
+    parser.add_argument('--sim', action='store_true',
+                        help='Specify whether you want to run this controller with sim_cf2.')
+    parser.add_argument(
+        '--dscf',
+        action='store_true',
+        help='Use ds_crazyflie via ROS topics instead of cflib'
+    )
+    parser.add_argument(
+        '--cf-prefix',
+        default='/cf0',
+        help="ROS namespace/prefix for the crazyflie (e.g. /cf0, /cf1). Used in --dscf mode."
+    )
+
     ws_group = parser.add_argument_group('WebSocket settings')
     ws_group.add_argument('--wsendpoint', action='store_true',
                           help='Add a websocket that publishes CF state (e.g., position/accel/... estimates).')
@@ -129,6 +144,7 @@ def render_view(drone, positionEstimator):
     status_line = Text("", style="dim", markup=False)
     return Group(status_line, table)
 
+
 def create_table_terminal():
     global logValues
     global positionEstimator
@@ -185,8 +201,8 @@ def logCallback_isFlying(timestamp, data, logconf):
     LOG(f"[{drone.get_current_state()}]: {positionEstimator.position_estimate}")
     # if drone.get_current_state() == "flying" or (
     #         isMovedByHand and (drone.get_current_state() == "idle" or drone.get_current_state() == "active")):
-        #console.print(f"\t--[S({drone.get_current_state()})]: Position Estimate={positionEstimator.position_estimate}",
-        #              style="dim", markup=False)
+    # console.print(f"\t--[S({drone.get_current_state()})]: Position Estimate={positionEstimator.position_estimate}",
+    #              style="dim", markup=False)
 
 
 # ######################################################################################################################
@@ -252,222 +268,376 @@ def make_send_pos_data(rate_ms):
 
 def start_websocket_server(host, port, wsrate_ms):
     async def server():
+        console.print(f"[{drone.get_current_state()}] Waiting until WebSocket Server has been fully started ...",
+                      style="dim", markup=False)
         websocketserver_started.set()
         handler = make_send_pos_data(wsrate_ms)
         async with websockets.serve(handler, host, port):
             console.print(f"[{drone.get_current_state()}] WebSocket server started on ws://{host}:{port}", markup=False)
             await asyncio.Future()  # Keeps running the server
+
     # Launching the asyncio event loop inside the thread
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(server())
 
+
 # ######################################################################################################################
+def resolve_uri(args):
+    if args.uri:
+        return uri_helper.uri_from_env(default=args.uri)
 
-if __name__ == '__main__':
-    parser = create_arg_parser()
-    args = parser.parse_args()
-    SIM_MODE = args.sim
-    DEBUG = args.debug
-    LOGGING = args.logging
-    STARTWSSERVER = args.wsendpoint
-    POSITIONING_SYSTEM = args.ps
-    # print("Arguments supplied: %s" % args)
+    for a in range(7):
+        available = cflib.crtp.scan_interfaces(0xe7e7e7e700 + a)
+        if available:
+            return uri_helper.uri_from_env(default=available[0][0])
 
-    if LOGGING:
-        logFile = f'./log_position-estimate-{POSITION_ESTIMATE_FILTER}.txt'
-        logger = FileLogger(logFile)
-        logger.close()
-        console.print(f"Position estimate log file is {logFile}", markup=False)
+    raise RuntimeError("No Crazyflie interfaces found")
+
+
+def start_flask_in_thread(args):
+    global drone
+
+    console.print(
+        f"[{drone.get_current_state()}] Starting Flask Command WebServer now ...",
+        style="dim",
+        markup=False
+    )
+
+    app = Flask(__name__)
+    app.register_blueprint(drone_blueprint)
+    app.config['DRONE'] = drone
+
+    # Register callbacks
+    app.after_request(after_request_callback)
+    app.before_request(before_request_callback)
+
+    # Custom URL converters
+    app.url_map.converters['float'] = FloatConverter
+
+    flask_thread = threading.Thread(
+        target=start_flask_app,
+        args=(app, args.host, args.port),
+        daemon=True
+    )
+    flask_thread.start()
+
+    # Wait until Flask has fully started
+    flask_started.wait()
+
+    console.print(
+        f"[{drone.get_current_state()}] Flask WebServer started at http://{args.host}:{args.port}",
+        markup=False
+    )
+
+
+def setup_positioning_system(scf, args):
+    if not args.sim:
+        if args.ps in ["bcFlow2", "LPS|bcFlow2"]:
+            scf.cf.param.add_update_callback(
+                group='deck', name='bcFlow2', cb=param_deck_flow
+            )
+            if not deck_attached_event.wait(timeout=5):
+                raise RuntimeError("Flow deck not detected")
+
+        if args.ps in ["LPS", "LPS|bcFlow2"]:
+            cf_positioning.reset_estimator0(scf, console)
+
+    if args.sim:
+        cf_positioning.reset_estimator0(scf, console)
+
+
+def setup_stabilizer_logging(scf):
+    logConfig_Acc = LogConfig(name='Stabilizer', period_in_ms=loggingPeriod_in_ms)
+    logConfig_Acc.add_variable('acc.x', 'float')
+    logConfig_Acc.add_variable('acc.y', 'float')
+    logConfig_Acc.add_variable('acc.z', 'float')
+    logConfig_Acc.add_variable('stabilizer.roll', 'float')
+    logConfig_Acc.add_variable('stabilizer.pitch', 'float')
+    logConfig_Acc.add_variable('stabilizer.yaw', 'float')
+    logConfig_Acc.data_received_cb.add_callback(logCallback_isFlying)
+    scf.cf.log.add_config(logConfig_Acc)
+    logConfig_Acc.start()
+
+
+def start_runtime_services(args):
+    if STARTWSSERVER:
+        server_thread = threading.Thread(
+            target=start_websocket_server,
+            args=(args.wshost, args.wsport, args.wsrate),
+            daemon=True
+        )
+        server_thread.start()
+        websocketserver_started.wait()
+
+
+def main_loop():
+    console.print("Drone ready to take commands.", markup=False)
+
+    with Live(create_table_terminal(), refresh_per_second=10, screen=False) as live:
+        try:
+            while ISRUNNING:
+                live.update(create_table_terminal())
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            console.print("Shutdown requested", markup=False)
+
+
+def run_dscf_mode(args):
+    global drone, positionEstimator
+
+    console.print("[DSCF] Starting ds_crazyflie mode", markup=False)
+
+    if rclpy is None:
+        raise RuntimeError("rclpy not available but --dscf was requested")
+
+    console.print(
+        f"[{drone.get_current_state()}] Initializing ROS 2 interface ...",
+        style="dim",
+        markup=False
+    )
+
+    rclpy.init()
+
+    console.print(
+        f"[{drone.get_current_state()}] ROS 2 initialized",
+        markup=False
+    )
+
+    # Position from ROS
+    cf_id = int(args.cf_prefix.replace('/cf', ''))
+
+    console.print(
+        f"[{drone.get_current_state()}] Using Crazyflie prefix {args.cf_prefix} (cf_id={cf_id})",
+        markup=False
+    )
+
+    console.print(
+        f"[{drone.get_current_state()}] Subscribing to /cf_positions_poses for position estimates",
+        style="dim",
+        markup=False
+    )
+
+    positionEstimator = RosPoseArrayPositionStrategy(
+        logValues,
+        cf_id=cf_id
+    )
+
+    console.print(
+        f"[{drone.get_current_state()}] ROS-based position estimator started",
+        markup=False
+    )
+
+    # ROS-based operations
+    console.print(
+        f"[{drone.get_current_state()}] Installing ROS topic-based drone operations",
+        style="dim",
+        markup=False
+    )
+
+    droneOpsImpl = RosTopicCFOperationImpl(cf_prefix=args.cf_prefix, debug=DEBUG, dronePosEst=positionEstimator)
+    drone.set_uavOpsImpl(droneOpsImpl)
+
+    console.print(
+        f"[{drone.get_current_state()}] Drone operation implementation set (ROS topics)",
+        markup=False
+    )
+
+    executor = MultiThreadedExecutor()
+    executor.add_node(positionEstimator)
+    executor.add_node(droneOpsImpl)
+    threading.Thread(
+        target=executor.spin,
+        daemon=True
+    ).start()
+
+    drone.initialize()
+    drone.writeSMGraph()
+
+    console.print(
+        f"[{drone.get_current_state()}] Drone initialized in DSCF mode",
+        markup=False
+    )
+
+    start_runtime_services(args)
+
+    console.print(
+        f"[{drone.get_current_state()}] Runtime services started",
+        markup=False
+    )
+    console.print(
+        f"[{drone.get_current_state()}] The drone is ready to take commands.",
+        markup=False
+    )
+
+    main_loop()
+
+
+def run_cflib_mode(args):
+    global drone, positionEstimator
+
+    console.print("[CFLIB] Starting cflib mode", markup=False)
+
+    console.print(
+        f"[{drone.get_current_state()}]\tInitialize Crazyflie drivers ...",
+        style="dim",
+        markup=False
+    )
 
     log_power = LogConfig(name='Power', period_in_ms=500)
     log_power.add_variable('pm.vbat', 'float')
     log_power.add_variable('pm.batteryLevel', 'float')
     log_power.add_variable('pm.state', 'uint8_t')  # 0 = Discharging, 1 = Charging
 
-    # Instantiate the state machine
-    uav_name = "uav1"
-    drone = cf_sm.StateMachineDrone(drone_id=uav_name, debug=DEBUG)
-    drone.writeSMGraph()
-    console.print(f"[{drone.get_current_state()}]\tInitialize Crazyflie drivers ...", style="dim", markup=False)
-    # Initialize the low-level drivers
+    # Driver init
     cflib.crtp.radiodriver.set_retries_before_disconnect(1500)
     cflib.crtp.radiodriver.set_retries(3)
-    if SIM_MODE:
+
+    if args.sim:
         cflib.crtp.init_drivers(enable_sim_driver=True)
     else:
         cflib.crtp.init_drivers()
-    console.print(f"[{drone.get_current_state()}] Crazyflie drivers initialized.", markup=False)
-    console.print(f"[{drone.get_current_state()}] SIM_MODE = {SIM_MODE}", markup=False)
-    URI = None
-    if args.uri:
-        cfURI = args.uri
-        URI = uri_helper.uri_from_env(default=cfURI)
-    else:
-        console.print(f"[{drone.get_current_state()}] No Crazyflie URI specified. Scanning interfaces now ...",
-                      style="dim", markup=False)
-        found = False
-        for a in range(7):
-            available = cflib.crtp.scan_interfaces(0xe7e7e7e700 + a)
-            if (len(available) > 0):
-                console.print(
-                    f"[{drone.get_current_state()}] Crazyflies found %s ... taking first one:" % len(available),
-                    style="dim", markup=False)
-                for i in available:
-                    URI = uri_helper.uri_from_env(default=i[0])
-                    console.print(i[0])
-                    found = True
-                    break
-            if found: break
-        if not found:
-            console.print("🚫 No interfaces found ...")
-            sys.exit(-1)
-    console.print(f"[{drone.get_current_state()}] URI of drone = {URI}", markup=False)
-    # Installation
-    console.print(f"[{drone.get_current_state()}] Installing software packages now ...", markup=False)
-    drone.install()
-    drone.writeSMGraph()
 
-    console.print(f"[{drone.get_current_state()}] Resolving Dependencies now ...", markup=False)
-    # TODO tryRepeat(Function(void), maxFailCnt)
-    failCnt = 0
-    failCntMax = 3
-    while drone.current_state != drone.starting:
-        try:
-            drone.writeSMGraph()
-            drone.start()
-        except:
-            console.print(f"[{drone.get_current_state()}] Try restart ...", markup=False)
-            drone.writeSMGraph()
-            time.sleep(1)
-            if failCnt > failCntMax:
-                console.print()
-                console.print(f"[{drone.get_current_state()}] FailCounter Max reached", style="bold red",
-                              markup=False)
-                sys.exit()
+    console.print(
+        f"[{drone.get_current_state()}] Crazyflie drivers initialized.",
+        markup=False
+    )
+    console.print(
+        f"[{drone.get_current_state()}] SIM_MODE = {args.sim}",
+        markup=False
+    )
 
-    drone.writeSMGraph()
+    URI = resolve_uri(args)
+    console.print(
+        f"[{drone.get_current_state()}] URI of drone = {URI}",
+        markup=False
+    )
 
-    # Start Flask app in a separate thread
-    console.print(f"[{drone.get_current_state()}] Starting Flask Command WebServer now ...", style="dim",
-                  markup=False)
-    app = Flask(__name__)
-    app.register_blueprint(drone_blueprint)  # Register the blueprint with the app
-    app.config['DRONE'] = drone
-    # Register the before request callback
-    app.after_request(after_request_callback)
-    app.before_request(
-        before_request_callback)  # app.before_request(lambda: before_request_callback(callback_argument))
-    # Register the custom converter
-    app.url_map.converters['float'] = FloatConverter
-    flask_thread = threading.Thread(target=start_flask_app, args=(app, args.host, args.port))
-    flask_thread.daemon = True  # Allows the thread to exit when the main program does
-    flask_thread.start()
-    # Wait until Flask has fully started
-    flask_started.wait()
-    console.print(f"[{drone.get_current_state()}] Flask WebServer started", markup=False)
+    console.print(
+        f"[{drone.get_current_state()}] Connecting to drone now ...",
+        style="dim",
+        markup=False
+    )
 
-    # "Main Loop"
-    console.print(f"[{drone.get_current_state()}] Connecting to drone now ...", style="dim", markup=False)
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
 
-        if not SIM_MODE:
-            if POSITIONING_SYSTEM in ["bcFlow2", "LPS|bcFlow2"]:
-                scf.cf.param.add_update_callback(group='deck', name='bcFlow2', cb=param_deck_flow)
-                if not deck_attached_event.wait(timeout=5):
-                    console.print(f'[{drone.get_current_state()}] No flow deck detected!', style="bold red",
-                                  markup=False)
-                    sys.exit(1)
-            if POSITIONING_SYSTEM in ["LPS", "LPS|bcFlow2"]:
-                cf_positioning.reset_estimator0(scf, console)
-            console.print(f'[{drone.get_current_state()}] Flow deck detected!', markup=False)
+        setup_positioning_system(scf, args)
 
-        if SIM_MODE:
-            cf_positioning.reset_estimator0(scf, console)
+        console.print(
+            f"[{drone.get_current_state()}] Start logging interface to get state estimates",
+            markup=False
+        )
 
-        # State Estimates
-        # Create a logging configurations
-        console.print("", end="\r")
-        console.print(f"[{drone.get_current_state()}] Start logging interface to get state estimates", markup=False)
-        # Battery Logger
+        # Battery logging
         scf.cf.log.add_config(log_power)
         log_power.data_received_cb.add_callback(power_log_callback)
         log_power.start()
-        console.print(f"[{drone.get_current_state()}] Positioning System Activated: {POSITIONING_SYSTEM}", markup=False)
-        console.print(f"[{drone.get_current_state()}] Positioning Estimate Filter: {POSITION_ESTIMATE_FILTER}",
-                      markup=False)
-        logConfig_Pos = None
-        positionEstimator = KalmanEstimatePositionStrategy(logValues)
-        if POSITION_ESTIMATE_FILTER == "state":
-            positionEstimator = StateEstimatePositionStrategy(logValues)
+
+        console.print(
+            f"[{drone.get_current_state()}] Positioning System Activated: {args.ps}",
+            markup=False
+        )
+        console.print(
+            f"[{drone.get_current_state()}] Positioning Estimate Filter: {POSITION_ESTIMATE_FILTER}",
+            markup=False
+        )
+
+        # Position estimator
+        positionEstimator = (
+            StateEstimatePositionStrategy(logValues)
+            if POSITION_ESTIMATE_FILTER == "state"
+            else KalmanEstimatePositionStrategy(logValues)
+        )
+
         logConfig_Pos = LogConfig(name='Position', period_in_ms=loggingPeriod_in_ms)
         positionEstimator.add_variables(logConfig_Pos)
-        logConfig_Pos.data_received_cb.add_callback(positionEstimator.estimatePositionLogCallback)
+        logConfig_Pos.data_received_cb.add_callback(
+            positionEstimator.estimatePositionLogCallback
+        )
         scf.cf.log.add_config(logConfig_Pos)
         logConfig_Pos.start()
-        console.print(f"[{drone.get_current_state()}] Waiting until first position estimate is received ...",
-                      style="dim", markup=False)
-        if not positionEstimator.position_estimate_event.wait(timeout=5):
-            console.print(f'[{drone.get_current_state()}] No position estimate received!', style="bold red",
-                          markup=False)
-            sys.exit(1)
+
         console.print(
-            f"[{drone.get_current_state()}] Got Position State Estimate: {positionEstimator.position_estimate}",
-            markup=False)
+            f"[{drone.get_current_state()}] Waiting until first position estimate is received ...",
+            style="dim",
+            markup=False
+        )
 
-        # Acceleration, Roll, Pitch, Yaw
-        # KalmanStabilizer
-        logConfig_Acc = LogConfig(name='Stabilizer', period_in_ms=loggingPeriod_in_ms)
-        logConfig_Acc.add_variable('acc.x', 'float')
-        logConfig_Acc.add_variable('acc.y', 'float')
-        logConfig_Acc.add_variable('acc.z', 'float')
-        logConfig_Acc.add_variable('stabilizer.roll', 'float')
-        logConfig_Acc.add_variable('stabilizer.pitch', 'float')
-        logConfig_Acc.add_variable('stabilizer.yaw', 'float')
-        logConfig_Acc.data_received_cb.add_callback(logCallback_isFlying)
-        scf.cf.log.add_config(logConfig_Acc)
-        logConfig_Acc.start()
+        if not positionEstimator.position_estimate_event.wait(timeout=5):
+            console.print(
+                f"[{drone.get_current_state()}] No position estimate received!",
+                style="bold red",
+                markup=False
+            )
+            raise RuntimeError("No position estimate received")
 
-        # Use mockmode or no-mockmode
-        droneOpsImpl = HlCommanderCFOperationImpl(scf=scf,
-                                                  debug=DEBUG)  # DebugLoggingCFOperationImpl(scf=scf, debug=DEBUG) #
+        console.print(
+            f"[{drone.get_current_state()}] Got Position State Estimate: "
+            f"{positionEstimator.position_estimate}",
+            markup=False
+        )
+
+        # Stabilizer logs
+        setup_stabilizer_logging(scf)
+
+        droneOpsImpl = HlCommanderCFOperationImpl(scf=scf, debug=DEBUG)
         drone.set_uavOpsImpl(droneOpsImpl)
-        #console.print(f"[{drone.get_current_state()}] Drone Operation Implementation set: {droneOpsImpl}", markup=False)
+
+        console.print(
+            f"[{drone.get_current_state()}] Drone operation implementation set",
+            markup=False
+        )
 
         drone.initialize()
         drone.writeSMGraph()
 
-        if STARTWSSERVER:
-            console.print(f"[{drone.get_current_state()}] Waiting until WebSocket Server has been fully started ...",
-                          style="dim", markup=False)
-            server_thread = threading.Thread(target=start_websocket_server,
-                                             args=(args.wshost, args.wsport, args.wsrate))
-            server_thread.daemon = True  # Allows the thread to exit when the main program does
-            server_thread.start()
-            websocketserver_started.wait()
-            console.print(f"[{drone.get_current_state()}] WebSocket Server started", markup=False)
-            console.print(f"[{drone.get_current_state()}] \tws://{args.host}:{args.wsport}", markup=False)
+        start_runtime_services(args)
 
-        # Main Loop
-        console.print(f"[{drone.get_current_state()}] \r\n\r\nThe drone is ready to take commands.", markup=False)
-        console.print(f"[{drone.get_current_state()}] Check available commands here:", markup=False)
-        console.print(f"[{drone.get_current_state()}] \thttp://{args.host}:{args.port}/routes", markup=False)
+        console.print(
+            f"[{drone.get_current_state()}] The drone is ready to take commands.",
+            markup=False
+        )
+        console.print(
+            f"[{drone.get_current_state()}] Check available commands here:",
+            markup=False
+        )
+        console.print(
+            f"[{drone.get_current_state()}] \thttp://{args.host}:{args.port}/routes",
+            markup=False
+        )
 
-        # Rich live view
-        with Live(create_table_terminal(), refresh_per_second=10, screen=False) as live:
-            try:
-                # Keep the main thread alive to keep the Crazyflie connection open
-                while ISRUNNING:
-                    live.update(create_table_terminal())
-                    time.sleep(0.1)
-            except KeyboardInterrupt:
-                console.print(f"[{drone.get_current_state()}] Keyboard interrupt detected. Shutting down ...",
-                              markup=False)
+        main_loop()
 
-        # Shutdown
+        console.print(
+            f"[{drone.get_current_state()}] Shutting down ...",
+            markup=False
+        )
+
         cleanup()
-        time.sleep(500)
-        scf.cf.close_link()
         log_power.stop()
-        logConfig_Acc.stop()
-        logConfig_Pos.stop()
+        scf.cf.close_link()
+
+
+if __name__ == '__main__':
+    parser = create_arg_parser()
+    args = parser.parse_args()
+
+    DEBUG = args.debug
+    LOGGING = args.logging
+    STARTWSSERVER = args.wsendpoint
+
+    if args.dscf and args.sim:
+        raise RuntimeError("--dscf and --sim are mutually exclusive")
+
+    # State machine
+    drone = cf_sm.StateMachineDrone(drone_id="uav1", debug=DEBUG)
+    drone.install()
+    drone.start()
+
+    # Flask always on
+    start_flask_in_thread(args)
+
+    if args.dscf:
+        run_dscf_mode(args)
+    else:
+        run_cflib_mode(args)
