@@ -11,8 +11,10 @@
 
 ```shell
 $ cd ~/uniagent_ws/cps-asset/crazyflie2.x/simulation/ds-crazyflies-ext
-$ ./prepare
+$ ./prepare.sh
 ```
+
+The preparation script clones the original repository: `git clone --recurse https://github.com/DynamicSwarms/ds-crazyflies.git `.
 
 ### Build
 
