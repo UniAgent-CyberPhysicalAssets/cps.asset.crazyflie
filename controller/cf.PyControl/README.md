@@ -30,15 +30,15 @@ The high-level actions of the drone are internally managed by a [*State Machine*
   - Connect the Crazyradio 2.0 to a USB port
   - Switch on the Crazyflie 2.X drone
   - Start the Crazyflie Client (Test): `cfclient`
-    
+  
 - **Webserver and Websocket Ports**
-  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
-  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
 
 - **Positioning System**
-  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
-  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
-  - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
 
 - **Flight Operations**
   - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
@@ -47,11 +47,11 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 
 - **Simulation Mode** _(requires running Simulator)_
   - ds-crazflie:
-    - ./cf.pyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
-    - ./cf.pyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+    - ./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
+    - ./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
   - sim_cf2:
-    - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E701 --wsendpoint --sim
-    - ./cf.pyctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim
+    - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E701 --wsendpoint --sim
+    - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim
 
 
 ## Getting Started
@@ -63,10 +63,10 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 Start the Crazyflie control service with the following argument:
 
 ```shell
-$ ./cf.pyctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
+$ ./cfpyctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
 ```
 
-`cf.pyctrl.sh` is a convenient startup shell script located in the `bin` directory. 
+`cfpyctrl.sh` is a convenient startup shell script located in the `bin` directory. 
 It simplifies the process of running the main Python service script by handling arguments and execution.
 
 > [!NOTE]

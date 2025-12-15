@@ -61,37 +61,55 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo">3. Getting Started with the Simulation Environment (sim_cf2)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl">3. Getting Started with the Crazyflie Controller</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/14-getting-started-cf.PyControl">4. Getting Started with the Crazyflie Controller</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12b-x-terminal-layout">5. Terminal Layouts</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie">5. Webots Simulation (ds-crazyflie)</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-drone-equations">6. Swarm Equations</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/24-getting-started-gazebo-simcf2">6. Gazebo Simulation (sim_cf2)</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">7. Research Tools (Prototypes)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology">7. Methodology</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">8. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations">8. Swarm Equations</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
               </li>
           
       
@@ -102,30 +120,39 @@
   <main class="flex-1 p-6">
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Initial Setup</h1> -->
-        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x</h1>
-<p>First clone the following GitHub repository, which provides sort of a <strong>cyber-physical representation</strong> of the <strong>Crazyflie 2.x drone</strong>.
-Execute the following command in the terminal:</p>
+        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x Environment</h1>
+<p>First clone the following GitHub repository, which provides sort of a <strong>cyber-physical representation</strong> of the <strong>Crazyflie 2.x drone</strong>.</p>
+<p>Therefore, execute the following command in the terminal:</p>
 <pre class="codehilite"><code class="language-shell">$ mkdir -p ~/uniagent_ws/ &amp;&amp; cd ~/uniagent_ws/
 $ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 </code></pre>
 
 <p>This resource is a prerequisite for all subsequent steps in this tutorial, including:</p>
 <ul>
-<li>Using the <strong>Gazebo simulation environment</strong> for Crazyflie drones</li>
-<li>Controlling and monitoring Crazyflies via RESTful <strong>web endpoints</strong> and WebSockets</li>
-<li>Launching the <strong>cfclient</strong> tool to configure Crazyflie hardware</li>
-<li>And more...</li>
+<li>Controlling and monitoring Crazyflies via RESTful web endpoints, WebSockets and in 3D</li>
+<li>Using the Gazebo/Webots simulation environment for Crazyflie drones</li>
+<li>Launching the cfclient tool to configure Crazyflie hardware</li>
+<li>And more ...</li>
 </ul>
 <h3>System Hardware Requirements</h3>
-<p>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available.</p>
-<p>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</p>
+<h4>Platform</h4>
+<ul>
+<li>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available.</li>
+<li>For example, the package <code>ros-humble-gazebo-no-physics</code> is required, which has however no arm64 binary (see here: <a href="http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages">http://packages.ros.org/ros2/ubuntu/dists/jammy/main/binary-arm64/Packages</a>).</li>
+</ul>
+<h4>Enable GPU-accelerated Containers</h4>
+<p>(Optional but Recommended)</p>
+<ul>
+<li>Install the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html">NVIDIA Container Toolkit</a></li>
+</ul>
 <h3>Convention</h3>
-<p>Terminal commands are prefixed with either <code>$</code> or <code>#</code>.
+<p>Terminal commands are prefixed with either <code>$</code> or <code>:#</code>.
 The former means that the command is executed in the <strong>host system</strong> (your computer).
 The latter means that the command is executed in the <strong>Docker container</strong>.</p>
 <p>Consider the <code>lsusb</code> command.
 This should be executed inside the Docker container:</p>
 <pre class="codehilite"><code class="language-shell">user@host: # lsusb
+:# lsusb
 </code></pre>
 
 <p>This should be executed in the host system:</p>
@@ -135,25 +162,45 @@ This should be executed inside the Docker container:</p>
 <p>If nothing is prefixed, this indicates output from the previous command.</p>
 <h3>USB Setup</h3>
 <blockquote>
-<p><strong>Note:</strong> To control not only a virtualized Crazyflie drone but also a real Crazyflie, you need to make some USB devices such as the Crazyradio PA (the long range open USB radio dongle) available in the <strong>Docker containers</strong>.</p>
+<p><strong>Note:</strong> To control not only a virtual Crazyflie drone but also a real one, you need to make some USB devices such as the Crazyradio available in the Docker containers.</p>
 </blockquote>
+<p><strong>(ONLY for Linux)</strong> First, set the standard Crazyflie USB permissions: <a href="https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/">https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/</a></p>
+<p>You will need to find out your major device number in order to access the USB devices within the Docker containers.
+For background on why this setup is necessary, especially when avoiding the use of <code>--privileged</code>, see also <a href="https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/">here</a> and <a href="https://docs.docker.com/engine/containers/run/#runtime-privilege-and-linux-capabilities">here</a>.</p>
+<p>There are three options:</p>
 <ul>
-<li>Use the <code>lsusb</code> command to get a list of all USB devices connected to your system. Each line in the <code>lsusb</code> output represents a USB device with a Bus number and Device number.</li>
-<li>Use <code>udevadm</code> to get detailed information about the device, which includes the associated <code>/dev</code> entry. Below replace <code>001</code> with the Bus number and <code>009</code> with the Device number from the <code>lsusb</code> output. Specifically, use the output of <code>DEVNAME</code>.</li>
-<li>Get device major number via <code>ls -la</code>using information from <code>DEVNAME</code></li>
-<li>Example:</li>
+<li><strong>Option A)</strong> Use the <code>lsusb</code> command to get a list of all USB devices connected to your system. Each line in the <code>lsusb</code> output represents a USB device with a Bus number and Device number.</li>
 </ul>
 <pre class="codehilite"><code class="language-shell">$ lsusb
-$ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
-$ ls -la /dev/bus/usb/001/009
-crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
+[...]
+Bus 001 Device 009: ID 1915:7777 Nordic Semiconductor ASA Bitcraze Crazyradio (PA) dongle
+[...]
 </code></pre>
 
 <ul>
-<li>The major device number is in this example "189"</li>
-<li>See also: <a href="https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device">https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device</a></li>
+<li><strong>Option B)</strong> Use <code>udevadm</code> to get detailed information about the device, which includes the associated <code>/dev</code> entry. Below replace <code>001</code> with the Bus number and <code>009</code> with the Device number from the <code>lsusb</code> output. Specifically, use the output of <code>DEVNAME</code>.</li>
 </ul>
-<p>(!) With this information, note down the following Docker rule for later: (!)</p>
+<pre class="codehilite"><code class="language-shell">$ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
+[...]
+U: usb
+T: usb_device
+D: c 189:262
+N: bus/usb/001/009
+[...]
+</code></pre>
+
+<ul>
+<li><strong>Option C)</strong> Get device major number via <code>ls -la</code>using information from <code>DEVNAME</code></li>
+</ul>
+<pre class="codehilite"><code class="language-shell">$ ls -la /dev/bus/usb/001/009
+crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
+</code></pre>
+
+<p>In the rest of this example:</p>
+<ul>
+<li>The major device number is in this example "189".</li>
+</ul>
+<p>(!) With this information, note down the following Docker parameter for later: (!)</p>
 <pre class="codehilite"><code>--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev
 </code></pre>
 
@@ -173,7 +220,7 @@ crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
         
     
         
-        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo" class="px-4 py-2 bg-blue-600 text-white rounded">
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl" class="px-4 py-2 bg-blue-600 text-white rounded">
             Next
         </a>
         

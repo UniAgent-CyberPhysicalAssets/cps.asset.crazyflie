@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Overview | UniAgent - Programming Drone Collectives</title>
+  <title>Getting Started with Simulations | UniAgent - Programming Drone Collectives</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="static/css/github-markdown-light.css">
@@ -48,7 +48,7 @@
     <ul id="sidebar-list">
       
           
-              <li class="sidebar-item p-2 cursor-pointer font-bold active">
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
                   <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/index">1. Overview</a>
               </li>
           
@@ -66,7 +66,7 @@
           
       
           
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+              <li class="sidebar-item p-2 cursor-pointer font-bold active">
                   <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
               </li>
           
@@ -119,41 +119,27 @@
   <!-- Main Content -->
   <main class="flex-1 p-6">
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
-        <!-- <h1 id="title" class="scroll-mt-20">Overview</h1> -->
-        <div id="content" class="scroll-mt-20"><h1>Overview</h1>
-<blockquote>
-<p>Github Repository: <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie">https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie</a></p>
-</blockquote>
-<p>Welcome to this tutorial on building and programming smart drone swarms using <strong>Crazyflie tiny drones</strong>. </p>
-<p>A full-stack setup is provided for simulating and controlling autonomous Crazyflie collectives, from low-level motor commands to high-level swarm logic.
-It’s designed to support both research and practical experimentation in the perspective of drone coordination and spatial computing.</p>
-<p><strong>You’ll learn how to:</strong></p>
+        <!-- <h1 id="title" class="scroll-mt-20">Getting Started with Simulations</h1> -->
+        <div id="content" class="scroll-mt-20"><h1>Overview: Simulation Environments</h1>
+<p>Docker containers are provided for the following external simulation environments that can be
+used with cf.PyControl and are described in the following: </p>
 <ul>
-<li>Set up a simplified (i.e., a not yet very realistic) simulation environment with preset and custom worlds and the Crazyflie drone models.</li>
-<li>Use Python with the Crazyflie firmware stack to issue control commands.</li>
-<li>Define, control, and analyze collective behavior using a <strong>bigraph algebra</strong>, a formalism for modeling both connectivity and spatial configuration in dynamic systems.</li>
-</ul>
-<h4>Software Stack</h4>
-<p>The software stack employed in this tutorial:</p>
-<ul>
-<li><strong>Simulation</strong>: Webots (ds-crazyflie) and Gazebo (sim_cf2, crazyswarm2)</li>
-<li><strong>Drone Controller</strong>: cf.PyControl (Python) </li>
-<li><strong>Database</strong>: Eclipse CDO</li>
-<li><strong>Java Frameworks</strong>: Bigraph Framework, BDSL, Spring Data CDO</li>
-</ul>
-<p>Everything is open source and provided through Docker images for easy installation and use.</p>
-<h3>Demo Video</h3>
-<div id="iframe_wrapper" style="position: relative; overflow: hidden; width:100%; padding-top:56.25%;"><iframe src="https://videocampus.sachsen.de/media/embed?key=dcaa90c5c4023641b62223d8d5f5f515&width=720&height=405&autoplay=false&controls=true&autolightsoff=false&loop=false&chapters=false&playlist=false&related=false&responsive=true&t=0&loadonclick=true&thumb=true" data-src="https://videocampus.sachsen.de/media/embed?key=dcaa90c5c4023641b62223d8d5f5f515&width=720&height=405&autoplay=false&controls=true&autolightsoff=false&loop=false&chapters=false&playlist=false&related=false&responsive=true&t=0&loadonclick=true" class="" width="80%" height="80%" title="Programming  Drone Collectives" frameborder="0" allowfullscreen="allowfullscreen" allowtransparency="true" scrolling="no" aria-label="media embed code" style="top:0; bottom:0; left:0; right:0; position:absolute;"></iframe></div></div>
+<li><a href="23-getting-started-webots-dscrazyflie">ds-crazyflie</a></li>
+<li><a href="24-getting-started-gazebo-simcf2">sim_cf2</a></li>
+<li>crazyswarm2</li>
+</ul></div>
     </div>
   
     <!-- Bottom Navigation -->
     <div class="flex justify-between mt-4">
         
-        <span class="px-4 py-2 bg-gray-300 text-white rounded opacity-50 cursor-not-allowed">Previous</span>
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl" class="px-4 py-2 bg-blue-600 text-white rounded">
+            Previous
+        </a>
         
     
         
-        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started" class="px-4 py-2 bg-blue-600 text-white rounded">
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie" class="px-4 py-2 bg-blue-600 text-white rounded">
             Next
         </a>
         

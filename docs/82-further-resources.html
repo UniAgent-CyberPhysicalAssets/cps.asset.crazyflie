@@ -61,37 +61,55 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo">3. Getting Started with the Simulation Environment (sim_cf2)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl">3. Getting Started with the Crazyflie Controller</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/14-getting-started-cf.PyControl">4. Getting Started with the Crazyflie Controller</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12b-x-terminal-layout">5. Terminal Layouts</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie">5. Webots Simulation (ds-crazyflie)</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-drone-equations">6. Swarm Equations</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/24-getting-started-gazebo-simcf2">6. Gazebo Simulation (sim_cf2)</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">7. Research Tools (Prototypes)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology">7. Methodology</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations">8. Swarm Equations</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer font-bold active">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">8. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
               </li>
           
       
@@ -103,8 +121,9 @@
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Further Resources</h1> -->
         <div id="content" class="scroll-mt-20"><h1>Further Resources</h1>
-<p>This website introduces the basic tools and mathematics of <strong>Bigraphical Models</strong> for swarm systems.</p>
+<p>This website introduces the basic tools and mathematics of <strong>bigraphs</strong> for programming tiny drones.</p>
 <p>Some resources are available for learning more about this approach.</p>
+<h2>Literature</h2>
 <p>Here are some of them:</p>
 <ul>
 <li>J. Beal, S. Dulman, K. Usbeck, M. Viroli, and N. Correll, <a href="http://arxiv.org/abs/1202.5509">“Organizing the Aggregate: Languages for Spatial Computing.”</a> arXiv, Apr. 03, 2012.</li>
@@ -117,13 +136,38 @@
 <li>Grzelak, Dominik: "Programming Drone Collectives: Towards Safe Plug-And-Play Modularity," in Proceedings of the 1st German Robotics Conference (GRC), Nürnberg, Germany: Robotics Institute Germany, Mar. 2025. Available: <a href="https://ras.papercept.net/conferences/conferences/GRC25/program/GRC25_ContentListWeb_1.html#thga_58">https://ras.papercept.net/conferences/conferences/GRC25/program/GRC25_ContentListWeb_1.html#thga_58</a>. — Standalone video contribution (<a href="https://videocampus.sachsen.de/category/video/programming-drone-collectives/dcaa90c5c4023641b62223d8d5f5f515/112">demo video</a>, abstract, and <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/static/Poster-UniAgent-German-Robotics-Conference-2025.pdf">poster</a>)</li>
 <li>Initial Documentation and Theory of Bi-Spatial Structure, i.e., Topology-aware Bigraphs (Preprint) <a href="https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-908655">A Bigraphical Framework for Modeling and Simulation of UAV-based Inspection Scenarios</a></li>
 <li>Tools and Code (UniAgent Platform): <a href="https://github.com/UniAgent-Platform">https://github.com/UniAgent-Platform</a>, <a href="https://github.com/orgs/UniAgent-CyberPhysicalAssets/">https://github.com/orgs/UniAgent-CyberPhysicalAssets/</a></li>
-</ul></div>
+</ul>
+<h2>Research Tools</h2>
+<p>A quick look at some of the tools that are currently being developed.</p>
+<h4>Term Builder:</h4>
+<ul>
+<li>For defining predefined navigation paths for agents</li>
+</ul>
+<video controls width="580">
+  <source src="static/videos/tools-prototype/screencast-2025-05-05-path-selector.mp4" type="video/mp4" />
+</video>
+
+<ul>
+<li>See also a related book:
+  Grammatical Picture Generation. in Texts in Theoretical Computer Science. An EATCS Series. Berlin/Heidelberg: Springer-Verlag, 2006. doi: 10.1007/3-540-32507-7. Available: <a href="http://link.springer.com/10.1007/3-540-32507-7">http://link.springer.com/10.1007/3-540-32507-7</a>.</li>
+</ul>
+<h4>Unfolding of Spatial Computational Structures</h4>
+<video controls width="580">
+  <source src="static/videos/tools-prototype/screencast-computational-structure.mp4" type="video/mp4" />
+</video>
+
+<ul>
+<li>Note that graph structures remain invariant under permutations of their representations.</li>
+<li>However, the orthogonality between the bigraph’s place graph (forest) and link graph (hypergraph) enables specially designed bigraphs to be represented in a 3D setting.</li>
+</ul>
+<h4>BiGrid Gazebo Visualizer:</h4>
+<p><img alt="BiGrid Gazebo Visualizer" src="static/videos/tools-prototype/demo-gazebo-bispace.gif" /></p></div>
     </div>
   
     <!-- Bottom Navigation -->
     <div class="flex justify-between mt-4">
         
-        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools" class="px-4 py-2 bg-blue-600 text-white rounded">
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout" class="px-4 py-2 bg-blue-600 text-white rounded">
             Previous
         </a>
         

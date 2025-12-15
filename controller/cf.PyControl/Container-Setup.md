@@ -15,39 +15,16 @@ This section explains the one-time setup you need to complete before building th
 
 #### Allowing USB
 
-Make Crazyradio available in Docker container:
 - First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/) 
-- After, open the terminal and use the `lsusb` command to get a list of all USB devices connected to your system. Each line in the `lsusb` output represents a USB device with a Bus number and Device number.
-- Then, you can select either way:
-  - Use `udevadm` to get detailed information about the device, which includes the associated `/dev` entry.
-  - Get device major number via `ls -la`
-  - In both commands above, replace `001` with the Bus number and `009` with the Device number as shown in the output of `lsusb`.
-- Example:
-```shell
-$ lsusb
-[...]
-Bus 001 Device 009: ID 1915:7777 Nordic Semiconductor ASA Bitcraze Crazyradio (PA) dongle
-[...]
 
-$ sudo udevadm info --query=all --name=/dev/bus/usb/001/009
-[...]
-U: usb
-T: usb_device
-D: c 189:262
-N: bus/usb/001/009
-[...]
+- 
 
-$ ls -la /dev/bus/usb/001/009
-crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
-```
+  - Important is the **major device number**, which is in this example `189`
 
-- Important is the **major device number**, which is in this example `189`
-  
-- Add the respective rule when starting the Docker container (see example below):
-  - `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
-  - The *insecure*, ready-to-go option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
-
-- See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
+  - Add the respective rule when starting the Docker container (see example below):
+    - `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
+    
+    
 
 #### Enable GPU-accelerated Containers
 

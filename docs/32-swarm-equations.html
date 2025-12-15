@@ -61,37 +61,55 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-gazebo">3. Getting Started with the Simulation Environment (sim_cf2)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl">3. Getting Started with the Crazyflie Controller</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/14-getting-started-cf.PyControl">4. Getting Started with the Crazyflie Controller</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12b-x-terminal-layout">5. Terminal Layouts</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie">5. Webots Simulation (ds-crazyflie)</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/24-getting-started-gazebo-simcf2">6. Gazebo Simulation (sim_cf2)</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology">7. Methodology</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer font-bold active">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-drone-equations">6. Swarm Equations</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations">8. Swarm Equations</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">7. Research Tools (Prototypes)</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
               </li>
           
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">8. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
+              </li>
+          
+      
+          
+              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
               </li>
           
       
@@ -104,16 +122,16 @@
         <!-- <h1 id="title" class="scroll-mt-20">Swarm Equations</h1> -->
         <div id="content" class="scroll-mt-20"><h1>Introduction to Bigraphical Models for Algebraic Swarm Equations</h1>
 <h2>Wait—equations for swarms?</h2>
-<p>Yes—algebraic equations, but with a twist: they come with <strong>visual notations built from (bi)graphical structures</strong>.  </p>
-<p>This matters when working with systems like drone swarms or robot collectives—where agents move in space, interact locally, and must coordinate globally. Algebra here isn’t just numbers; it’s a <strong>language for structure</strong>. Combined with visual bigraphs, it becomes a powerful tool for describing collective behaviors.</p>
+<p>Yes, algebraic equations, but with a twist: they come with <strong>visual notations built from (bi)graphical structures</strong>.  </p>
+<p>This matters when working with systems like drone swarms or robot collectives, where agents move in space, interact locally, and must coordinate globally. Algebra here isn’t just numbers; it’s a <strong>language for structure</strong>. Combined with visual bigraphs, it becomes a powerful tool for describing collective behaviors.</p>
 <h3>Algebraic Spaces</h3>
 <p><a href="https://en.wikipedia.org/wiki/Bigraph">Bigraphs</a> extend ordinary graphs with two complementary dimensions:  </p>
 <ul>
-<li><strong>Locality</strong> – who is “inside” or “near” whom  </li>
-<li><strong>Connectivity</strong> – who is linked or able to communicate  </li>
+<li><strong>Locality</strong>: who is “inside” or “near” whom?</li>
+<li><strong>Connectivity</strong>:  who is linked or able to communicate?  </li>
 </ul>
 <p>By combining these, bigraphs provide a <strong>unified algebraic and visual framework</strong> for systems where <em>geometry meets interaction</em>.  </p>
-<p>We extend bigraphs into so-called <strong>bi-spatial structures</strong> — modular, grid-like building blocks that define discrete spatial layouts. <br />
+<p>Specifically, bigraphs are extended here into so-called <strong>bi-spatial structures</strong>: modular, grid-like building blocks that define discrete spatial layouts. <br />
 These can model drones flying in formation, robots sorting themselves on a grid, or agents exploring an environment.  </p>
 <h3>Examples</h3>
 <p>The following figures illustrate exemplary topological structures built from this “syntax of space” (which are formalized using our bigraphical axioms):</p>
@@ -123,26 +141,26 @@ These can model drones flying in formation, robots sorting themselves on a grid,
 <li><strong>Concrete + formal</strong>: Models are both visually intuitive <em>and</em> mathematically precise.  </li>
 <li><strong>Composable</strong>: Complex swarms are built from simple axioms (“bi-spatial axioms”), ensuring modularity.  </li>
 <li><strong>Dynamic</strong>: Agents evolve via reaction rules, giving rise to algebraic swarm equations that capture both motion and coordination.  </li>
-<li><strong>Debuggable</strong>: Equations can be analyzed by calculators and through extensions like 3D raycasting, swarm evolution can be <em>observed</em> in real time. </li>
+<li><strong>Debuggable</strong>: Equations can be analyzed by "calculators" and through extensions like 3D raycasting, so swarm evolution can be <em>observed</em> in real time. </li>
 </ul>
-<h3>Foundations of UniAgent: Bigraphical Models</h3>
-<p>The UniAgent platform builds on a small set of <strong>bi-spatial axioms</strong>—algebraic rules that define how discrete locales connect. These axioms form the backbone for modeling swarms as <strong>algebraic spaces</strong>, where agents move and interact.  </p>
-<p>Think of them as the Lego-bricks of swarm modeling: simple, composable, and grounded in both algebra and geometry.  </p>
-<p><img alt="Bigraphical Landscape of the Axioms" src="static/images/bigraph-algebra-1.png" />
-<small>This figures presents an overview of the bi-spatial axioms.</small></p>
+<h3>Foundation of UniAgent: Bigraphical Models</h3>
+<p>The UniAgent platform builds on a small set of <strong>bi-spatial axioms</strong>, which are algebraic rules that define how discrete locales/spaces/realms/... connect. These axioms form the backbone for modeling swarms as <strong>algebraic spaces</strong>, where agents move and interact.  </p>
+<p>Think of them as the LEGO®-like bricks for swarm modeling.  </p>
+<p><img src="static/images/bigraph-algebra-1.png" style="zoom: 70%" alt="Bigraphical Landscape of the Axioms"/>
+<small>This figure shows an overview of the essential bi-spatial axioms.</small></p>
 <p>Read more about it here: </p>
 <ul>
+<li>Proof Everything Everywhere But Not All At Once: A Robotic Case
+  <a href="https://doi.org/10.25368/2025.369" target="_blank">[LINK]</a></li>
 <li>A Bigraphical Framework for Modeling and Simulation of UAV-based Inspection Scenarios
   <a href="https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-908655" target="_blank">[LINK]</a></li>
-<li>Proof Everything Everywhere But Not All At Once: A Robotic Case
- <a href="https://doi.org/10.25368/2025.369" target="_blank">[LINK]</a></li>
 </ul></div>
     </div>
   
     <!-- Bottom Navigation -->
     <div class="flex justify-between mt-4">
         
-        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12b-x-terminal-layout" class="px-4 py-2 bg-blue-600 text-white rounded">
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology" class="px-4 py-2 bg-blue-600 text-white rounded">
             Previous
         </a>
         

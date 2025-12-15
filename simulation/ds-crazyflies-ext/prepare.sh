@@ -1,25 +1,46 @@
 #!/bin/bash
 
 echo "Current working directory: $(pwd)"
-# Define the source and destination directories
+
+# Define directories
 SRC_DIR="./docker/"
 DEST_DIR="./simulation.ds-crazyflies"
 
-echo "Expected source directory: $SRC_DIR"
-# Check if the source directory exists
-if [ ! -d "$SRC_DIR" ]; then
-  echo "Source directory $SRC_DIR does not exist. Exiting."
-  exit 1
+COPY_DOCKER=false
+
+# Parse arguments
+for arg in "$@"; do
+  case $arg in
+    --linux)
+      COPY_DOCKER=true
+      shift
+      ;;
+    *)
+      ;;
+  esac
+done
+
+# Clone repository if destination does not exist
+if [ ! -d "$DEST_DIR/.git" ]; then
+  git clone --recurse https://github.com/DynamicSwarms/ds-crazyflies.git "$DEST_DIR"
+else
+  echo "Repository already exists at $DEST_DIR, skipping clone."
 fi
 
-# Create the destination directory if it does not exist
-mkdir -p "$DEST_DIR"
+if [ "$COPY_DOCKER" = true ]; then
+  echo "Linux mode enabled: copying Docker files."
 
-git clone --recurse https://github.com/DynamicSwarms/ds-crazyflies.git simulation.ds-crazyflies
+  if [ ! -d "$SRC_DIR" ]; then
+    echo "Source directory $SRC_DIR does not exist. Exiting."
+    exit 1
+  fi
 
-# Copy the source directory to the destination
-cp -r "$SRC_DIR" "$DEST_DIR"
+  cp -r "$SRC_DIR" "$DEST_DIR"
+else
+  echo "Linux mode disabled: skipping Docker files copy."
+fi
+
+# Copy Webots world
 cp -r crazyflie.wbt "$DEST_DIR"
 
-# Notify the user of the successful copy
-echo "Copied $SRC_DIR to $DEST_DIR successfully."
+echo "Setup completed successfully."
