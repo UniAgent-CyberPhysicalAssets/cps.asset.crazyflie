@@ -23,6 +23,10 @@ done
 # Clone repository if destination does not exist
 if [ ! -d "$DEST_DIR/.git" ]; then
   git clone --recurse https://github.com/DynamicSwarms/ds-crazyflies.git "$DEST_DIR"
+  cd "$DEST_DIR"
+  git checkout 9728f025382f1e8bb4a9b670c4d53999f3801224
+  git submodule update --init --recursive
+  cd ..
 else
   echo "Repository already exists at $DEST_DIR, skipping clone."
 fi

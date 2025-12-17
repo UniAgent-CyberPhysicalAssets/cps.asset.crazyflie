@@ -112,3 +112,11 @@ ros2 topic pub --once /cf0/land crazyflie_interfaces/msg/Land "{group_mask: 0, h
 ```shell
 ros2 topic echo /cf_positions_poses --qos-reliability best_effort
 ```
+
+With cf.PyControl:
+
+```sh
+./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
+./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+```
+
