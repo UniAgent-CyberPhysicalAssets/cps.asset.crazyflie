@@ -8,19 +8,6 @@ from cf_positioning import Point3D
 drone_blueprint = Blueprint('drone', __name__)
 DEBUG = False
 
-# Custom converter to handle negative float values
-class FloatConverter(BaseConverter):
-    regex = r'-?\d+(\.\d+)?'
-
-    def to_python(self, value):
-        try:
-            return float(value)
-        except ValueError:
-            raise ValidationError()
-
-    def to_url(self, value):
-        return str(value)
-
 @drone_blueprint.errorhandler(exceptions.TransitionNotAllowed)
 def handle_transition_not_allowed_error(error):
     return jsonify({"error": str(error)}), 400
@@ -86,16 +73,18 @@ def begin_landing():
     drone.begin_landing()
     return jsonify({"message": "Transitioned to", "state": drone.get_current_state()})
 
-@drone_blueprint.route('/navigate/<float:x>/<float:y>/<float:z>', methods=['POST'])
+@drone_blueprint.route('/navigate/<string:x>/<string:y>/<string:z>', methods=['POST'])
 def navigate_to(x, y, z):
+    x, y, z = float(x), float(y), float(z)
     drone = current_app.config['DRONE']
     print(f"REST API: Point3D(x,y,z): Point3D({x},{y},{z})")
     drone.targetPointsQueue.append(Point3D(x,y,z))
     drone.begin_nav_goal_sequence()
     return jsonify({"message": f'Navigating to ({x}, {y}, {z}) completed', "state": drone.get_current_state()})
 
-@drone_blueprint.route('/navigate/append/<float:x>/<float:y>/<float:z>', methods=['POST'])
+@drone_blueprint.route('/navigate/append/<string:x>/<string:y>/<string:z>', methods=['POST'])
 def append_navigation_goal(x, y, z):
+    x, y, z = float(x), float(y), float(z)
     drone = current_app.config['DRONE']
     print(f"REST API: Point3D(x,y,z): Point3D({x},{y},{z})")
     drone.targetPointsQueue.append(Point3D(x,y,z))

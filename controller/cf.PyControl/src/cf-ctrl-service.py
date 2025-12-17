@@ -38,7 +38,6 @@ from cf_positioning import KalmanEstimatePositionStrategy, \
 from cf_positioning import RosPoseArrayPositionStrategy
 from cf_drone_ops import HlCommanderCFOperationImpl, RosTopicCFOperationImpl
 import cf_sm
-from routes import FloatConverter
 
 
 # ######################################################################################################################
@@ -313,7 +312,7 @@ def start_flask_in_thread(args):
     app.before_request(before_request_callback)
 
     # Custom URL converters
-    app.url_map.converters['float'] = FloatConverter
+    # app.url_map.converters['float'] = FloatConverter
 
     flask_thread = threading.Thread(
         target=start_flask_app,

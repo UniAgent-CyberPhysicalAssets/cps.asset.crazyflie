@@ -17,13 +17,10 @@ This section explains the one-time setup you need to complete before building th
 
 - First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/) 
 
-- 
-
+- Perform the initial USB setup as described here: https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started
   - Important is the **major device number**, which is in this example `189`
-
   - Add the respective rule when starting the Docker container (see example below):
     - `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
-    
     
 
 #### Enable GPU-accelerated Containers
@@ -33,10 +30,8 @@ This section explains the one-time setup you need to complete before building th
 ### Building the Docker Image
 
 ```shell
-$ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
+$ sudo docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 ```
-
-> **Note:** If you encounter a "permission denied" error, you may need to run `docker` with `sudo`.
 
 ## Usage
 
