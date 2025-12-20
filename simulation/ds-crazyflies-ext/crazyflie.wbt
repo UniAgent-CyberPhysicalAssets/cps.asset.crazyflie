@@ -52,12 +52,17 @@ HalleTraversen {
 
 Crazyflie {
   id 0
-  translation 0 0 0.15
+  translation 0 0.35 0.15
 }
 
 Crazyflie {
   id 1
-  translation 0.5 0 0.15
+  translation 1.0 0.35 0.15
+}
+
+Crazyflie {
+  id 2
+  translation 2.0 0.35 0.15
 }
 
 ControllableWand {

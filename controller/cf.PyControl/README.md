@@ -34,7 +34,9 @@ The high-level actions of the drone are internally managed by a [*State Machine*
 - **Webserver and Websocket Ports**
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-
+  - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "LPS|bcFlow2" --port 5000 --wsendpoint --wsport 8765 
+  - ./cfpyctrl.sh --uri radio://1/80/2M/E7E7E7E7E2 --ps "LPS|bcFlow2" --port 5001 --wsendpoint --wsport 8766
+  
 - **Positioning System**
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"

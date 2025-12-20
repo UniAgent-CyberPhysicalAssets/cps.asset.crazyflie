@@ -24,7 +24,8 @@ from cflib.utils.reset_estimator import reset_estimator
 try:
     import rclpy
     from rclpy.node import Node
-    from geometry_msgs.msg import PoseArray
+    from geometry_msgs.msg import PoseArray, PoseStamped
+    from crazyflie_interfaces.msg import PoseStampedArray
 except Exception:
     # rclpy might not be available in environments where ds_crazyflie is not used.
     rclpy = None
@@ -100,33 +101,42 @@ class RosPoseArrayPositionStrategy(PositionEstimationStrategy, Node):
     Position estimation strategy that subscribes to a ROS2 PoseArray topic and extracts the first pose as the current
     Crazyflie position. It updates the shared log_values dictionary accordingly.
     """
-    def __init__(self, log_values, cf_id: int = 0, topic: str = '/cf_positions_poses'):
+    def __init__(self, log_values, cf_id: int = 0, topic: str = '/cf_positions'):
         PositionEstimationStrategy.__init__(self, log_values)
+
         if rclpy is None:
             raise ImportError("rclpy is not available. RosPoseArrayPositionStrategy requires ROS2.")
+
         Node.__init__(self, f'ds_position_estimator_cf{cf_id}')
         self.cf_id = cf_id
+        self.expected_frame_id = f"cf{cf_id}"
 
         self.subscription = self.create_subscription(
-            PoseArray,
+            PoseStampedArray,
             topic,
-            self.pose_callback,
+            self.pose_array_callback,
             10
         )
 
-    def pose_callback(self, msg: PoseArray):
-        if not msg.poses:
-            return
-        pose = msg.poses[self.cf_id]
+        self.get_logger().info(
+            f"Subscribed to {topic}, filtering PoseStamped with frame_id='{self.expected_frame_id}'"
+        )
 
-        self.position_estimate[0] = pose.position.x
-        self.position_estimate[1] = pose.position.y
-        self.position_estimate[2] = pose.position.z
-        self.log_values['x'] = pose.position.x
-        self.log_values['y'] = pose.position.y
-        self.log_values['z'] = pose.position.z
+    def pose_array_callback(self, msg: PoseStampedArray):
+        for pose_stamped in msg.poses:
+            if pose_stamped.header.frame_id != self.expected_frame_id:
+                continue
 
-        self.position_estimate_event.set()
+            pose = pose_stamped.pose
+            # print(f"pose {pose}")
+
+            self.position_estimate[0] = pose.position.x
+            self.position_estimate[1] = pose.position.y
+            self.position_estimate[2] = pose.position.z
+
+            self.log_values['x'] = pose.position.x
+            self.log_values['y'] = pose.position.y
+            self.log_values['z'] = pose.position.z
 
     # Unused in ROS-based strategy
     def estimatePositionLogCallback(self, timestamp, data, logconf):
