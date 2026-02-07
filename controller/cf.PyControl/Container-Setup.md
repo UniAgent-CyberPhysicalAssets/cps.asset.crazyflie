@@ -17,10 +17,9 @@ This section explains the one-time setup you need to complete before building th
 
 - First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/) 
 
-- Perform the initial USB setup as described here: https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started
-  - Important is the **major device number**, which is in this example `189`
-  - Add the respective rule when starting the Docker container (see example below):
-    - `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
+- Find out the major device number of the USB Crazyradio as described here: https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started
+  - The **major device number** is in this example `189`
+  - You have to add the respective rule when starting the Docker container (see example below): `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
     
 
 #### Enable GPU-accelerated Containers
@@ -35,13 +34,13 @@ $ sudo docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 
 ## Usage
 
-**First, allow the Docker Container to Access to X Server (GUI):**
+First, allow the Docker Container to Access to X Server (GUI):
 
 ```shell
 $ xhost +local:$USER
 ```
 
-Revert the `xhost` settings to their original state afterward: `xhost -`
+(Revert the `xhost` settings to their original state afterward: `xhost -`)
 
 ### Running the Docker Container
 
@@ -66,15 +65,16 @@ cf-pyctrl
 > **Note:** In `c 189:* rmw`, replace the `189` with the **major device number** you obtained in the [Allowing USB](#allowing-usb) section.
 
 
-**Development**
+**Sync Folders**
 
-To sync folders add the following argument (example):
+Enable "Dev-Mode":
 
 ```shell
-# Enable "Dev-Mode"
 --mount type=bind,source=$(pwd)/src,target=/home/user/dev_ws/libs/crazyflie-controller/src  \
-# Add additional example scripts for testing
---mount type=bind,source=$(pwd)/examplescripts,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
---mount type=bind,source=$(pwd)/lpstest,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
+```
+
+Add additional example scripts for testing the drone:
+```shell
+--mount type=bind,source=$(pwd)/examples,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
 ```
 

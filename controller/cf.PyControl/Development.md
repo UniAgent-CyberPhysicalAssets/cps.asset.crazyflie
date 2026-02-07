@@ -33,11 +33,6 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 - Make sure the ROS environment is sourced: `source /opt/ros/${ROS_DISTRO}/setup.bash`
 
-### USB Permissions
-
-- _(Only under Linux)_
-To use Crazyradio and Crazyflie 2 over USB without being root: [USB permissions ](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/)
-
 ## Workspace Setup
 
 ### Create Virtual Environment
@@ -50,10 +45,6 @@ $ source venv/bin/activate
 ```
 
 ### Install Python Packages
-
-> [!IMPORTANT]
-> The first option is the recommended way of installing the Crazyflie libraries.
-> Manual installation is just for demonstration purposes.
 
 - Install Packages from [`requirements.txt`](requirements.txt):
 
