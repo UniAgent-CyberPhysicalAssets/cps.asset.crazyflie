@@ -1,11 +1,13 @@
 import asyncio
 import time
+from typing import Optional
 from cflib.positioning.position_hl_commander import PositionHlCommander
 from flask import Flask, jsonify, request
 from statemachine import StateMachine, State, exceptions
 from statemachine.contrib.diagram import DotGraphMachine
 from werkzeug.routing import BaseConverter, ValidationError
 from cf_drone_ops import CFOperationStrategy
+from cf_positioning import PositionEstimationStrategy
 
 
 class StateMachineDrone(StateMachine):
@@ -18,12 +20,80 @@ class StateMachineDrone(StateMachine):
     isFlying = False
     targetPointsQueue = []
 
+    _position_estimation_strategy: Optional["PositionEstimationStrategy"] = None
+
+    _trajectory_sequence = None
+    _trajectory_base_x = 0.0
+    _trajectory_base_y = 0.0
+    _trajectory_base_z = 0.0
+    _trajectory_base_yaw = 0.0
+    _loops = 1.0
+
     def __init__(self, drone_id: str, debug: bool = False):
         super().__init__()
         self._IS_DEBUG = debug
         if drone_id:
             self.set_uav_name(drone_id)
         self.current_transition = None
+
+    # State Machine
+
+    # Define the OSGi lifecycle states
+    installed = State('INSTALLED', initial=True)
+    resolved = State('RESOLVED')
+    starting = State('STARTING')
+    active = State('ACTIVE')
+    stopping = State('STOPPING')
+    uninstalled = State('UNINSTALLED', final=True)
+
+    # Define the UAV operation states
+    idle = State('IDLE')
+    hovering = State('HOVERING')  # takeoff completed
+    flying = State('FLYING')
+    flying_trajectory = State('FLYING_TRAJECTORY')  # NEW STATE
+    landed = State('LANDING')
+    shutdown = State('SHUTDOWN')
+
+    # Define the transitions for "OSGi" lifecycle (similar pattern here)
+    install = installed.to(resolved, cond='dependencies_resolved')
+    start = resolved.to(starting)
+    initialize = starting.to(active)
+    stop = active.to(stopping)
+    stopped = stopping.to(resolved)
+    uninstall = resolved.to(uninstalled)
+
+    # Define the transitions for UAV operation
+    activate_idle = active.to(idle)
+    begin_takeoff = idle.to(hovering)  # cond="reached_Height"
+    begin_landing = hovering.to(landed)
+    begin_nav_goal_sequence = hovering.to(flying)
+    begin_fly_trajectory = hovering.to(flying_trajectory)
+    finish_fly_trajectory = flying_trajectory.to(hovering)
+
+    next_nav_goal = flying.to(flying, cond='goal_reached')
+    keep_hovering = flying.to(hovering, cond='goal_reached')
+    landing_completed = landed.to(idle, cond="is_not_flying")
+    shutdown_command = idle.to(shutdown)
+    begin_stopping = shutdown.to(stopping)
+
+    def setPositionEstimator(self, strategy):
+        if strategy is None:
+            raise ValueError("PositionEstimationStrategy must not be None")
+
+        if not isinstance(strategy, PositionEstimationStrategy):
+            raise TypeError(
+                f"strategy must be of type {PositionEstimationStrategy.__qualname__}"
+            )
+
+        self._position_estimation_strategy = strategy
+
+    def getPositionEstimator(self):
+        if self._position_estimation_strategy is None:
+            raise RuntimeError("PositionEstimationStrategy has not been set")
+        return self._position_estimation_strategy
+
+    def hasPositionEstimator(self) -> bool:
+        return self._position_estimation_strategy is not None
 
     @property
     def uav_name(self):
@@ -44,39 +114,35 @@ class StateMachineDrone(StateMachine):
         if self._IS_DEBUG:
             print(msg)
 
-    # Define the OSGi lifecycle states
-    installed = State('INSTALLED', initial=True)
-    resolved = State('RESOLVED')
-    starting = State('STARTING')
-    active = State('ACTIVE')
-    stopping = State('STOPPING')
-    uninstalled = State('UNINSTALLED', final=True)
+    def set_trajectory_sequence(self, sequence):
+        if sequence is None or len(sequence) == 0:
+            raise ValueError("Trajectory sequence must not be empty")
+        self._trajectory_sequence = sequence
 
-    # Define the UAV operation states
-    idle = State('IDLE')
-    hovering = State('HOVERING')  # takeoff completed
-    flying = State('FLYING')
-    landed = State('LANDING')
-    shutdown = State('SHUTDOWN')
+    def set_trajectory_base(self, x: float, y: float, z: float, yaw: float = 0.0, loops: int=1):
+        self._trajectory_base_x = float(x)
+        self._trajectory_base_y = float(y)
+        self._trajectory_base_z = float(z)
+        self._trajectory_base_yaw = float(yaw)
+        self._loops = int(loops)
 
-    # Define the transitions for "OSGi" lifecycle (similar pattern here)
-    install = installed.to(resolved, cond='dependencies_resolved')
-    start = resolved.to(starting)
-    initialize = starting.to(active)
-    stop = active.to(stopping)
-    stopped = stopping.to(resolved)
-    uninstall = resolved.to(uninstalled)
+    def get_trajectory_sequence(self):
+        return self._trajectory_sequence
 
-    # Define the transitions for UAV operation
-    activate_idle = active.to(idle)
-    begin_takeoff = idle.to(hovering)  # cond="reached_Height"
-    begin_landing = hovering.to(landed)
-    begin_nav_goal_sequence = hovering.to(flying)
-    next_nav_goal = flying.to(flying, cond='goal_reached')
-    keep_hovering = flying.to(hovering, cond='goal_reached')
-    landing_completed = landed.to(idle, cond="is_not_flying")
-    shutdown_command = idle.to(shutdown)
-    begin_stopping = shutdown.to(stopping)
+    def get_trajectory_base_x(self):
+        return self._trajectory_base_x
+
+    def get_trajectory_base_y(self):
+        return self._trajectory_base_y
+
+    def get_trajectory_base_z(self):
+        return self._trajectory_base_z
+
+    def get_trajectory_base_yaw(self):
+        return self._trajectory_base_yaw
+
+    def get_loops(self):
+        return self._loops
 
     # Conditional methods for transitions (if needed)
     def dependencies_resolved(self):
@@ -119,6 +185,8 @@ class StateMachineDrone(StateMachine):
             self.uavOpStrategyImpl.landing_simple()
         if event == "begin_nav_goal_sequence" or event == "next_nav_goal":
             navigate_to_simple(self)
+        if event == "begin_fly_trajectory":
+            start_trajectory(self)
         if event == "shutdown":
             self.uavOpStrategyImpl.shutdown()
 
@@ -190,3 +258,28 @@ def navigate_to_simple(drone: StateMachineDrone):
         return
     drone.printDebug("\tAll Nav-Goals finished! keep hovering now.")
     drone.keep_hovering()
+
+def start_trajectory(drone: StateMachineDrone):
+    drone.printDebug("Flying trajectory now!")
+
+    sequence = drone.get_trajectory_sequence()
+    x0 = drone.get_trajectory_base_x()
+    y0 = drone.get_trajectory_base_y()
+    z0 = drone.get_trajectory_base_z()
+    yaw0 = drone.get_trajectory_base_yaw()
+    loops = drone.get_loops()
+
+    drone.printDebug("Trajectory parameters:")
+    drone.printDebug(f"\tBase position:")
+    drone.printDebug(f"\t\tx    = {x0}")
+    drone.printDebug(f"\t\ty    = {y0}")
+    drone.printDebug(f"\t\tz    = {z0}")
+    drone.printDebug(f"\t\tyaw  = {yaw0}")
+    drone.printDebug(f"\t\tloops  = {loops}")
+
+    if sequence is None:
+        raise RuntimeError("Trajectory sequence not set before starting trajectory")
+
+    drone.uavOpStrategyImpl.run_sequence(sequence=sequence, origin_x=x0, origin_y=y0, origin_z=z0, origin_yaw=yaw0, loops=loops)
+
+    return drone.finish_fly_trajectory()

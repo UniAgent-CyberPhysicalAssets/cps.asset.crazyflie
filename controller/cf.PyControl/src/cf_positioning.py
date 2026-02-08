@@ -43,10 +43,12 @@ class Point3D():
         self.z = _z
 
 class PositionEstimationStrategy(ABC):
-    def __init__(self, log_values):
+    def __init__(self, log_values, console = None):
         self.log_values = log_values
         self.position_estimate_event = threading.Event()
-        self.position_estimate = [0, 0, 0]
+        self.position_estimate = [0, 0, 0] # X, Y, Z
+        self.flight_attitude_estimate = [0, 0, 0] # Yaw, Pitch, Roll
+        self.console = console
 
     def requires_position_before_initialize(self) -> bool:
         return False
@@ -101,8 +103,8 @@ class RosPoseArrayPositionStrategy(PositionEstimationStrategy, Node):
     Position estimation strategy that subscribes to a ROS2 PoseArray topic and extracts the first pose as the current
     Crazyflie position. It updates the shared log_values dictionary accordingly.
     """
-    def __init__(self, log_values, cf_id: int = 0, topic: str = '/cf_positions'):
-        PositionEstimationStrategy.__init__(self, log_values)
+    def __init__(self, log_values, cf_id: int = 0, topic: str = '/cf_positions', console=None):
+        PositionEstimationStrategy.__init__(self, log_values, console)
 
         if rclpy is None:
             raise ImportError("rclpy is not available. RosPoseArrayPositionStrategy requires ROS2.")
@@ -137,6 +139,7 @@ class RosPoseArrayPositionStrategy(PositionEstimationStrategy, Node):
             self.log_values['x'] = pose.position.x
             self.log_values['y'] = pose.position.y
             self.log_values['z'] = pose.position.z
+            self.position_estimate_event.set()
 
     # Unused in ROS-based strategy
     def estimatePositionLogCallback(self, timestamp, data, logconf):

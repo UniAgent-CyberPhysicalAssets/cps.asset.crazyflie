@@ -1,0 +1,10 @@
+{
+  "loops": 1,
+  "sequence": [
+    { "type": "start", "x": 0.0, "y": 0.0, "z": 0.0, "yaw": 0.0 },
+    { "type": "segment", "duration": 2.0, "x": [ 0.0 ], "y": [0.0], "z": [0.3], "yaw": [0.0] },
+    { "type": "segment", "duration": 2.0, "x": [ 0.3 ], "y": [0.0], "z": [0.3], "yaw": [0.0] },
+    { "type": "segment", "duration": 2.0, "x": [ 0.0 ], "y": [0.0], "z": [0.3], "yaw": [0.0] },
+    { "type": "segment", "duration": 3.0, "x": [ 0.0 ], "y": [0.0], "z": [0.0], "yaw": [0.0] }
+  ]
+}

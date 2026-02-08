@@ -128,14 +128,18 @@ logValues = {
 
 
 # ######################################################################################################################
+warningShown = False
 
 def power_log_callback(timestamp, data, logconf):
     global logValues
+    global warningShown
     logValues['battery'] = data['pm.vbat']
     logValues['batteryLevel'] = data['pm.batteryLevel']
     logValues['batteryState'] = data['pm.state']
-    if logValues['battery'] < 3.4:
+    if logValues['battery'] < 3.4 and warningShown is False:
+        warningShown = True
         print("⚠️ Battery low! Consider landing soon.")
+    if logValues['battery'] >= 3.4: warningShown = False
 
 
 def render_view(drone, positionEstimator):
@@ -373,6 +377,12 @@ def start_runtime_services(args):
 def main_loop():
     console.print("Drone ready to take commands.", markup=False)
 
+    # try:
+    #     while ISRUNNING:
+    #         time.sleep(0.1)
+    # except KeyboardInterrupt:
+    #     console.print("Shutdown requested", markup=False)
+
     with Live(create_table_terminal(), refresh_per_second=10, screen=False) as live:
         try:
             while ISRUNNING:
@@ -419,8 +429,10 @@ def run_dscf_mode(args):
 
     positionEstimator = RosPoseArrayPositionStrategy(
         logValues,
-        cf_id=cf_id
+        cf_id=cf_id,
+        console=console
     )
+    drone.setPositionEstimator(positionEstimator)
 
     console.print(
         f"[{drone.get_current_state()}] ROS-based position estimator started",
@@ -434,7 +446,7 @@ def run_dscf_mode(args):
         markup=False
     )
 
-    droneOpsImpl = RosTopicCFOperationImpl(cf_prefix=args.cf_prefix, debug=DEBUG, dronePosEst=positionEstimator)
+    droneOpsImpl = RosTopicCFOperationImpl(cf_prefix=args.cf_prefix, debug=DEBUG, dronePosEst=positionEstimator, console=console)
     drone.set_uavOpsImpl(droneOpsImpl)
 
     console.print(
@@ -543,10 +555,11 @@ def run_cflib_mode(args):
 
         # Position estimator
         positionEstimator = (
-            StateEstimatePositionStrategy(logValues)
+            StateEstimatePositionStrategy(log_values=logValues, console=console)
             if POSITION_ESTIMATE_FILTER == "state"
-            else KalmanEstimatePositionStrategy(logValues)
+            else KalmanEstimatePositionStrategy(log_values=logValues, console=console)
         )
+        drone.setPositionEstimator(positionEstimator)
 
         logConfig_Pos = LogConfig(name='Position', period_in_ms=loggingPeriod_in_ms)
         positionEstimator.add_variables(logConfig_Pos)
@@ -579,7 +592,7 @@ def run_cflib_mode(args):
         # Stabilizer logs
         setup_stabilizer_logging(scf)
 
-        droneOpsImpl = HlCommanderCFOperationImpl(scf=scf, debug=DEBUG)
+        droneOpsImpl = HlCommanderCFOperationImpl(scf=scf, debug=DEBUG, console=console)
         drone.set_uavOpsImpl(droneOpsImpl)
 
         console.print(

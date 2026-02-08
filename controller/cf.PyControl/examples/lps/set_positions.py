@@ -30,7 +30,7 @@ Requires a system in TDoA mode and a Crazyflie with the LPS deck.
 
 Use by piping yaml document with positions into the script
 cat ./positions_example.yaml | python3 ./set_positions.py radio://0/80/2M/E7E7E7E7E1
-cat ./home-small.xrpals.yaml | python3 ./set_positions.py radio://0/80/2M/E7E7E7E7E1
+cat ./rectangle-small.xrpals.yaml | python3 ./set_positions.py radio://0/80/2M/E7E7E7E7E1
 """
 import logging
 import time

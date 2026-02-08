@@ -30,23 +30,20 @@ The high-level actions of the drone are internally managed by a [*State Machine*
   - Connect the Crazyradio 2.0 to a USB port
   - Switch on the Crazyflie 2.X drone
   - Start the Crazyflie Client (Test): `cfclient`
-  
 - **Webserver and Websocket Ports**
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "LPS|bcFlow2" --port 5000 --wsendpoint --wsport 8765 
   - ./cfpyctrl.sh --uri radio://1/80/2M/E7E7E7E7E2 --ps "LPS|bcFlow2" --port 5001 --wsendpoint --wsport 8766
-  
 - **Positioning System**
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "bcFlow2" # default
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS"
   - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E2 --port 5001 --ps "LPS|bcFlow2"
-
 - **Flight Operations**
   - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
   - curl -d {} http://127.0.0.1:5000/begin_takeoff
+  - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5000/begin_takeoff
   - curl -d {} http://127.0.0.1:5000/begin_landing
-
 - **Simulation Mode** _(requires running Simulator)_
   - ds-crazflie:
     - ./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
@@ -168,6 +165,144 @@ Ensure you have enough space.
 > You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
 > Accuracy depends on the positioning system in use (both LPS and Flow deck support this).
 > This can be changed in `cf-ctrl-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
+
+### Fly Trajectories
+
+Executes a time-parameterized, compressed trajectory. 
+The trajectory is defined as a sequence of trajectory elements:
+
+- a mandatory `start` element (initial pose)
+- followed by one or more `segment` elements (motion primitives)
+- Relative positions
+
+By default, the trajectory origin is taken from the current position estimate  (LPS / Flow with state-based or Kalman-based estimator). Optional base coordinates can be provided to override this behavior.
+
+**Basic example (estimator-relative)**
+
+```shell
+$ curl -H "Content-Type: application/json" \
+-d '{
+  "sequence": [
+    {
+      "type": "start",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "yaw": 0.0
+    },
+    {
+      "type": "segment",
+      "duration": 2.0,
+      "x": [0.25],
+      "y": [0.0],
+      "z": [0.0],
+      "yaw": [0.0]
+    },
+    {
+      "type": "segment",
+      "duration": 2.0,
+      "x": [0.25],
+      "y": [0.0],
+      "z": [0.0],
+      "yaw": [0.0]
+    }
+  ],
+  "loops": 1.0
+}' \
+http://127.0.0.1:5000/fly-trajectory
+```
+
+Note:
+- This executes the trajectory relative to the current estimated pose of the drone.
+- The drone must not be in IDLE (e.g., call /begin_takeoff first).
+- Waypoints are executed in order.
+- Looping tells how many times the sequence shall be executed (1x is the default).
+- This skill supersedes /navigate by executing a multi-goal trajectory in one command.
+
+**Basic example (using JSON file)**
+
+Create a JSON file with the sequence data and execute the trajectory:
+
+```shell
+$ curl http://127.0.0.1:5000/fly-trajectory \
+-H "Content-Type: application/json" \
+-d @examples/trajectories/tra-1.json
+```
+
+
+**Override base pose explicitly**
+
+```shell
+$ curl -H "Content-Type: application/json" \
+-d '{
+  "sequence": [
+    {
+      "type": "start",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "yaw": 0.0
+    },
+    {
+      "type": "segment",
+      "duration": 2.0,
+      "x": [0.25],
+      "y": [0.0],
+      "z": [0.0],
+      "yaw": [0.0]
+    }
+  ],
+  "base_x": 0.6,
+  "base_y": 0.9,
+  "base_z": 0.4,
+  "base_yaw": 0.0
+}' \
+http://127.0.0.1:5000/fly-trajectory
+```
+
+This runs the trajectory relative to (0.6, 0.9, 0.4) with yaw = 0.0 rad, regardless of the estimator's current position.
+
+
+
+**Trajectory element format**
+
+Start element:
+
+```json
+{
+  "type": "start",
+  "x": 0.0,
+  "y": 0.0,
+  "z": 0.0,
+  "yaw": 0.0
+}
+```
+
+A Segment element defines a compressed polynomial motion segment executed over a fixed duration:
+
+```json
+{
+  "type": "segment",
+  "duration": 2.0,
+  "x": [c0],
+  "y": [c0],
+  "z": [c0],
+  "yaw": [c0]
+}
+```
+
+Units:
+
+- position (x, y, z): meters
+- duration: seconds
+- yaw: radians
+
+Each axis (x, y, z, yaw) is represented by an array of coefficients.
+The length of the array for each variable x,y,z,yaw determines the polynomial order used internally by the Crazyflie high-level commander. Allowed: 0, 1, 3, 7.
+See here for examples:
+- https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level.py
+- https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
+- https://github.com/bitcraze/crazyflie-lib-python/blob/master/cflib/crazyflie/mem/trajectory_memory.py#L103
 
 ### Drone State Updates via WebSocket Endpoint
 

@@ -1,5 +1,5 @@
-cfclient==2025.9
-cflib==0.1.29
+cfclient==2025.12.1
+cflib==0.1.31
 appdirs==1.4.4
 blinker==1.8.2
 click==8.1.7
