@@ -76,7 +76,7 @@ def create_arg_parser():
 
     ws_group = parser.add_argument_group('WebSocket settings')
     ws_group.add_argument('--wsendpoint', action='store_true',
-                          help='Add a websocket that publishes CF state (e.g., position/accel/... estimates).')
+                          help='Add a websocket that publishes CF state (e.g., position/acceleration/orientation estimates).')
     ws_group.add_argument('--wshost', type=str, default='0.0.0.0', help='The host of the websocket server.')
     ws_group.add_argument('--wsport', type=int, default=8765, help='Port of the websocket server.')
     ws_group.add_argument('--wsrate', type=int, default=100, help='Sending rate of the websocket server in ms.')
@@ -363,11 +363,11 @@ def setup_stabilizer_logging(scf):
     logConfig_Acc.start()
 
 
-def start_runtime_services(args):
-    if STARTWSSERVER:
+def start_runtime_services(params):
+    if params.wsendpoint:
         server_thread = threading.Thread(
             target=start_websocket_server,
-            args=(args.wshost, args.wsport, args.wsrate),
+            args=(params.wshost, params.wsport, params.wsrate),
             daemon=True
         )
         server_thread.start()
@@ -636,7 +636,6 @@ if __name__ == '__main__':
 
     DEBUG = args.debug
     LOGGING = args.logging
-    STARTWSSERVER = args.wsendpoint
 
     if args.dscf and args.sim:
         raise RuntimeError("--dscf and --sim are mutually exclusive")

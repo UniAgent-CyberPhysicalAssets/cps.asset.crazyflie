@@ -78,3 +78,19 @@ Add additional example scripts for testing the drone:
 --mount type=bind,source=$(pwd)/examples,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
 ```
 
+**cfclient**
+
+Just start the cfclient tool:
+
+```shell
+$ sudo docker run --rm \
+  --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
+  --net=host --ipc=host --pid=host \
+  --env="DISPLAY" \
+  --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
+  --env="XAUTHORITY=$XAUTHORITY" \
+  --volume="$XAUTHORITY:$XAUTHORITY" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  cf-pyctrl \
+  bash -lc "cfclient"
+```

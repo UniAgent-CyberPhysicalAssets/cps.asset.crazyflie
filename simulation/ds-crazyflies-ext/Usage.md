@@ -123,7 +123,7 @@ ros2 topic echo /cf_positions_poses --qos-reliability best_effort
 With cf.PyControl:
 
 ```sh
-$ ./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
+$ ./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint --wsport 8765
 $ ./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
 $ ./cfpyctrl.sh --dscf --cf-prefix /cf2 --port 5002 --wsendpoint --wsport 8767
 
