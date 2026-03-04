@@ -32,7 +32,7 @@ else
 fi
 
 if [ "$COPY_DOCKER" = true ]; then
-  echo "Linux mode enabled: copying Docker files."
+  echo "Linux mode enabled: Copy adjusted Docker configuration."
 
   if [ ! -d "$SRC_DIR" ]; then
     echo "Source directory $SRC_DIR does not exist. Exiting."
@@ -41,10 +41,10 @@ if [ "$COPY_DOCKER" = true ]; then
 
   cp -r "$SRC_DIR" "$DEST_DIR"
 else
-  echo "Linux mode disabled: skipping Docker files copy."
+  echo "Window mode enabled (default): Keeping Docker configuration."
 fi
 
-# Copy Webots world
+# Copy Webots world (example file)
 cp -r crazyflie.wbt "$DEST_DIR"
 
 echo "Setup completed successfully."

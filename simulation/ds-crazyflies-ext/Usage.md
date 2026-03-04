@@ -64,7 +64,10 @@ Check Crazyradio:
 
 ```shell
 $ lsusb
-$ ls -l /dev/bus/usb/003/010
+[...]
+Bus 003 Device 007: ID 1915:7777 Nordic Semiconductor ASA Bitcraze Crazyradio (PA) dongle
+[...]
+$ ls -l /dev/bus/usb/003/007
 $ lsusb -v -d 1915:7777
 ```
 
@@ -77,7 +80,11 @@ $ sudo docker exec -it ds-crazyflies-dev bash
 **Webots**
 
 ```shell
+# Add only one:
 $ ros2 service call /crazyflie_webots_gateway/add_crazyflie crazyflie_webots_gateway_interfaces/srv/WebotsCrazyflie "id: 0"
+
+# Add three:
+$ ros2 service call /crazyflie_webots_gateway/add_crazyflie crazyflie_webots_gateway_interfaces/srv/WebotsCrazyflie "id: 0" && ros2 service call /crazyflie_webots_gateway/add_crazyflie crazyflie_webots_gateway_interfaces/srv/WebotsCrazyflie "id: 1" && ros2 service call /crazyflie_webots_gateway/add_crazyflie crazyflie_webots_gateway_interfaces/srv/WebotsCrazyflie "id: 2"
 ```
 
 **Hardware**
@@ -116,7 +123,11 @@ ros2 topic echo /cf_positions_poses --qos-reliability best_effort
 With cf.PyControl:
 
 ```sh
-./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
-./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+$ ./cfpyctrl.sh --dscf --cf-prefix /cf0 --wsendpoint
+$ ./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+$ ./cfpyctrl.sh --dscf --cf-prefix /cf2 --port 5002 --wsendpoint --wsport 8767
+
+# Arm the drones:
+$ curl -d {} localhost:5000/activate_idle && curl -d {} localhost:5001/activate_idle && curl -d {} localhost:5002/activate_idle
 ```
 

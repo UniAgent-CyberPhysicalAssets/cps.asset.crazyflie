@@ -65,6 +65,11 @@ Crazyflie {
   translation 2.0 0.35 0.15
 }
 
+Crazyflie {
+  id 3
+  translation 3.0 0.35 0.15
+}
+
 ControllableWand {
   wand_id 1
   translation -0.5 0 0.5
