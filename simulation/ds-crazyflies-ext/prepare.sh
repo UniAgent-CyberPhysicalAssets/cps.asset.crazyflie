@@ -24,7 +24,7 @@ done
 if [ ! -d "$DEST_DIR/.git" ]; then
   git clone --recurse https://github.com/DynamicSwarms/ds-crazyflies.git "$DEST_DIR"
   cd "$DEST_DIR"
-  git checkout 9728f025382f1e8bb4a9b670c4d53999f3801224
+  git checkout f42b5d84c07c422f468847a13e3c9bb5e68b601f
   git submodule update --init --recursive
   cd ..
 else

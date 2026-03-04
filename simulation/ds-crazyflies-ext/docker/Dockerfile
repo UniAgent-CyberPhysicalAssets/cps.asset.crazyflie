@@ -7,9 +7,8 @@ FROM osrf/ros:${ROS_DISTRO}-desktop-full AS base
 ENV ROS_DISTRO=${ROS_DISTRO}
 SHELL ["/bin/bash", "-c"]
 
-RUN apt-get update || true && \
-    apt-get install -y --no-install-recommends ntpdate && \
-    ntpdate ntp.ubuntu.com
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ntpdate
 
 # Preconfigure keyboard + locale before installing webots
 RUN apt update && \
@@ -19,8 +18,8 @@ RUN apt update && \
     locale-gen en_US.UTF-8
 
 # Create the user and add sudo support
-RUN apt update \
-    && apt install -y sudo udev curl usbutils nano graphviz git
+RUN apt update && \
+    apt install -y sudo udev curl usbutils nano graphviz git
 
 # Install some basic packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
