@@ -123,15 +123,36 @@ curl -d {} http://127.0.0.1:5000/activate_idle
 
 ### Begin Takeoff
 
+Initiates the takeoff sequence for the Crazyflie.  
+The controller will command the Crazyflie to ascend to its takeoff altitude and stabilize in hover mode before awaiting further mission commands.
+
+**Default (uses internal constants)**
+
 ```shell
-$ curl -d {} http://127.0.0.1:5000/begin_takeoff
+$ curl -H "Content-Type: application/json" \
+  -d '{}' \
+  http://127.0.0.1:5000/begin_takeoff
+```
+
+Defaults:
+
+- DEFAULT_HEIGHT = 0.5 m
+- DEFAULT_VELOCITY = 0.3 m/s
+- Modify defaults in: cf_drone_ops.py
+
+Override height and velocity:
+
+```shell
+$ curl -H "Content-Type: application/json" \
+  -d '{"height": 0.5, "velocity": 0.3}' \
+  http://127.0.0.1:5000/begin_takeoff
 ```
 
 Initiates the takeoff sequence for the Crazyflie.
 The controller will command the Crazyflie to ascend to its default takeoff altitude and stabilize in hover mode before awaiting further mission commands.
 
-- DEFAULT_HEIGHT = 0.5cm
-- DEFAULT_VELOCITY = 0.3
+- DEFAULT_HEIGHT = 0.55 m
+- DEFAULT_VELOCITY = 0.3 m/s
 - Modify Parameter: [`src/cf_drone_ops.py`](src/cf_drone_ops.py)
 
 ### Begin Landing

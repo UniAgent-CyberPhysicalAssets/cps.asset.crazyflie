@@ -35,6 +35,8 @@ class StateMachineDrone(StateMachine):
         if drone_id:
             self.set_uav_name(drone_id)
         self.current_transition = None
+        self._takeoff_height = None
+        self._takeoff_velocity = None
 
     # State Machine
 
@@ -75,6 +77,21 @@ class StateMachineDrone(StateMachine):
     landing_completed = landed.to(idle, cond="is_not_flying")
     shutdown_command = idle.to(shutdown)
     begin_stopping = shutdown.to(stopping)
+
+    def set_takeoff_params(self, height=None, velocity=None):
+        if height is not None and float(height) <= 0.0:
+            raise ValueError("height must be > 0")
+        if velocity is not None and float(velocity) <= 0.0:
+            raise ValueError("velocity must be > 0")
+
+        self._takeoff_height = None if height is None else float(height)
+        self._takeoff_velocity = None if velocity is None else float(velocity)
+
+    def get_takeoff_height(self):
+        return self._takeoff_height
+
+    def get_takeoff_velocity(self):
+        return self._takeoff_velocity
 
     def setPositionEstimator(self, strategy):
         if strategy is None:
@@ -180,7 +197,9 @@ class StateMachineDrone(StateMachine):
         if event == "activate_idle":
             self.uavOpStrategyImpl.activate_idle_simple()
         if event == "begin_takeoff":
-            self.uavOpStrategyImpl.take_off_simple()
+            h = self.get_takeoff_height()
+            v = self.get_takeoff_velocity()
+            self.uavOpStrategyImpl.take_off_simple(height=h, velocity=v)
         if event == "begin_landing":
             self.uavOpStrategyImpl.landing_simple()
         if event == "begin_nav_goal_sequence" or event == "next_nav_goal":

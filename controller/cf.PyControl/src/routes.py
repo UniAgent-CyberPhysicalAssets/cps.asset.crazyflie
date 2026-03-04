@@ -73,9 +73,28 @@ def activate_idle():
 @drone_blueprint.route('/begin_takeoff', methods=['POST'])
 def begin_takeoff():
     drone = current_app.config['DRONE']
-    drone.begin_takeoff()
-    return jsonify({"message": "Transitioned to", "state": drone.get_current_state()})
+    data = request.get_json(silent=True) or {}
 
+    # Optional overrides (meters, m/s)
+    height = data.get("height", None)
+    velocity = data.get("velocity", None)
+
+    try:
+        if height is not None:
+            height = float(height)
+        if velocity is not None:
+            velocity = float(velocity)
+
+        drone.set_takeoff_params(height=height, velocity=velocity)
+        drone.begin_takeoff()
+
+        return jsonify({
+            "message": "Transitioned to",
+            "state": drone.get_current_state(),
+            "takeoff": {"height": height, "velocity": velocity}
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "state": drone.get_current_state()}), 400
 
 @drone_blueprint.route('/begin_landing', methods=['POST'])
 def begin_landing():

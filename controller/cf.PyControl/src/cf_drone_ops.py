@@ -67,6 +67,7 @@ class CFOperationStrategy(ABC):
             raise RuntimeError(
                 f"{self.__class__.__name__} requires a SyncCrazyflie instance"
             )
+        self._scf.cf.platform.send_arming_request(True)
 
     def requires_scf(self) -> bool:
         return False
@@ -90,7 +91,7 @@ class CFOperationStrategy(ABC):
         pass
 
     @abstractmethod
-    def take_off_simple(self):
+    def take_off_simple(self, height=DEFAULT_HEIGHT, velocity=DEFAULT_VELOCITY):
         pass
 
     @abstractmethod
@@ -102,7 +103,7 @@ class CFOperationStrategy(ABC):
         pass
 
     @abstractmethod
-    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int=1):
+    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
         pass
 
 
@@ -113,13 +114,14 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
 
     def activate_idle_simple(self):
         self.require_scf()
-        self.printDebug("\tactivate_idle_simple")
+        self.printDebug("\tactivate_idle_simple()")
         # activate_mellinger_controller(cf=self._scf.cf)
         self.mc = PositionHlCommander(
             self._scf,
             default_height=DEFAULT_HEIGHT,
             default_velocity=DEFAULT_VELOCITY
         )
+        self._scf.cf.platform.send_arming_request(True)
         self.printDebug("\tI am idling now!")
 
     def shutdown(self):
@@ -127,28 +129,35 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
         self.printDebug("Shutdown")
         self.mc.stop()
 
-    def take_off_simple(self):
+    def take_off_simple(self, height=None, velocity=None):
         self.require_scf()
-        self.printDebug(f"\tTake off simple")
-        self.mc.take_off(height=DEFAULT_HEIGHT, velocity=DEFAULT_VELOCITY + 0.15)
-        self.printDebug("Take off finished  I am hovering now")
+        self.printDebug("\ttake_off_simple()")
+        time.sleep(1)
+        if height is None:
+            height = DEFAULT_HEIGHT
+        if velocity is None:
+            velocity = DEFAULT_VELOCITY
+
+        self.mc.take_off(height=height, velocity=velocity)
+        self.printDebug("finished:take_off_simple()")
+
 
     def landing_simple(self):
         self.require_scf()
-        self.printDebug("I am landing now!")
+        self.printDebug("landing_simple()")
         self.mc.land()
         # self.getSCF().cf.high_level_commander.land(0.0, 2.0)
-        self.printDebug("Technically, I am on the ground!")
+        self.printDebug("finished:landing_simple()")
 
     def navigate_to_simple(self, targetPoint: Point3D):
         self.require_scf()
-        self.printDebug(f"\tNavigate to: {targetPoint.x}, {targetPoint.y}, {targetPoint.z}")
+        self.printDebug(f"\tnavigate_to_simple(): {targetPoint.x}, {targetPoint.y}, {targetPoint.z}")
         self.mc.go_to(targetPoint.x, targetPoint.y, targetPoint.z, velocity=DEFAULT_VELOCITY)
-        self.printDebug("\tNavigation finished")
+        self.printDebug("\tfinished:navigate_to_simple()")
 
-    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int=1):
+    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
         self.require_scf()
-        self.printDebug(f"\tStarting run_sequence: {sequence}")
+        self.printDebug(f"\trun_sequence(): {sequence}")
         cf = self.getSCF().cf
 
         # Prepare trajectory and upload it to Crazyflie
@@ -158,7 +167,7 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
         relative = True
 
         duration = upload_trajectory(cf, 1, trajectory)
-        print(f"Duration: {duration}")
+        self.printDebug(f"run_sequence():duration: {duration}")
 
         # Arm the Crazyflie
         cf.platform.send_arming_request(True)
@@ -187,7 +196,7 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         self.printDebug("shutdown")
         self.mc.stop()
 
-    def take_off_simple(self):
+    def take_off_simple(self, height=DEFAULT_HEIGHT, velocity=DEFAULT_VELOCITY):
         self.printDebug(f"\ttake off simple")
         time.sleep(self.timeSleep)
         self.printDebug("Take off finished : I am hovering now")
@@ -202,12 +211,13 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         time.sleep(self.timeSleep)
         self.printDebug("\tNavigation finished")
 
-    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int=1):
+    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
         self.printDebug(f"\trun_sequence: {sequence}")
         time.sleep(self.timeSleep)
         self.printDebug("\trun_sequence")
 
 
+# for dscf simulator
 class RosTopicCFOperationImpl(CFOperationStrategy, Node):
 
     def __init__(self, cf_prefix='/cf0', debug=False, dronePosEst=PositionEstimationStrategy, console=None):
@@ -249,14 +259,21 @@ class RosTopicCFOperationImpl(CFOperationStrategy, Node):
     def shutdown(self):
         self.printDebug("ROS shutdown (no-op)")
 
-    def take_off_simple(self):
+    def take_off_simple(self, height=None, velocity=None):
+        h0 = height
+        v0 = velocity
+        if h0 is None:
+            h0 = DEFAULT_HEIGHT
+        if v0 is None:
+            v0 = DEFAULT_VELOCITY
+
         msg = Takeoff()
         msg.group_mask = 0
-        msg.height = DEFAULT_HEIGHT
+        msg.height = h0
         msg.use_current_yaw = True
         msg.duration.sec = 2
         self.takeoff_pub.publish(msg)
-        self.wait_takeoff_landing_complete(target_z=DEFAULT_HEIGHT, isTakeOff=True)
+        self.wait_takeoff_landing_complete(target_z=h0, isTakeOff=True)
 
     def landing_simple(self):
         msg = Land()
@@ -278,7 +295,7 @@ class RosTopicCFOperationImpl(CFOperationStrategy, Node):
         self.goto_pub.publish(msg)
         self.wait_navigation_complete(targetPoint)
 
-    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int=1):
+    def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
         """
         Execute a compressed trajectory using only GoTo messages.
 

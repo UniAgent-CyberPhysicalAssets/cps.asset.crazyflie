@@ -63,19 +63,21 @@ with SyncCrazyflie(uri, cf=cf) as scf:
 
     for packet in yaml.load_all(sys.stdin, Loader=yaml.Loader):
         if not packet:
-            continue
-
-        while True:
+            break
+        cnt = 0
+        while cnt < 2:
             for id, position in packet.items():
                 x = position['x']
                 y = position['y']
                 z = position['z']
-
+                
                 print("Anchor {}, ({}, {}, {})".format(id, x, y, z))
+                
                 LPP_SHORT_ANCHOR_POSITION = 0x01
                 position_pack = struct.pack("<Bfff", LPP_SHORT_ANCHOR_POSITION, x, y, z)
                 scf.cf.loc.send_short_lpp_packet(id, position_pack)
-                #time.sleep(0.01)
                 time.sleep(1)
+            cnt = cnt + 1
+            time.sleep(1)
 
-            time.sleep(0.5)
+print("Finished configuration of LPS nodes.")
