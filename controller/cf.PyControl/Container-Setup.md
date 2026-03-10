@@ -29,7 +29,7 @@ This section explains the one-time setup you need to complete before building th
 ### Building the Docker Image
 
 ```shell
-$ sudo docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
+$ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 ```
 
 ## Usage
@@ -37,7 +37,7 @@ $ sudo docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 First, allow the Docker Container to Access to X Server (GUI):
 
 ```shell
-$ xhost +local:$USER
+$ xhost +local:"$USER"
 ```
 
 (Revert the `xhost` settings to their original state afterward: `xhost -`)
@@ -47,8 +47,7 @@ $ xhost +local:$USER
 **Standard**
 
 ```shell
-# + USB devices
-# + GPU-accelerated Container (Nvidia)
+# + USB devices (Crazyradio)
 
 $ sudo docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
@@ -57,13 +56,13 @@ $ sudo docker run --rm -it \
 --env ROS_DOMAIN_ID=30 \
 --env="XAUTHORITY=$XAUTHORITY" \
 --volume="$XAUTHORITY:$XAUTHORITY" \
---gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 cf-pyctrl
 ```
 
 > **Note:** In `c 189:* rmw`, replace the `189` with the **major device number** you obtained in the [Allowing USB](#allowing-usb) section.
 
+> **Note:** Add `--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all` if you want to enable GPU acceleration with an Nvidia GPU inside the container. This requires the NVIDIA Container Toolkit to be installed on the host system.
 
 **Sync Folders**
 
@@ -78,12 +77,31 @@ Add additional example scripts for testing the drone:
 --mount type=bind,source=$(pwd)/examples,target=/home/user/dev_ws/libs/crazyflie-controller/examples  \
 ```
 
+**Direct Access to cf.PyControl**
+
+```shell
+$ docker run --rm -it \
+  --device-cgroup-rule='c 189:* rmw' \
+  -v /run/udev:/run/udev:ro \
+  -v /dev:/dev \
+  --net=host --ipc=host --pid=host \
+  -e DISPLAY \
+  -e XAUTHORITY=$XAUTHORITY \
+  -e PYTHONUNBUFFERED=1 \
+  -v $XAUTHORITY:$XAUTHORITY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  cf-pyctrl \
+  bash -ic "./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7B1 --port 5000 --wsendpoint --wsport 8765"
+```
+
+
+
 **cfclient**
 
 Just start the cfclient tool:
 
 ```shell
-$ sudo docker run --rm \
+$ docker run --rm \
   --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
   --net=host --ipc=host --pid=host \
   --env="DISPLAY" \

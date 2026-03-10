@@ -36,7 +36,7 @@ import cf_positioning
 from cf_positioning import KalmanEstimatePositionStrategy, \
     StateEstimatePositionStrategy
 from cf_positioning import RosPoseArrayPositionStrategy
-from cf_drone_ops import HlCommanderCFOperationImpl, RosTopicCFOperationImpl
+from cf_ops import HlCommanderCFOperationImpl, RosTopicCFOperationImpl
 import cf_sm
 
 

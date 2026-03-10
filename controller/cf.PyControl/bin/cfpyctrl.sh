@@ -6,4 +6,4 @@ PORT="5000"
 
 cd ../src/
 # Run the Python application with default arguments and any extra arguments passed to the script
-python3 cf-ctrl-service.py --uri "$URI" --port "$PORT" "$@"
+python3 cf-service.py --uri "$URI" --port "$PORT" "$@"

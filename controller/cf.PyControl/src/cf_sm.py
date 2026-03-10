@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request
 from statemachine import StateMachine, State, exceptions
 from statemachine.contrib.diagram import DotGraphMachine
 from werkzeug.routing import BaseConverter, ValidationError
-from cf_drone_ops import CFOperationStrategy
+from cf_ops import CFOperationStrategy
 from cf_positioning import PositionEstimationStrategy
 
 

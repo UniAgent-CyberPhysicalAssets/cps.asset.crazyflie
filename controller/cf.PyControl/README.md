@@ -69,8 +69,7 @@ Start the Crazyflie control service with the following argument:
 $ ./cfpyctrl.sh --debug --uri radio://0/80/2M/E7E7E7E7E1
 ```
 
-`cfpyctrl.sh` is a convenient startup shell script located in the `bin` directory.
-It simplifies the process of running the main Python service script by handling arguments and execution.
+`cfpyctrl.sh` is a convenient startup shell script located in the root (dockerized-version) and also the `bin` directory.
 
 > [!NOTE]
 >
@@ -81,6 +80,7 @@ It simplifies the process of running the main Python service script by handling 
 > For details, see the standard setup guide at [bitcraze.io](https://www.bitcraze.io/).
 
 Open the `webview.html` in the `webview` folder to see the state machine updating live.
+See also [here](#live-state-update-via-webview), when running the dockerized-version of the script.
 
 Therefore, open another terminal and change the states (or, run another Docker container):
 
@@ -147,7 +147,7 @@ Defaults:
 
 - DEFAULT_HEIGHT = 0.5 m
 - DEFAULT_VELOCITY = 0.3 m/s
-- Modify defaults in: cf_drone_ops.py
+- Modify defaults in: cf_ops.py
 
 Override height and velocity:
 
@@ -163,7 +163,7 @@ awaiting further mission commands.
 
 - DEFAULT_HEIGHT = 0.55 m
 - DEFAULT_VELOCITY = 0.3 m/s
-- Modify Parameter: [`src/cf_drone_ops.py`](src/cf_drone_ops.py)
+- Modify Parameter: [`src/cf_ops.py`](src/cf_ops.py)
 
 ### Begin Landing
 
@@ -195,7 +195,7 @@ Ensure you have enough space.
 > **Note:**
 > You can use either the `kalmanEstimate` or `stateEstimate` to obtain the position.
 > Accuracy depends on the positioning system in use (both LPS and Flow deck support this).
-> This can be changed in `cf-ctrl-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
+> This can be changed in `cf-service.py` by changing the global variable `POSITION_ESTIMATE_FILTER`.
 
 ### Fly Trajectories
 
@@ -509,5 +509,5 @@ This tool is developed and maintained by the UniAgent Developers and contributor
 
 ---
 
-Copyright © 2025 The UniAgent Developers and Contributors. <br/>
+Copyright © 2026 The UniAgent Developers and Contributors. <br/>
 (Main Developer: Dominik Grzelak)
