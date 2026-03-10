@@ -97,19 +97,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -126,31 +114,38 @@
 </small></p>
 <p><img src="static/images/webots-ds-crazyflies-screenshot.png" alt="Screenshot of Webots Simulation" style="zoom: 60%;" /></p>
 <h2>Installation</h2>
-<p>On your host system move into the root folder of the <strong>cps.asset.crazyflie</strong> GitHub project and execute the following commands:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/crazyflie2.x/simulation/ds-crazyflies-ext
+<p>On your host system move into the root folder of the <em>cps.asset.crazyflie</em> GitHub project and execute the following commands:</p>
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/simulation/ds-crazyflies-ext
 $ chmod +x ./prepare.sh
-
-# For Linux:
-$ ./prepare.sh --linux
-
-# For Windows:
-$ ./prepare.sh
 </code></pre>
 
-<p>Then, build:</p>
+<p>Then, depending on your Operating System:</p>
+<ul>
+<li>For Linux:</li>
+</ul>
+<pre class="codehilite"><code class="language-shell">$ ./prepare.sh --linux
+</code></pre>
+
+<ul>
+<li>For Windows:</li>
+</ul>
+<pre class="codehilite"><code class="language-shell">$ ./prepare.sh
+</code></pre>
+
+<p>Finally, build:</p>
 <pre class="codehilite"><code class="language-shell">$ cd simulation.ds-crazyflies/docker/
 $ sudo docker compose build
 </code></pre>
 
 <h2>Starting</h2>
 <p>(For Linux) This allows to show the UI on the host system:</p>
-<pre class="codehilite"><code class="language-shell">$ xhost +local:$USER 
+<pre class="codehilite"><code class="language-shell">$ xhost +local:&quot;$USER&quot;
 </code></pre>
 
 <h3>Workspace Setup</h3>
 <p><strong>1. Terminal:</strong></p>
 <p>Start all services:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/crazyflie2.x/simulation/ds-crazyflies-ext/simulation.ds-crazyflies/docker
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/simulation/ds-crazyflies-ext/simulation.ds-crazyflies/docker
 $ sudo docker compose up
 [+] up 1/1
  ✔ Container ds-crazyflies-dev Recreated             0.0s 
@@ -189,10 +184,10 @@ crazyflie_webots_gateway_interfaces.srv.WebotsCrazyflie_Response(success=True, m
 
 <p>The backend will report something like: <code>[gateway-1] [INFO] [1265723145.816038468] [cf0]: CrazyflieWebots node initialized.]</code></p>
 <p><strong>5. Terminal:</strong></p>
-<p>Start cf.PyControl for each virtual Webots instance:</p>
+<p>Start <strong>cf.PyControl</strong> for each virtual Webots instance:</p>
 <ul>
 <li>Make sure you have completed the <a href="13-getting-started-cf.PyControl">Getting Started Guide</a> for cf.PyControl.</li>
-<li>Start the cf.PyControl Docker container</li>
+<li>Start the <code>cfpyctrl.sh</code> launcher script in the root folder, or via the <strong>cf.PyControl</strong> Docker container:</li>
 <li>Then, execute:</li>
 </ul>
 <pre class="codehilite"><code class="language-shell">:# ./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
@@ -229,7 +224,7 @@ Fatal: This application failed to start because no Qt platform plugin could be i
 The container is not allowed to access the host X11 display.</p>
 <p><strong>Fix</strong>: </p>
 <ul>
-<li><code>xhost +local:$USER</code></li>
+<li><code>xhost +local:"$USER"</code></li>
 <li>Restart the container and relaunch Webots.</li>
 </ul></div>
     </div>

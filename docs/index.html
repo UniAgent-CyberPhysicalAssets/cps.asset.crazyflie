@@ -97,19 +97,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -124,22 +112,21 @@
 <blockquote>
 <p>Github Repository: <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie">https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie</a></p>
 </blockquote>
-<p>Welcome to this tutorial on building and programming smart drone swarms using <strong>Crazyflie tiny drones</strong>. </p>
-<p>A full-stack setup is provided for simulating and controlling autonomous Crazyflie collectives, from low-level motor commands to high-level swarm logic.
-It’s designed to support both research and practical experimentation in the perspective of drone coordination and spatial computing.</p>
+<p>This tutorial demonstrates how to build and program smart drone swarms using Crazyflie tiny drones. </p>
+<p>A full-stack setup is provided for simulating and controlling Crazyflie tiny drones, from low-level motor commands to high-level swarm logic.</p>
 <p><strong>You’ll learn how to:</strong></p>
 <ul>
-<li>Set up a simplified (i.e., a not yet very realistic) simulation environment with preset and custom worlds and the Crazyflie drone models.</li>
-<li>Use Python with the Crazyflie firmware stack to issue control commands.</li>
-<li>Define, control, and analyze collective behavior using a <strong>bigraph algebra</strong>, a formalism for modeling both connectivity and spatial configuration in dynamic systems.</li>
+<li>Set up a simplified (i.e., a not yet very realistic) simulation environment with preset and custom worlds and the Crazyflie.</li>
+<li>Use Web Endpoints with the Crazyflie firmware stack to execute control commands.</li>
+<li>Define, control, and analyze collective behavior using a <em>bigraph algebra</em>, a formalism for modeling both connectivity and spatial configuration in dynamic systems. (🚧 WIP)</li>
 </ul>
 <h4>Software Stack</h4>
 <p>The software stack employed in this tutorial:</p>
 <ul>
-<li><strong>Simulation</strong>: Webots (ds-crazyflie) and Gazebo (sim_cf2, crazyswarm2)</li>
-<li><strong>Drone Controller</strong>: cf.PyControl (Python) </li>
-<li><strong>Database</strong>: Eclipse CDO</li>
-<li><strong>Java Frameworks</strong>: Bigraph Framework, BDSL, Spring Data CDO</li>
+<li><strong>Simulator</strong>: Webots (<a href="https://github.com/DynamicSwarms/ds-crazyflies">ds-crazyflie</a>) and Gazebo (<a href="https://github.com/CrazyflieTHI/sim_cf2">sim_cf2</a>, <a href="https://github.com/IMRCLab/crazyswarm2/">crazyswarm2</a>)</li>
+<li><strong>Drone Controller</strong>: <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl">cf.PyControl</a> (Python) </li>
+<li><strong>Database</strong>: <a href="https://projects.eclipse.org/projects/modeling.cdo">Eclipse CDO</a></li>
+<li><strong>Java Frameworks</strong>: <a href="https://github.com/bigraph-toolkit-suite/bigraphs.bigraph-framework">Bigraph Framework</a>, <a href="https://github.com/bigraph-toolkit-suite/bigraphs.bdsl-interpreter-parent">BDSL</a>, <a href="https://github.com/bigraph-toolkit-suite/spring-data-cdo">Spring Data CDO</a></li>
 </ul>
 <p>Everything is open source and provided through Docker images for easy installation and use.</p>
 <h3>Demo Video</h3>

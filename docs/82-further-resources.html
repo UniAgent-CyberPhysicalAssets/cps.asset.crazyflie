@@ -96,20 +96,8 @@
           
       
           
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
               <li class="sidebar-item p-2 cursor-pointer font-bold active">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -137,9 +125,19 @@
 <li>Initial Documentation and Theory of Bi-Spatial Structure, i.e., Topology-aware Bigraphs (Preprint) <a href="https://nbn-resolving.org/urn:nbn:de:bsz:14-qucosa2-908655">A Bigraphical Framework for Modeling and Simulation of UAV-based Inspection Scenarios</a></li>
 <li>Tools and Code (UniAgent Platform): <a href="https://github.com/UniAgent-Platform">https://github.com/UniAgent-Platform</a>, <a href="https://github.com/orgs/UniAgent-CyberPhysicalAssets/">https://github.com/orgs/UniAgent-CyberPhysicalAssets/</a></li>
 </ul>
-<h2>Research Tools</h2>
-<p>A quick look at some of the tools that are currently being developed.</p>
-<h4>Term Builder:</h4>
+<h1>Research Tools</h1>
+<h2>BiSpace Viewer</h2>
+<p>Repository: <a href="https://github.com/UniAgent-Platform/bispace-viewer" target="_blank">https://github.com/UniAgent-Platform/bispace-viewer</a></p>
+<p><img src="https://github.com/UniAgent-Platform/bispace-viewer/raw/main/docs/screenshot-ide-2.png" style="zoom: 40%;"></p>
+<p><img src="static/videos/tools-prototype/screencast-bispace-multi-resolution-structure.gif" style="zoom: 55%;"></p>
+<div style="text-align: center;">
+<video controls width="480">
+  <source src="static/videos/tools-prototype/screencast-bispace-renderer-drone-websocket.webm" type="video/webm">
+  <source src="static/videos/tools-prototype/screencast-bispace-renderer-drone-websocket.mp4" type="video/mp4">
+</video>
+</div>
+
+<h2>Term Builder</h2>
 <ul>
 <li>For defining predefined navigation paths for agents</li>
 </ul>
@@ -151,7 +149,7 @@
 <li>See also a related book:
   Grammatical Picture Generation. in Texts in Theoretical Computer Science. An EATCS Series. Berlin/Heidelberg: Springer-Verlag, 2006. doi: 10.1007/3-540-32507-7. Available: <a href="http://link.springer.com/10.1007/3-540-32507-7">http://link.springer.com/10.1007/3-540-32507-7</a>.</li>
 </ul>
-<h4>Unfolding of Spatial Computational Structures</h4>
+<h2>Unfolding of Spatial Computational Structures</h2>
 <video controls width="580">
   <source src="static/videos/tools-prototype/screencast-computational-structure.mp4" type="video/mp4" />
 </video>
@@ -160,14 +158,33 @@
 <li>Note that graph structures remain invariant under permutations of their representations.</li>
 <li>However, the orthogonality between the bigraph’s place graph (forest) and link graph (hypergraph) enables specially designed bigraphs to be represented in a 3D setting.</li>
 </ul>
-<h4>BiGrid Gazebo Visualizer:</h4>
-<p><img alt="BiGrid Gazebo Visualizer" src="static/videos/tools-prototype/demo-gazebo-bispace.gif" /></p></div>
+<h2>BiGrid Gazebo Visualizer</h2>
+<p><img alt="BiGrid Gazebo Visualizer" src="static/videos/tools-prototype/demo-gazebo-bispace.gif" /></p>
+<h2>A more Convenient Terminal Layout</h2>
+<p>When working with multiple drones, it's often helpful to split your terminal into several windows; each dedicated to a specific purpose.</p>
+<p>For example, you might use separate panes to monitor individual drone positions, observe the simulator's status, inspect messages sent through the ROS bridge, and send commands to the drones via the terminal.</p>
+<p>This page explains how to configure a practical terminal layout using <a href="https://wiki.ubuntuusers.de/Terminator/"><strong>Terminator</strong></a> on <em>Ubuntu 24.04</em>.</p>
+<p>Two layouts are provided: one optimized for working with <em>two drones</em>, and another designed for <em>four-drone testing</em>.</p>
+<p>Once the initial configuration is finished, each layout can be easily launched by opening Terminator, right-clicking anywhere in the terminal, and selecting your desired layout from the <em>Layouts</em> menu:</p>
+<p><img src="static/images/terminator-uav-layout.png" style="zoom: 55%;" alt="Terminal Layout Context Menu"></p>
+<h3>Two-Drone Layout</h3>
+<p>The two-drone layout splits the terminal into multiple panes, including:</p>
+<ul>
+<li>A pane for <em>Drone 1</em> telemetry</li>
+<li>A pane for <em>Drone 2</em> telemetry</li>
+<li>A shared pane for <em>Gazebo simulator output</em></li>
+<li>A pane to observe <em>ROS bridge WebSocket traffic</em></li>
+<li>An optional pane for issuing <em>high-level control commands</em></li>
+</ul>
+<p><img alt="Terminal Layout Context Menu" src="static/images/terminator-two-uav-layout.png" /></p>
+<h3>Four-Drone Layout</h3>
+<p><img alt="Terminal Layout Context Menu" src="static/images/terminator-four-uav-layout.png" /></p></div>
     </div>
   
     <!-- Bottom Navigation -->
     <div class="flex justify-between mt-4">
         
-        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout" class="px-4 py-2 bg-blue-600 text-white rounded">
+        <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations" class="px-4 py-2 bg-blue-600 text-white rounded">
             Previous
         </a>
         

@@ -97,19 +97,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -128,7 +116,7 @@
 <p><img src="static/images/gazebo-simulation-screenshot.png" alt="Screenshot of Gazebo Simulation" style="zoom: 60%;" /></p>
 <h2>Installation</h2>
 <p>On your host system move into the root folder of the <strong>cps.asset.crazyflie</strong> GitHub project and execute the following commands:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps.asset.crazyflie/simulation/simulation-sim_cf2
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/simulation/sim_cf2-ext
 $ chmod +x ./prepare.sh &amp;&amp; ./prepare.sh
 $ chmod +x ./sync-upstream.sh &amp;&amp; ./sync-upstream.sh
 $ docker build --network=host -t cf2_ros2_simu -f .devcontainer/Dockerfile .
@@ -137,15 +125,14 @@ $ docker build --network=host -t cf2_ros2_simu -f .devcontainer/Dockerfile .
 <p>Building the image can take more than 5 minutes.
 This is plenty of time to prepare a coffee.</p>
 <h2>Starting</h2>
-<p>Execute the following to get to the entry point for starting the simulation.
-First, allow the Docker container to access X server.
-Then, start the Docker container <code>cf2_ros2_simu</code>:</p>
+<p>Execute the following to get to the entry point for starting the simulation.</p>
+<p>First, allow the Docker container to access X server:</p>
 <pre class="codehilite"><code class="language-shell"># This allows to show the UI on the host system
-$ xhost +local:$USER 
+$ xhost +local:&quot;$USER&quot;
 non-network local connections being added to access control list
 </code></pre>
 
-<p>To start the container (GPU-accelerated):</p>
+<p>Then, start the Docker container <code>cf2_ros2_simu</code> (GPU-accelerated):</p>
 <pre class="codehilite"><code class="language-shell">$ sudo docker run --rm -it \
 --env ROS_DOMAIN_ID=30 \
 --net=host --ipc=host --pid=host \
@@ -157,6 +144,7 @@ non-network local connections being added to access control list
 cf2_ros2_sim
 </code></pre>
 
+<p>Remove the line <code>--gpus all</code> if you have no GPU.</p>
 <p>Now, you are in the Docker container inside the folder <code>/home/user/dev_ws</code>:</p>
 <pre class="codehilite"><code class="language-shell">:/home/user/dev_ws#
 </code></pre>
@@ -258,7 +246,7 @@ That is, if you have 4 drones you need to run 4 cf.PyControl instances and conne
 <code>./run_cfs.sh 4</code>.
 The addresses of the Crazyflie instances can be found in the terminal output of the <code>run_cfs.sh</code> script.</p>
 <h2>Controlling the Drones</h2>
-<p>If everything has started, you can control each drone in the Gazebo simulation using cf.PyControl:</p>
+<p>Once everything has started, you can control each drone from inside the container that runs the Gazebo simulation using <strong>cf.PyControl</strong>:</p>
 <pre class="codehilite"><code class="language-shell">:# cd /home/user/dev_ws/libs/crazyflie-controller/bin
 :# ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E701 --port 5000 --wsendpoint --wsport 8765 --sim
 :# ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim

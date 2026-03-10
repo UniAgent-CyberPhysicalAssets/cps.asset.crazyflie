@@ -97,19 +97,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -120,10 +108,11 @@
   <main class="flex-1 p-6">
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Initial Setup</h1> -->
-        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x Environment</h1>
-<p>First clone the following GitHub repository, which provides sort of a <strong>cyber-physical representation</strong> of the <strong>Crazyflie 2.x drone</strong>.</p>
+        <div id="content" class="scroll-mt-20"><h1>Setup of the Crazyflie 2.x (Brushless) Environment</h1>
+<p>First clone the following GitHub repository, which provides sort of a <em>cyber-physical representation</em> of the <em>Crazyflie 2.x (Brushless) drone</em>.</p>
 <p>Therefore, execute the following command in the terminal:</p>
-<pre class="codehilite"><code class="language-shell">$ mkdir -p ~/uniagent_ws/ &amp;&amp; cd ~/uniagent_ws/
+<pre class="codehilite"><code class="language-shell">$ mkdir -p ~/uniagent_ws/cps-asset/
+$ cd ~/uniagent_ws/cps-asset
 $ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 </code></pre>
 
@@ -134,7 +123,7 @@ $ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 <li>Launching the cfclient tool to configure Crazyflie hardware</li>
 <li>And more ...</li>
 </ul>
-<h3>System Hardware Requirements</h3>
+<h3>System and Hardware Requirements</h3>
 <h4>Platform</h4>
 <ul>
 <li>The setup described in this tutorial does not work for <strong>arm64 platforms</strong> since not for all ROS2 packages, an arm64 binary is available.</li>
@@ -146,8 +135,11 @@ $ git clone https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie
 <li>Install the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html">NVIDIA Container Toolkit</a></li>
 </ul>
 <h3>Convention</h3>
-<p>Terminal commands are prefixed with either <code>$</code> or <code>:#</code>.
-The former means that the command is executed in the <strong>host system</strong> (your computer).
+<p>Ensure that the following tools are installed on your host system: Docker and Git</p>
+<p>To open a terminal on your system:
+On Linux / macOS use the standard terminal (e.g., bash). On Windows use PowerShell.</p>
+<p>Terminal commands are prefixed with either <code>$</code>/<code>PS&gt;</code> or <code>:#</code>.
+The former means that the command is executed in the <strong>host system</strong> (your computer, either Linux/MacOS or Windows).
 The latter means that the command is executed in the <strong>Docker container</strong>.</p>
 <p>Consider the <code>lsusb</code> command.
 This should be executed inside the Docker container:</p>

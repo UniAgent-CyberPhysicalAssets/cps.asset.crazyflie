@@ -97,19 +97,7 @@
       
           
               <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/51-tools">9. Tooling</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/52-x-terminal-layout">10. Terminal Layouts</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">11. Further Resources</a>
+                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
               </li>
           
       
@@ -121,9 +109,9 @@
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Getting Started with the Crazyflie Controller</h1> -->
         <div id="content" class="scroll-mt-20"><h1>Getting Started with cf.PyControl</h1>
-<p><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> is a high-level controller for <strong>Crazyflie</strong> drones with a web-based API.</p>
-<p>At its core, drone behavior is governed by an internal <strong><a href="#state-machine">state machine</a></strong>, which defines how the Crazyflie should act under various conditions. These state transitions and actions can be triggered externally via <strong>HTTP web endpoints</strong>, making the controller easy to integrate with other tools or platforms.</p>
-<p>This page will guide you through installing and using <strong>cf.PyControl</strong>, which is provided in a portable way using <strong>Docker containers</strong>.</p>
+<p><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> is a high-level controller for Crazyflie drones with a web-based API.</p>
+<p>At its core, drone behavior is governed by an internal <em><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/controller/cf.PyControl/Development.md#drone-software-controller-specification">state machine</a></em>, which defines how the Crazyflie should act under various conditions. These state transitions and actions can be triggered externally via <em>HTTP web endpoints</em>, making the controller easy to integrate with other tools or platforms.</p>
+<p>This page will guide you through installing and using <strong>cf.PyControl</strong>, which is provided in a portable way using <em>Docker containers</em>.</p>
 <hr/>
 
 <blockquote>
@@ -140,50 +128,14 @@
 </blockquote>
 <hr/>
 
-<h3>Start the Docker Container</h3>
-<p>A standalone <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> web and terminal interface is provided via a Docker container.
-The <code>cfclient</code> tool to configure and control the Crazyflie is also included in the container.</p>
-<p>First, the container only needs to be built once:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/crazyflie2.x/controller/cf.PyControl
-$ sudo docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
+<h3>cf.PyControl: Drone Controller Installation</h3>
+<p>First, the container that inhibits the cf.PyControl tool, only needs to be built once:</p>
+<p>For Linux/MacOs/Winodws do:</p>
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
+$ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 </code></pre>
 
 <p>The build process can take up to 2 min.</p>
-<p>After, you can start the cf.PyControl Docker container as follows.</p>
-<p><strong>(Linux)</strong></p>
-<pre class="codehilite"><code class="language-shell">$ sudo docker run --rm -it \
---device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
---net=host --ipc=host --pid=host \
---env=&quot;DISPLAY&quot; \
---env ROS_DOMAIN_ID=30 \
---env=&quot;XAUTHORITY=$XAUTHORITY&quot; \
---volume=&quot;$XAUTHORITY:$XAUTHORITY&quot; \
---gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
---volume=&quot;/tmp/.X11-unix:/tmp/.X11-unix:rw&quot; \
-cf-pyctrl
-</code></pre>
-
-<blockquote>
-<p><strong>Note:</strong> In <code>--device-cgroup-rule</code>, replace the <code>189</code> with the <strong>major device number</strong> you obtained in the initial setup.</p>
-</blockquote>
-<p><strong>(Windows)</strong>
-Run this from a WSL2 shell (not PowerShell):</p>
-<pre class="codehilite"><code class="language-shell">$ sudo docker run --rm -it \
-  --net=host \
-  --ipc=host \
-  --env ROS_DOMAIN_ID=30 \
-  --env DISPLAY=host.docker.internal:0.0 \
-  --env NVIDIA_VISIBLE_DEVICES=all \
-  --env NVIDIA_DRIVER_CAPABILITIES=all \
-  --gpus all \
-  cf-pyctrl
-</code></pre>
-
-<p>The container is started with:</p>
-<ul>
-<li>Access to USB devices for Crazyflie operation</li>
-<li>GPU-accelerated Container (Nvidia)</li>
-</ul>
 <h3>Unpack the Crazyflie</h3>
 <p>Unpack the Crazyflie and complete the standard setup by following the official Bitcraze guide: <a href="https://www.bitcraze.io/documentation/start/">https://www.bitcraze.io/documentation/start/</a>.</p>
 <p>Plug in the Crazyradio USB and ensure the drone batteries are fully charged.</p>
@@ -192,25 +144,23 @@ Run this from a WSL2 shell (not PowerShell):</p>
 <p>Place the Crazyflie securely on the ground and switch on the Crazyflie:</p>
 <p><img src="static/images/crazyflie-landing-pad.jpg" alt="crazyflie on a orange landing pad" style="zoom: 50%"/></p>
 <h3>(Optional) cfclient</h3>
-<p>Configure the drone using <code>cfclient</code>:</p>
-<pre class="codehilite"><code class="language-shell">:# cfclient
-INFO:cfclient.gui:Disabling STL printouts
-INFO:cfclient.utils.input.inputreaders:Input readers: ['linuxjsdev', 'pysdl2']
-INFO:cfclient.utils.input.inputreaders:Successfully initialized [linuxjsdev]
-...
+<p>Configure the drone using <code>cfclient</code>.
+First, check that you are in the correct folder:</p>
+<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
 </code></pre>
 
+<p>Then execute the original Crazyflie client:</p>
+<pre class="codehilite"><code class="language-shell">$ ./cfclient.sh
+</code></pre>
+
+<p><small>For Windows see Section "Start the Docker Container".</small></p>
 <p><img src="static/images/cfclient-screenshot-getting-started.png" style="zoom: 40%;"></p>
 <h3>Start the Python Controller</h3>
-<p>Inside the Docker container execute the following command to start the Crazyflie controller.</p>
-<p>First, change to the correct directory:</p>
-<pre class="codehilite"><code class="language-shell">:# cd /home/user/dev_ws/libs/crazyflie-controller/bin
+<p>Start the Crazyflie controller for a real drone like follows:</p>
+<pre class="codehilite"><code class="language-shell">$ ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
 </code></pre>
 
-<p>For a real drone:</p>
-<pre class="codehilite"><code class="language-shell">:# ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
-</code></pre>
-
+<p><small>For Windows see Section "Start the Docker Container".</small></p>
 <p><strong>Console Output</strong></p>
 <p><img src="static/images/cfpyctrl-terminal-screenshot.png" style="zoom: 40%" /></p>
 <h4>Parameters</h4>
@@ -286,6 +236,41 @@ $ ./websocat ws://localhost:8765
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.378889083862305, 2.3584070205688477, 0.01522907055914402]&quot;}
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.37879180908203, 2.3618288040161133, 0.014867031946778297]&quot;}
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.381799697875977, 2.3585495948791504, 0.015445047058165073]&quot;}
+</code></pre>
+
+<h2>Docker Container</h2>
+<h3>Start the Docker Container</h3>
+<p>If you run the script <code>cfpyctrl.sh</code> this happens:
+The standalone <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> web and terminal interface is provided via a Docker container.
+The <code>cfclient</code> tool to configure and control the Crazyflie is also included in the container.</p>
+<p>This section explains how you can access the container for development purposes.</p>
+<p>After, you can start the cf.PyControl Docker container as follows.</p>
+<p><strong>(Linux)</strong></p>
+<pre class="codehilite"><code class="language-shell">$ docker run --rm -it \
+--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
+--net=host --ipc=host --pid=host \
+--env=&quot;DISPLAY&quot; \
+--env ROS_DOMAIN_ID=30 \
+--env=&quot;XAUTHORITY=$XAUTHORITY&quot; \
+--volume=&quot;$XAUTHORITY:$XAUTHORITY&quot; \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
+--volume=&quot;/tmp/.X11-unix:/tmp/.X11-unix:rw&quot; \
+cf-pyctrl
+</code></pre>
+
+<p>The container is started with:</p>
+<ul>
+<li>Access to USB devices for Crazyflie operation</li>
+<li>GPU-accelerated Container (Nvidia)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> In <code>--device-cgroup-rule</code>, replace the <code>189</code> with the <em>major device number</em> you obtained in the initial setup.
+<strong>Note:</strong> Remove the line <code>--gpus</code> if you have not installed the NVIDIA Container Toolkit.</p>
+</blockquote>
+<p><strong>(Windows)</strong></p>
+<p>Run this from the PowerShell:</p>
+<pre class="codehilite"><code class="language-shell">PS&gt; docker run --rm -it --entrypoint /bin/sh --net=host --ipc=host --env ROS_DOMAIN_ID=30 --env DISPLAY=host.docker.internal:0.0 cf-pyctrl -lc &quot;/bin/bash&quot;
+:# sed -i 's/\r$//' ./cfpyctrl.sh &amp;&amp; chmod +x ./cfpyctrl.sh
 </code></pre>
 
 <h2>Troubleshooting</h2>
