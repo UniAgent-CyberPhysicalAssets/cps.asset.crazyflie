@@ -2,7 +2,7 @@
 
 # [CPA] Crazyflie 2.x
 
-This repository provides a cyber-physical representation of the **Crazyflie 2.x drone**, positioning it as an asset within the **Industry 4.0 ecosystem**. 
+This repository provides a cyber-physical representation of the *Crazyflie 2.x drone*, positioning it exemplary as an asset within the *Industry 4.0 ecosystem*. 
 
 The resources here enable integration, simulation, and control of Crazyflie 2.x in both physical and virtual environments.
 
