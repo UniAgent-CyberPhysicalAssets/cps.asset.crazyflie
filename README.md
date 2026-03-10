@@ -58,4 +58,4 @@ See each component's license file for details.
 
 ---
 
-Copyright © 2025 The UniAgent Developers and Contributors.
+Copyright © 2026 The UniAgent Developers and Contributors.
