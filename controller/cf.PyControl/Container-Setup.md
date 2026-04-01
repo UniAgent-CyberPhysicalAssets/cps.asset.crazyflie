@@ -49,7 +49,7 @@ $ xhost +local:"$USER"
 ```shell
 # + USB devices (Crazyradio)
 
-$ sudo docker run --rm -it \
+$ docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
 --env="DISPLAY" \
