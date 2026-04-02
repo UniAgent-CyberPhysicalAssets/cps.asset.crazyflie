@@ -151,6 +151,4 @@ class RosPoseArrayPositionStrategy(PositionEstimationStrategy, Node):
 
 # Delegate to cflib
 def reset_estimator0(scf, console):
-    # console.print('\tWaiting for estimator to find position...')
     reset_estimator(scf.cf)
-    # console.print('Waiting for estimator to find position...success!')

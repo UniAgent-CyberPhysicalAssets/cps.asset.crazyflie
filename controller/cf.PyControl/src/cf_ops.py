@@ -127,11 +127,17 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
     def shutdown(self):
         self.require_scf()
         self.printDebug("Shutdown")
-        self.mc.stop()
+        try:
+            self._scf.cf.platform.send_arming_request(False)
+            self.getSCF().cf.high_level_commander.stop()
+        except Exception as e:
+            print(f"Error: {e}")
+            self.printDebug(f"Error: {e}")
 
     def take_off_simple(self, height=None, velocity=None):
         self.require_scf()
         self.printDebug("\ttake_off_simple()")
+        self._scf.cf.platform.send_arming_request(True)
         time.sleep(1)
         if height is None:
             height = DEFAULT_HEIGHT
@@ -179,7 +185,6 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
             commander.start_trajectory(trajectory_id=1, time_scale=1.0, relative_position=relative, relative_yaw=False)
             time.sleep(duration)
             time.sleep(0.1)
-
         # commander.stop()
 
 
@@ -197,24 +202,24 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         self.mc.stop()
 
     def take_off_simple(self, height=DEFAULT_HEIGHT, velocity=DEFAULT_VELOCITY):
-        self.printDebug(f"\ttake off simple")
+        self.printDebug(f"\tTakeOff")
         time.sleep(self.timeSleep)
-        self.printDebug("Take off finished : I am hovering now")
+        self.printDebug("TakeOff: I am hovering now.")
 
     def landing_simple(self):
-        self.printDebug("I am landing now!")
+        self.printDebug("Landing")
         time.sleep(self.timeSleep)
-        self.printDebug("Technically, I am on the ground!")
+        self.printDebug("Landing: I am on the ground.")
 
     def navigate_to_simple(self, targetPoint: Point3D):
         self.printDebug(f"\tNavigate to: {targetPoint.x}, {targetPoint.y}, {targetPoint.z}")
         time.sleep(self.timeSleep)
-        self.printDebug("\tNavigation finished")
+        self.printDebug("\tNavigation: Target reached.")
 
     def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
-        self.printDebug(f"\trun_sequence: {sequence}")
+        self.printDebug(f"\tRunSequence: {sequence}")
         time.sleep(self.timeSleep)
-        self.printDebug("\trun_sequence")
+        self.printDebug("\tRunSequence: Finished.")
 
 
 # for dscf simulator

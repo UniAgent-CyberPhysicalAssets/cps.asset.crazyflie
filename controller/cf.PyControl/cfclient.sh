@@ -8,6 +8,7 @@ docker run --rm \
   --net=host --ipc=host --pid=host \
   --env="DISPLAY" \
   --env="XAUTHORITY=$XAUTHORITY" \
+  --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
   --volume="$XAUTHORITY:$XAUTHORITY" \
   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
   cf-pyctrl \

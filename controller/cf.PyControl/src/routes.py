@@ -170,17 +170,23 @@ def fly_trajectory():
 
 
 @drone_blueprint.route('/shutdown_command', methods=['POST'])
-def shutdown_command():
-    drone = current_app.config['DRONE']
-    drone.shutdown_command()
-    return jsonify({"message": "Transitioned to", "state": drone.get_current_state()})
-
-
-@drone_blueprint.route('/begin_stopping', methods=['POST'])
 def begin_stopping():
     drone = current_app.config['DRONE']
-    drone.begin_stopping()
-    return jsonify({"message": "Transitioned to", "state": drone.get_current_state()})
+    state = drone.get_current_state()
+
+    if state in ("idle", "hovering"):
+        drone.shutdown_command()
+    elif state == "shutdown":
+        drone.begin_stopping()
+    else:
+        return jsonify({
+            "error": f"Cannot begin stopping from state {state}"
+        }), 400
+
+    return jsonify({
+        "message": "Transitioned to",
+        "state": drone.get_current_state()
+    })
 
 
 @drone_blueprint.route('/state', methods=['GET'])

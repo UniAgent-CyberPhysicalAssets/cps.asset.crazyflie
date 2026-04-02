@@ -75,7 +75,7 @@ class StateMachineDrone(StateMachine):
     next_nav_goal = flying.to(flying, cond='goal_reached')
     keep_hovering = flying.to(hovering, cond='goal_reached')
     landing_completed = landed.to(idle, cond="is_not_flying")
-    shutdown_command = idle.to(shutdown)
+    shutdown_command = idle.to(shutdown) | hovering.to(shutdown)
     begin_stopping = shutdown.to(stopping)
 
     def set_takeoff_params(self, height=None, velocity=None):
@@ -206,7 +206,7 @@ class StateMachineDrone(StateMachine):
             navigate_to_simple(self)
         if event == "begin_fly_trajectory":
             start_trajectory(self)
-        if event == "shutdown":
+        if event == "shutdown_command":
             self.uavOpStrategyImpl.shutdown()
 
         return "on_transition_return"
@@ -218,8 +218,8 @@ class StateMachineDrone(StateMachine):
     def on_enter_state(self, event, state):
         self.printDebug(f"OnEnState: Entering '{state.id}' state from '{event}' event.")
         self.writeSMGraph()
-        if state == self.hovering:
-            self.printDebug("\tHovering now")
+        # if state == self.hovering:
+        #     self.printDebug("\tHovering now")
             # time.sleep(0.1)
         return "on_enter_state"
 

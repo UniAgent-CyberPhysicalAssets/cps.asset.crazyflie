@@ -111,6 +111,7 @@ console = Console()
 
 # Shared state of the drone
 logValues = {
+    'zRange': 0.0,
     'roll': 0.0,
     'pitch': 0.0,
     'yaw': 0.0,
@@ -163,6 +164,7 @@ def create_table_terminal():
     table.add_row("Battery Level (%)", f"{logValues['batteryLevel']:.2f}")
     table.add_row("Battery State", battery_state)
 
+    table.add_row("FlowDeck Height (mm)", f"{logValues['zRange']:.2f}")
     table.add_row("Roll (°)", f"{logValues['roll']:.2f}")
     table.add_row("Pitch (°)", f"{logValues['pitch']:.2f}")
     table.add_row("Yaw (°)", f"{logValues['yaw']:.2f}")
@@ -184,8 +186,10 @@ def LOG(msg: str):
 
 def logCallback_isFlying(timestamp, data, logconf):
     global drone
+    global logValues
     global positionEstimator
 
+    logValues['zRange'] = data['range.zrange']
     logValues['roll'] = data['stabilizer.roll']
     logValues['pitch'] = data['stabilizer.pitch']
     logValues['yaw'] = data['stabilizer.yaw']
@@ -215,11 +219,9 @@ def cleanup():
     global drone
     try:
         if drone.uavOpStrategyImpl.mc is not None:
-            drone.uavOpStrategyImpl.landing_simple()
-            time.sleep(500)
-            drone.uavOpStrategyImpl.mc.stop()
-    except:
-        console.print(f"[{drone.get_current_state()}] Quitting program: exception when stopping motor", markup=False)
+            drone.uavOpStrategyImpl.shutdown()
+    except Exception as e:
+        console.print(f"[{drone.get_current_state()}] Quitting program: exception when stopping motor: {e}", markup=False)
 
 
 # ######################################################################################################################
@@ -352,6 +354,7 @@ def setup_positioning_system(scf, args):
 
 def setup_stabilizer_logging(scf):
     logConfig_Acc = LogConfig(name='Stabilizer', period_in_ms=loggingPeriod_in_ms)
+    logConfig_Acc.add_variable('range.zrange', 'uint16_t')
     logConfig_Acc.add_variable('acc.x', 'float')
     logConfig_Acc.add_variable('acc.y', 'float')
     logConfig_Acc.add_variable('acc.z', 'float')

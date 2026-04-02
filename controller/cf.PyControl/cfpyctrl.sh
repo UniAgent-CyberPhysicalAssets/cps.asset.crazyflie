@@ -7,6 +7,7 @@ set -e
 #  --port 5000 \
 #  --wsendpoint \
 #  --wsport 8765
+#  --ps "LPS"
 
 docker run --rm -it \
   --device-cgroup-rule='c 189:* rmw' \
