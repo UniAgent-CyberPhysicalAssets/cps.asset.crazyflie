@@ -1,252 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Getting Started with the Crazyflie Controller | UniAgent - Programming Drone Collectives</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="static/css/github-markdown-light.css">
-<style>
-	.markdown-body {
-		box-sizing: border-box;
-		min-width: 200px;
-		max-width: 980px;
-		margin: 0 auto;
-		padding: 45px;
-	}
+    <meta charset="UTF-8">
+    <title>Getting Started with the Crazyflie Controller | UniAgent - Programming Drone Collectives</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/github-markdown-light.css">
+    <style>
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
 
-	@media (max-width: 767px) {
-		.markdown-body {
-			padding: 15px;
-		}
-	}
-</style>
-  <style>
-    a {
-      color: #bf3ec3 !important;
-    }
-    .active {
-        color: #bf3ec3 !important; /* Your custom active link color */
-    }
-    ul {
-      list-style-type: square !important; 
-      list-style-position: inside !important;
-      margin-block-start: 0.2em !important;
-      padding-inline-start: 1em !important;
-    }
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+        }
+    </style>
+    <style>
+        a {
+            color: #bf3ec3 !important;
+        }
+        .active {
+            color: #bf3ec3 !important; /* Your custom active link color */
+        }
+        ul {
+            list-style-type: square !important;
+            list-style-position: inside !important;
+            margin-block-start: 0.2em !important;
+            padding-inline-start: 1em !important;
+        }
     </style>
 </head>
 <body class="flex h-screen">
 <!-- Mobile menu toggle -->
 <div class="fixed top-4 left-4 z-50">
     <button onclick="document.getElementById('mainSidebar').classList.toggle('hidden')" class="p-2 bg-gray-200 rounded shadow-lg">
-      ☰
+        ☰
     </button>
-  </div>
-  <!-- Sidebar -->
-  <aside id="mainSidebar" class="w-1/4 bg-gray-100 p-4 overflow-auto sticky top-0 h-screen">
+</div>
+<!-- Sidebar -->
+<aside id="mainSidebar" class="w-1/4 bg-gray-100 p-4 overflow-auto sticky top-0 h-screen">
     <ul id="sidebar-list">
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/index">1. Overview</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started">2. Initial Setup</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer font-bold active">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl">3. Getting Started with the Crazyflie Controller</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie">5. Webots Simulation (ds-crazyflie)</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/24-getting-started-gazebo-simcf2">6. Gazebo Simulation (sim_cf2)</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology">7. Methodology</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations">8. Swarm Equations</a>
-              </li>
-          
-      
-          
-              <li class="sidebar-item p-2 cursor-pointer text-gray-600">
-                  <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
-              </li>
-          
-      
-    </ul>
-  </aside>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6">
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/index">1. Overview</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started">2. Initial Setup</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer font-bold active">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/13-getting-started-cf.PyControl">3. Getting Started with the Crazyflie Controller</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation">4. Getting Started with Simulations</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/23-getting-started-webots-dscrazyflie">5. Webots Simulation (ds-crazyflie)</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/24-getting-started-gazebo-simcf2">6. Gazebo Simulation (sim_cf2)</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/31-methodology">7. Methodology</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/32-swarm-equations">8. Swarm Equations</a>
+        </li>
+
+
+
+        <li class="sidebar-item p-2 cursor-pointer text-gray-600">
+            <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/82-further-resources">9. Further Resources</a>
+        </li>
+
+
+    </ul>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 p-6">
     <div class="p-4 border rounded-lg bg-white shadow prose max-w-none scroll-mt-20 markdown-body">
         <!-- <h1 id="title" class="scroll-mt-20">Getting Started with the Crazyflie Controller</h1> -->
         <div id="content" class="scroll-mt-20"><h1>Getting Started with cf.PyControl</h1>
-<p><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> is a high-level controller for Crazyflie drones with a web-based API.</p>
-<p>At its core, drone behavior is governed by an internal <em><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/controller/cf.PyControl/Development.md#drone-software-controller-specification">state machine</a></em>, which defines how the Crazyflie should act under various conditions. These state transitions and actions can be triggered externally via <em>HTTP web endpoints</em>, making the controller easy to integrate with other tools or platforms.</p>
-<p>This page will guide you through installing and using <strong>cf.PyControl</strong>, which is provided in a portable way using <em>Docker containers</em>.</p>
-<hr/>
+            <p><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> is a high-level controller for Crazyflie drones with a web-based API.</p>
+            <p>At its core, drone behavior is governed by an internal <em><a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/controller/cf.PyControl/Development.md#drone-software-controller-specification">state machine</a></em>, which defines how the Crazyflie should act under various conditions. These state transitions and actions can be triggered externally via <em>HTTP web endpoints</em>, making the controller easy to integrate with other tools or platforms.</p>
+            <p>This page will guide you through installing and using <strong>cf.PyControl</strong>, which is provided in a portable way using <em>Docker containers</em>.</p>
+            <hr/>
 
-<blockquote>
-<p><strong>Note:</strong> This page assumes that you know the radio URI of your Crazyflie drone.</p>
-<ul>
-<li>The default radio URI for real Crazyflie probably is <code>radio://0/80/2M/E7E7E7E7E7</code> or <code>radio://0/80/2M/E7E7E7E7E1</code>.</li>
-<li>If you are using a <a href="24-getting-started-gazebo-simcf2">virtual Crazyflie</a>, the default radio URI is <code>radio://0/80/2M/e7e7e7e701</code>.</li>
-</ul>
-</blockquote>
-<hr/>
+            <blockquote>
+                <p><strong>Note:</strong> This page assumes that you know the radio URI of your Crazyflie drone.</p>
+                <ul>
+                    <li>The default radio URI for real Crazyflie probably is <code>radio://0/80/2M/E7E7E7E7E7</code> or <code>radio://0/80/2M/E7E7E7E7E1</code>.</li>
+                    <li>If you are using a <a href="24-getting-started-gazebo-simcf2">virtual Crazyflie</a>, the default radio URI is <code>radio://0/80/2M/e7e7e7e701</code>.</li>
+                </ul>
+            </blockquote>
+            <hr/>
 
-<blockquote>
-<p><strong>Note:</strong> Make sure you have at least the flow deck installed if you use a real Crazyflie drone.</p>
-</blockquote>
-<hr/>
+            <blockquote>
+                <p><strong>Note:</strong> Make sure you have at least the flow deck installed if you use a real Crazyflie drone.</p>
+            </blockquote>
+            <hr/>
 
-<h3>cf.PyControl: Drone Controller Installation</h3>
-<p>First, the container that inhibits the cf.PyControl tool, only needs to be built once:</p>
-<p>For Linux/MacOs/Winodws do:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
+            <h3>cf.PyControl: Drone Controller Installation</h3>
+            <p>First, the container that inhibits the cf.PyControl tool, only needs to be built once:</p>
+            <p>For Linux/MacOs/Winodws do:</p>
+            <pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
 $ docker build -t cf-pyctrl -f .devcontainer/Dockerfile .
 </code></pre>
 
-<p>The build process can take up to 2 min.</p>
-<h3>Unpack the Crazyflie</h3>
-<p>Unpack the Crazyflie and complete the standard setup by following the official Bitcraze guide: <a href="https://www.bitcraze.io/documentation/start/">https://www.bitcraze.io/documentation/start/</a>.</p>
-<p>Plug in the Crazyradio USB and ensure the drone batteries are fully charged.</p>
-<p><img src="static/images/unpack-crazyflie.png" alt="unpack the crazyflie" style="zoom: 40%"/></p>
-<h3>Place the Crazyflie on the Ground</h3>
-<p>Place the Crazyflie securely on the ground and switch on the Crazyflie:</p>
-<p><img src="static/images/crazyflie-landing-pad.jpg" alt="crazyflie on a orange landing pad" style="zoom: 50%"/></p>
-<h3>(Optional) cfclient</h3>
-<p>Configure the drone using <code>cfclient</code>.
-First, check that you are in the correct folder:</p>
-<pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
+            <p>The build process can take up to 2 min.</p>
+            <h3>Unpack the Crazyflie</h3>
+            <p>Unpack the Crazyflie and complete the standard setup by following the official Bitcraze guide: <a href="https://www.bitcraze.io/documentation/start/">https://www.bitcraze.io/documentation/start/</a>.</p>
+            <p>Plug in the Crazyradio USB and ensure the drone batteries are fully charged.</p>
+            <p><img src="static/images/unpack-crazyflie.png" alt="unpack the crazyflie" style="zoom: 40%"/></p>
+            <h3>Place the Crazyflie on the Ground</h3>
+            <p>Place the Crazyflie securely on the ground and switch on the Crazyflie:</p>
+            <p><img src="static/images/crazyflie-landing-pad.jpg" alt="crazyflie on a orange landing pad" style="zoom: 50%"/></p>
+            <h3>(Optional) cfclient</h3>
+            <p>Configure the drone using <code>cfclient</code>.
+                First, check that you are in the correct folder:</p>
+            <pre class="codehilite"><code class="language-shell">$ cd ~/uniagent_ws/cps-asset/cps.asset.crazyflie/controller/cf.PyControl
 </code></pre>
 
-<p>Then execute the original Crazyflie client:</p>
-<pre class="codehilite"><code class="language-shell">$ ./cfclient.sh
+            <p>Then execute the original Crazyflie client:</p>
+            <pre class="codehilite"><code class="language-shell">$ ./cfclient.sh
 </code></pre>
 
-<p><small>For Windows see Section "Start the Docker Container".</small></p>
-<p><img src="static/images/cfclient-screenshot-getting-started.png" style="zoom: 40%;"></p>
-<h3>Start the Python Controller</h3>
-<p>Start the Crazyflie controller for a real drone like follows:</p>
-<pre class="codehilite"><code class="language-shell">$ ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
+            <p><small>For Windows see Section "Start the Docker Container".</small></p>
+            <p><img src="static/images/cfclient-screenshot-getting-started.png" style="zoom: 40%;"></p>
+            <h3>Start the Python Controller</h3>
+            <p>Start the Crazyflie controller for a real drone like follows:</p>
+            <pre class="codehilite"><code class="language-shell">$ ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000 --wsendpoint --wsport 8765
 </code></pre>
 
-<p><small>For Windows see Section "Start the Docker Container".</small></p>
-<p><strong>Console Output</strong></p>
-<p><img src="static/images/cfpyctrl-terminal-screenshot.png" style="zoom: 40%" /></p>
-<h4>Parameters</h4>
-<ul>
-<li>Adjust the radio address with <code>--uri</code> as needed or configure it with the tool <code>cfclient</code>.</li>
-<li>Adjust the webservice port with <code>--port [PORT_NUMBER]</code> when running multiple instances of the controller.</li>
-<li>Adjust the websocket port with <code>--wsendpoint --wsport [PORT_NUMBER]</code> when running multiple instances of the controller.</li>
-</ul>
-<p>More parameters are explained <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl">here</a>.</p>
-<h3>Overview of the Actions of the Crazyflie</h3>
-<p>After opening the URL <code>http://0.0.0.0:5000/routes</code> in the browser, you will see all available commands of the Crazyflies internal state machine:</p>
-<p><img alt="crazyflie actions as webservice" src="static/images/uav-webservice-routes-actions.png" /></p>
-<p>You can also use curl to inspect the available routes:</p>
-<pre class="codehilite"><code class="language-shell">$ curl http://0.0.0.0:5000/routes
+            <p><small>For Windows see Section "Start the Docker Container".</small></p>
+            <p><strong>Console Output</strong></p>
+            <p><img src="static/images/cfpyctrl-terminal-screenshot.png" style="zoom: 40%" /></p>
+            <h4>Parameters</h4>
+            <ul>
+                <li>Adjust the radio address with <code>--uri</code> as needed or configure it with the tool <code>cfclient</code>.</li>
+                <li>Adjust the webservice port with <code>--port [PORT_NUMBER]</code> when running multiple instances of the controller.</li>
+                <li>Adjust the websocket port with <code>--wsendpoint --wsport [PORT_NUMBER]</code> when running multiple instances of the controller.</li>
+            </ul>
+            <p>More parameters are explained <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl">here</a>.</p>
+            <h3>Overview of the Actions of the Crazyflie</h3>
+            <p>After opening the URL <code>http://0.0.0.0:5000/routes</code> in the browser, you will see all available commands of the Crazyflies internal state machine:</p>
+            <p><img alt="crazyflie actions as webservice" src="static/images/uav-webservice-routes-actions.png" /></p>
+            <p>You can also use curl to inspect the available routes:</p>
+            <pre class="codehilite"><code class="language-shell">$ curl http://0.0.0.0:5000/routes
 </code></pre>
 
-<hr/>
-<blockquote>
-<p><strong>Note:</strong> As indicated by the <code>$</code> sign in front of the curl command, we can communicate with the controller from the host system since the Docker container is connected to the host system via the <code>--net=host</code> flag.</p>
-</blockquote>
-<hr/>
+            <hr/>
+            <blockquote>
+                <p><strong>Note:</strong> As indicated by the <code>$</code> sign in front of the curl command, we can communicate with the controller from the host system since the Docker container is connected to the host system via the <code>--net=host</code> flag.</p>
+            </blockquote>
+            <hr/>
 
-<h4>State machine</h4>
-<p>A picture of the state machine governing the Crazyflie behavior is depicted below:</p>
-<p><img src="static/images/statemachine-uav1.png" style="zoom: 40%" alt="State machine of the Crazyflie drone"/></p>
-<h3>Basic Commands</h3>
-<p>A detailed list of all commands is available in the respective <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/controller/cf.PyControl/README.md">README</a> of the <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl">cf.PyControl</a> repository.</p>
-<p>First, <strong>activate</strong> the drone to release the software-based security lock:</p>
-<pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/activate_idle
+            <h4>State machine</h4>
+            <p>A picture of the state machine governing the Crazyflie behavior is depicted below:</p>
+            <p><img src="static/images/statemachine-uav1.png" style="zoom: 40%" alt="State machine of the Crazyflie drone"/></p>
+            <h3>Basic Commands</h3>
+            <p>A detailed list of all commands is available in the respective <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/blob/main/controller/cf.PyControl/README.md">README</a> of the <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl">cf.PyControl</a> repository.</p>
+            <p>First, <strong>activate</strong> the drone to release the software-based security lock:</p>
+            <pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/activate_idle
 </code></pre>
 
-<p>Execute the following command to <strong>take off</strong>.
-The drone take offs to a height of 0.5 meters (default internal value).</p>
-<pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/begin_takeoff
+            <p>Execute the following command to <strong>take off</strong>.
+                The drone take offs to a height of 0.5 meters (default internal value).</p>
+            <pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/begin_takeoff
 </code></pre>
 
-<p>The next command will <strong>navigate</strong> the drone to the position (1.0, 1.0, 0.5)</p>
-<pre class="codehilite"><code class="language-shell">$ curl -d {} http://localhost:5000/navigate/1.0/1.0/0.5
+            <p>The next command will <strong>navigate</strong> the drone to the position (1.0, 1.0, 0.5)</p>
+            <pre class="codehilite"><code class="language-shell">$ curl -d {} http://localhost:5000/navigate/1.0/1.0/0.5
 </code></pre>
 
-<h3>Sequential Commands</h3>
-<p>The following commands will take off the drone and then land it again.
-The commands are executed sequentially:</p>
-<pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/activate_idle &amp;&amp; \
+            <h3>Sequential Commands</h3>
+            <p>The following commands will take off the drone and then land it again.
+                The commands are executed sequentially:</p>
+            <pre class="codehilite"><code class="language-shell">$ curl -d {} http://127.0.0.1:5000/activate_idle &amp;&amp; \
   curl -d {} http://127.0.0.1:5000/begin_takeoff &amp;&amp; \
   curl -d {} http://127.0.0.1:5000/begin_landing
 </code></pre>
 
-<p>The internal state machine will take care of the transition between the states.
-If one request fails, the state machine will remain in the last working state.</p>
-<video controls width="380">
-  <source src="static/videos/labcast-cf-takeoff.webm" type="video/webm" />
-  <source src="static/videos/labcast-cf-takeoff.mp4" type="video/mp4" />
-</video>
+            <p>The internal state machine will take care of the transition between the states.
+                If one request fails, the state machine will remain in the last working state.</p>
+            <video controls width="380">
+                <source src="static/videos/labcast-cf-takeoff.webm" type="video/webm" />
+                <source src="static/videos/labcast-cf-takeoff.mp4" type="video/mp4" />
+            </video>
 
-<p><small>The ground effect is visible when landing the tiny drone.</small></p>
-<h2>Monitoring the Crazyflie</h2>
-<ul>
-<li>View the output of the controller in the terminal</li>
-<li>Connect to the websocket server to receive the output of the Crazyflie status such as position, velocity, and battery level.</li>
-</ul>
-<h3>Websocket Server</h3>
-<p>You need to install  <a href="https://github.com/vi/websocat">websocat</a> before.</p>
-<p>The websocket server is started with the <code>--wsendpoint --wsport</code> flag.
-Therefore, open a new Docker container and connect to the websocket server.
-Change the address to the port of the cf.PyControl websocket server if necessary:</p>
-<pre class="codehilite"><code class="language-shell">$ chmod +x ./websocat
+            <p><small>The ground effect is visible when landing the tiny drone.</small></p>
+            <h2>Monitoring the Crazyflie</h2>
+            <ul>
+                <li>View the output of the controller in the terminal</li>
+                <li>Connect to the websocket server to receive the output of the Crazyflie status such as position, velocity, and battery level.</li>
+            </ul>
+            <h3>Websocket Server</h3>
+            <p>You need to install  <a href="https://github.com/vi/websocat">websocat</a> before.</p>
+            <p>The websocket server is started with the <code>--wsendpoint --wsport</code> flag.
+                Therefore, open a new Docker container and connect to the websocket server.
+                Change the address to the port of the cf.PyControl websocket server if necessary:</p>
+            <pre class="codehilite"><code class="language-shell">$ chmod +x ./websocat
 $ ./websocat ws://localhost:8765
 </code></pre>
 
-<p>The output will be similar to the following:</p>
-<pre class="codehilite"><code class="language-text">{&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.37225914001465, 2.3541359901428223, 0.016074998304247856]&quot;}
+            <p>The output will be similar to the following:</p>
+            <pre class="codehilite"><code class="language-text">{&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.37225914001465, 2.3541359901428223, 0.016074998304247856]&quot;}
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.378889083862305, 2.3584070205688477, 0.01522907055914402]&quot;}
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.37879180908203, 2.3618288040161133, 0.014867031946778297]&quot;}
 {&quot;message&quot;: &quot;crazyflie_position&quot;, &quot;value&quot;: &quot;[19.381799697875977, 2.3585495948791504, 0.015445047058165073]&quot;}
 </code></pre>
 
-<h2>Docker Container</h2>
-<h3>Start the Docker Container</h3>
-<p>If you run the script <code>cfpyctrl.sh</code> this happens:
-The standalone <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> web and terminal interface is provided via a Docker container.
-The <code>cfclient</code> tool to configure and control the Crazyflie is also included in the container.</p>
-<p>This section explains how you can access the container for development purposes.</p>
-<p>After, you can start the cf.PyControl Docker container as follows.</p>
-<p><strong>(Linux)</strong></p>
-<pre class="codehilite"><code class="language-shell">$ docker run --rm -it \
+            <h2>Docker Container</h2>
+            <h3>Start the Docker Container</h3>
+            <p>If you run the script <code>cfpyctrl.sh</code> this happens:
+                The standalone <a href="https://github.com/UniAgent-CyberPhysicalAssets/cps.asset.crazyflie/tree/main/controller/cf.PyControl"><strong>cf.PyControl</strong></a> web and terminal interface is provided via a Docker container.
+                The <code>cfclient</code> tool to configure and control the Crazyflie is also included in the container.</p>
+            <p>This section explains how you can access the container for development purposes.</p>
+            <p>After, you can start the cf.PyControl Docker container as follows.</p>
+            <p><strong>(Linux)</strong></p>
+            <pre class="codehilite"><code class="language-shell">$ docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
 --env=&quot;DISPLAY&quot; \
@@ -258,24 +258,24 @@ The <code>cfclient</code> tool to configure and control the Crazyflie is also in
 cf-pyctrl
 </code></pre>
 
-<p>The container is started with:</p>
-<ul>
-<li>Access to USB devices for Crazyflie operation</li>
-<li>GPU-accelerated Container (Nvidia)</li>
-</ul>
-<blockquote>
-<p><strong>Note:</strong> In <code>--device-cgroup-rule</code>, replace the <code>189</code> with the <em>major device number</em> you obtained in the initial setup.
-<strong>Note:</strong> Remove the line <code>--gpus</code> if you have not installed the NVIDIA Container Toolkit.</p>
-</blockquote>
-<p><strong>(Windows)</strong></p>
-<p>Run this from the PowerShell:</p>
-<pre class="codehilite"><code class="language-shell">PS&gt; docker run --rm -it --entrypoint /bin/sh --net=host --ipc=host --env ROS_DOMAIN_ID=30 --env DISPLAY=host.docker.internal:0.0 cf-pyctrl -lc &quot;/bin/bash&quot;
+            <p>The container is started with:</p>
+            <ul>
+                <li>Access to USB devices for Crazyflie operation</li>
+                <li>GPU-accelerated Container (Nvidia)</li>
+            </ul>
+            <blockquote>
+                <p><strong>Note:</strong> In <code>--device-cgroup-rule</code>, replace the <code>189</code> with the <em>major device number</em> you obtained in the initial setup.
+                    <strong>Note:</strong> Remove the line <code>--gpus</code> if you have not installed the NVIDIA Container Toolkit.</p>
+            </blockquote>
+            <p><strong>(Windows)</strong></p>
+            <p>Run this from the PowerShell:</p>
+            <pre class="codehilite"><code class="language-shell">PS&gt; docker run --rm -it --entrypoint /bin/sh --net=host --ipc=host --env ROS_DOMAIN_ID=30 --env DISPLAY=host.docker.internal:0.0 cf-pyctrl -lc &quot;/bin/bash&quot;
 :# sed -i 's/\r$//' ./cfpyctrl.sh &amp;&amp; chmod +x ./cfpyctrl.sh
 </code></pre>
 
-<h2>Troubleshooting</h2>
-<p>If you get connection errors such as "<em>Too many packets lost</em>":</p>
-<pre class="codehilite"><code class="language-text">--[starting] Connecting to drone now ...
+            <h2>Troubleshooting</h2>
+            <p>If you get connection errors such as "<em>Too many packets lost</em>":</p>
+            <pre class="codehilite"><code class="language-text">--[starting] Connecting to drone now ...
 Traceback (most recent call last):
   File &quot;/home/user/dev_ws/libs/crazyflie-controller/src/cf-ctrl-service.py&quot;, line 281, in &lt;module&gt;
     with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
@@ -286,18 +286,18 @@ Traceback (most recent call last):
 Exception: Too many packets lost
 </code></pre>
 
-<p><strong>Try to:</strong></p>
-<ul>
-<li>Restart the Crazyflie</li>
-<li>Unplug the Crazyradio PA from the USB port and plug it in again, then restart the Crazyflie</li>
-<li>Check the battery status with cfclient and recharge if necessary.</li>
-<li>When executed curl commands to communicate with the controller inside the Docker container, make sure to use the <code>--net=host</code> flag to connect to the host system.</li>
-</ul></div>
+            <p><strong>Try to:</strong></p>
+            <ul>
+                <li>Restart the Crazyflie</li>
+                <li>Unplug the Crazyradio PA from the USB port and plug it in again, then restart the Crazyflie</li>
+                <li>Check the battery status with cfclient and recharge if necessary.</li>
+                <li>When executed curl commands to communicate with the controller inside the Docker container, make sure to use the <code>--net=host</code> flag to connect to the host system.</li>
+            </ul></div>
     </div>
-  
+
     <!-- Bottom Navigation -->
     <div class="flex justify-between mt-4">
-        
+
         <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started" class="px-4 py-2 bg-blue-600 text-white rounded">
             Previous
         </a>
@@ -307,9 +307,9 @@ Exception: Too many packets lost
         <a href="https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/20-getting-started-simulation" class="px-4 py-2 bg-blue-600 text-white rounded">
             Next
         </a>
-        
+
     </div>
-  </main>
+</main>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 </body>
 </html>
