@@ -417,7 +417,7 @@ curl -d {} http://127.0.0.1:5000/begin_landing
 By using the following approach, the drone hovers briefly upon reaching each target before proceeding to the next
 action:
 
-## Monitoring
+## Client API and Monitoring
 
 ### Drone State Updates via WebSocket Endpoint
 
@@ -433,6 +433,76 @@ Some output will be also visible in the terminal where cf.PyControl is running.
 
 Therefore, the controller must be started with the `--wsendpoint --wsport 8765` flag.
 The last argument is the port of the WebSocket endpoint, which can be changed.
+
+### AutoStateMachine Client
+
+The `AutoStateMachine` client in the folder `controller/cf.PyControl/src/client/` provides a lightweight Python-based client for coordinating one or more running `cf.PyCtrl` REST API servers, in other words, physical or virtual Crazyflie drones.
+
+It is intended for orchestrating controller behavior across multiple Crazyflie instances, including simulations such as `ds-crazyflie`.
+
+#### Example: Start two cf.PyCtrl servers
+
+Each **cf.PyCtrl** server is addressed through its own REST endpoint, for example, the following cf.PyCtrl endpoints must be started:
+
+- http://127.0.0.1:5000 and http://127.0.0.1:5001 
+- Example for ds-crazyflie:
+  ```shell
+  ./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
+  ./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+  ```
+
+#### Run the client
+
+This allows simple multi-drone coordination by running one controller service per Crazyflie instance.
+
+Therefore, change the array sequence inside `main.py` (see below) and run :
+
+```
+python3 main.py
+```
+
+#### Sequence JSON Format
+Each client-side sequence step may define timing behavior using:
+
+- `timeout`: maximum time in seconds to wait until the expected `wait_state` is reached.
+- `wait_time`: optional additional delay in seconds after the step completed successfully.
+
+```python
+sequence = [
+  {
+    "action": "activate_idle",
+    "wait_state": "idle",
+    "timeout": 5.0
+  },
+  {
+    "action": "begin_takeoff",
+    "wait_state": "hovering",
+    "timeout": 10.0,
+    "wait_time": 2.0
+  },
+  {
+    "action": "navigate",
+    "x": 0.0,
+    "y": -0.5,
+    "z": 0.6,
+    "wait_state": "hovering",
+    "timeout": 60.0,
+    "wait_time": 0.0
+  },
+  {
+    "action": "fly_trajectory",
+    "trajectory_file": "../../examples/trajectories/tra-1.json",
+    "wait_state": "hovering",
+    "timeout": 60.0,
+    "wait_time": 1.0
+  },
+  {
+    "action": "begin_landing",
+    "wait_state": "idle",
+    "timeout": 10.0
+  }
+]
+```
 
 ### Live State Update via WebView
 
@@ -510,4 +580,5 @@ This tool is developed and maintained by the UniAgent Developers and contributor
 ---
 
 Copyright © 2026 The UniAgent Developers and Contributors. <br/>
-(Main Developer: Dominik Grzelak)
+Main Developer: Dominik Grzelak <br/>
+Contributor(s): Tianxiong Zhang
