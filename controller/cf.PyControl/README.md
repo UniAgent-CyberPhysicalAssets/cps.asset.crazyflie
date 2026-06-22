@@ -10,10 +10,13 @@ Endpoints*](#basic-operations).
 **Features**
 
 - Supported Actions: TakeOff, Landing, Navigate
-- Controller:
+- Web-based, Terminal-based Crazyflie Controller:
     - Hardware control
     - sim_cf2 simulation mode
     - ds-crazyflie simulation mode
+- Multi-drone coordination:
+  - Control multiple Crazyflie instances through separate `cf.PyCtrl` REST API servers
+  - Execute predefined command sequences per drone (supports `timeout` and `wait_time` per step)
 - WebView (Live State Updates)
 
 **Screenshot**
