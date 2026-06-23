@@ -39,6 +39,7 @@ ros2 service list
 Send takeoff command: 
 
 ```shell
+ros2 service call /cf231/arm crazyflie_interfaces/srv/Arm "{arm: true}"
 ros2 service call /cf231/takeoff crazyflie_interfaces/srv/Takeoff "{height: 0.2, duration: {sec: 2}}"
 ```
 

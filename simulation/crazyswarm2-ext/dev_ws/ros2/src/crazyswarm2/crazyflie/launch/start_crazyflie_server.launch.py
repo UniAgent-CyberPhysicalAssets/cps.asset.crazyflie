@@ -40,7 +40,7 @@ def generate_launch_description():
     # Define the crazyflie server node with an IfCondition using PythonExpression
     server_node_real = Node(
         package='crazyflie',
-        executable='crazyflie_server.py',
+        executable='crazyflie_server',
         condition=IfCondition(
             PythonExpression(["'", LaunchConfiguration('backend'), "' == 'cflib'"])
         ),

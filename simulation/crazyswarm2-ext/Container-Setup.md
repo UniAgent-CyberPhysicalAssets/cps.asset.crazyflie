@@ -2,51 +2,26 @@
 
 This document describes the workspace installation procedure for the ROS2 package crazyswarm2
 
-## Preparation
+## Installation
 
-**Get the cf.PyControl Python service:**
+### Preparation
 
-```shell
-chmod +x ./prepare.sh
-./prepare.sh
-```
+This section explains the one-time setup you need to complete before building the image and getting started.
 
-**Allow the Docker Container to Access X Server:**
+#### Allowing USB
 
-```shell
-xhost +local:root
-```
+- First make appropriate USB permissions under [Linux](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/)
 
-Revert the `xhost` settings to their original state afterward:
+- Find out the major device number of the USB Crazyradio as described here: https://uniagent-cyberphysicalassets.github.io/cps.asset.crazyflie/12-getting-started
+  - The **major device number** is in this example `189`
+  - You have to add the respective rule when starting the Docker container (see example below): `--device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev`
 
-```shell
-xhost -
-```
 
-**Allowing USB:**
+#### Enable GPU-accelerated Containers
 
-Make Crazyradio available in Docker container
+- Install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
-- Use the `lsusb` command to get a list of all USB devices connected to your system. Each line in the `lsusb` output represents a USB device with a Bus number and Device number.
-- Use `udevadm` to get detailed information about the device, which includes the associated `/dev` entry.
-  Below replace `001` with the Bus number and `009` with the Device number from the `lsusb` output. Specifically, use the output of `DEVNAME`.
-- Get device major number via `ls -la`using information from `DEVNAME`
-
-```shell
-lsusb
-sudo udevadm info --query=all --name=/dev/bus/usb/001/009
-ls -la /dev/bus/usb/001/009
-# Output
-crw-rw-r-- 1 root plugdev 189, 8 Aug  8 22:38 /dev/bus/usb/001/009
-```
-
-- The major device number is in this example "189"
-
-- Add respective rules when starting the Docker container (see below)
-  - the insecure option is: `--privileged -v /dev/bus/usb:/dev/bus/usb`
-- See also: https://stackoverflow.com/questions/24225647/docker-a-way-to-give-access-to-a-host-usb-or-serial-device
-
-## Building the Docker Image
+### Building the Docker Image
 
 ```shell
 docker build -t crazyswarm2_simu -f .devcontainer/Dockerfile .
@@ -55,7 +30,7 @@ docker build -t crazyswarm2_simu -f .devcontainer/Dockerfile .
 ## Running the Docker Container
 
 ```shell
-sudo docker run --rm -it \
+docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
 --env ROS_DOMAIN_ID=30 \

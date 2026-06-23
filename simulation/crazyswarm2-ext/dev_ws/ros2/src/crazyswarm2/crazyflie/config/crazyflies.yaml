@@ -1,3 +1,4 @@
+fileversion: 3
 # named list of all robots
 robots:
   cf231:
@@ -47,6 +48,7 @@ robot_types:
     motion_capture:
       enabled: false
       # only if enabled; see motion_capture.yaml
+#      tracking: "librigidbodytracker"
       # marker: default_single_marker
       dynamics: default
     big_quad: false
@@ -111,7 +113,8 @@ all:
       enHighLevel: 1
     stabilizer:
       estimator: 2 # 1: complementary, 2: kalman
-      controller: 2 # 1: PID, 2: mellinger
+      #controller: 2 # 1: PID, 2: mellinger
+      controller: 1  # PID controller; recommended for Flow Deck
     # ring:
     #   effect: 16 # 6: double spinner, 7: solid color, 16: packetRate
     #   solidBlue: 255 # if set to solid color
@@ -123,6 +126,7 @@ all:
       extQuatStdDev: 0.5e-1
     # kalman:
     #   resetEstimation: 1
+  reference_frame: "world"
   broadcasts:
     num_repeats: 15 # number of times broadcast commands are repeated
     delay_between_repeats_ms: 1 # delay in milliseconds between individual repeats

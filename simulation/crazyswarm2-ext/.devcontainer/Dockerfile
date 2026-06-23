@@ -27,9 +27,9 @@ RUN apt-get install -y ros-jazzy-teleop-twist-keyboard
 RUN apt-get install -y ros-jazzy-rmw-cyclonedds-cpp
 RUN apt-get install -y ros-jazzy-slam-toolbox
 # https://imrclab.github.io/crazyswarm2/installation.html
-RUN pip install --break-system-packages rowan nicegui 
+RUN pip install --break-system-packages --ignore-installed rowan nicegui
 RUN apt-get install -y ros-jazzy-motion-capture-tracking
-RUN pip install --break-system-packages cflib transforms3d
+RUN pip install --break-system-packages --ignore-installed cflib transforms3d
 RUN apt-get install -y ros-jazzy-tf-transformations
 
 #### Install gz-harmonic
@@ -78,7 +78,7 @@ RUN cd swig-4.1.1 \
 RUN rm -rf swig-4.1.1 swig-4.1.1.tar.gz
 RUN swig -version
 
-RUN git clone --recursive https://github.com/bitcraze/crazyflie-firmware.git
+RUN git clone --branch 2026.04 --single-branch --recursive https://github.com/bitcraze/crazyflie-firmware.git
 RUN cd crazyflie-firmware && \
     make cf2_defconfig && \
     make bindings_python && \
