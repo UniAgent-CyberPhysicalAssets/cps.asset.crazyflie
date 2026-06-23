@@ -13,14 +13,16 @@ Author: Tianxiong Zhang
 
 Maintainer: Dominik Grzelak
 """
+import asyncio
+import ast
 import json
 import logging
-import threading
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import requests
+import websockets
 
 # Configure logging
 logging.basicConfig(
@@ -30,15 +32,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class AutoStateMachine:
-    def __init__(self, base_url: str = "http://127.0.0.1:5000"):  #5001 5002 ...
+    def __init__(self, base_url: str = "http://127.0.0.1:5000", wshost: str = "127.0.0.1", wsport: int = 8765):  #5001 5002 ...
         """Initialize the automatic state machine controller
 
         Args:
             base_url: Base URL of the API server
         """
         self.base_url = base_url
+        self.websocket_port = wsport
+        self.websocket_host = wshost
         self.current_state = None
         self.navigation_points = []
+        self.latest_position = None
 
     def get_current_state(self) -> str:
         """Get current state"""
@@ -53,6 +58,12 @@ class AutoStateMachine:
         except Exception as e:
             logger.error(f"An error occurred while getting the status: {str(e)}")
             return None
+
+    def get_websocket_port(self):
+        return self.websocket_port
+
+    def get_websocket_host(self):
+        return self.websocket_host
 
     def activate_idle(self) -> bool:
         """Activate idle state"""
@@ -208,13 +219,9 @@ class AutoStateMachine:
             for point in points:
                 x, y, z = point['x'], point['y'], point['z']
 
-                if x < 0 or y < 0 or z < 0:
-                    payload = {"x": x, "y": y, "z": z}
-                    response = requests.post(f"{self.base_url}/navigate/append", json=payload)
-                else:
-                    response = requests.post(
-                        f"{self.base_url}/navigate/append/{x}/{y}/{z}"
-                    )
+                response = requests.post(
+                    f"{self.base_url}/navigate/append/{x}/{y}/{z}"
+                )
 
                 if response.status_code != 200:
                     logger.error(f"Failed to add navigation point: {point}")
@@ -243,7 +250,7 @@ class AutoStateMachine:
                 logger.info(f"Target state reached: {target_state}")
                 return True
             time.sleep(0.1)
-        logger.error(f"Waiting for state {target_state} timed out (current_state={self.get_current_state()}")
+        logger.error(f"Waiting for state {target_state} timed out (current_state={self.get_current_state()})")
         return False
 
     def execute_sequence(self, sequence: List[Dict[str, Any]], batch_navigation: bool = False) -> bool:
@@ -347,3 +354,76 @@ class AutoStateMachine:
                 logger.info(f"Additional wait time completed")
             i += 1
         return True
+
+    def read_position_websocket(
+            self,
+            timeout: float = 5.0
+    ) -> Optional[Tuple[float, float, float]]:
+        return asyncio.run(
+            self.read_position_websocket_async(timeout=timeout)
+        )
+
+    async def read_position_websocket_async(
+            self,
+            timeout: float = 5.0
+    ) -> Optional[Tuple[float, float, float]]:
+        """
+        Read one Crazyflie position sample from the cf.PyCtrl WebSocket.
+
+        Expected message format:
+            {
+                "message": "crazyflie_position",
+                "value": "[x, y, z]"
+            }
+
+        Returns:
+            (x, y, z) if a position sample was received, otherwise None.
+        """
+        ws_url = f"ws://{self.websocket_host}:{self.websocket_port}"
+
+        try:
+            async with websockets.connect(ws_url) as websocket:
+                while True:
+                    raw_msg = await asyncio.wait_for(websocket.recv(), timeout=timeout)
+
+                    try:
+                        msg = json.loads(raw_msg)
+                    except json.JSONDecodeError:
+                        logger.warning(f"Invalid websocket JSON: {raw_msg}")
+                        continue
+
+                    if msg.get("message") != "crazyflie_position":
+                        continue
+
+                    raw_value = msg.get("value")
+                    if raw_value is None:
+                        continue
+
+                    try:
+                        values = ast.literal_eval(raw_value)
+                    except Exception:
+                        logger.warning(f"Invalid position payload: {raw_value}")
+                        continue
+
+                    if not isinstance(values, list) or len(values) != 3:
+                        logger.warning(f"Invalid position vector: {values}")
+                        continue
+
+                    position = (
+                        float(values[0]),
+                        float(values[1]),
+                        float(values[2])
+                    )
+
+                    self.latest_position = position
+
+                    logger.info(
+                        f"WebSocket position received: "
+                        f"x={position[0]:.3f}, y={position[1]:.3f}, z={position[2]:.3f}"
+                    )
+
+                    return position
+
+        except Exception as e:
+            logger.error(f"Failed to read websocket position from {ws_url}: {e}")
+            return None

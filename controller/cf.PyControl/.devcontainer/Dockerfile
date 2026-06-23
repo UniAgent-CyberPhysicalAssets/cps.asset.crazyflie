@@ -47,7 +47,8 @@ RUN apt update && apt install -y \
     ros-humble-rosidl-generator-py \
     ros-humble-std-msgs \
     ros-humble-geometry-msgs \
-    ros-humble-rmw-cyclonedds-cpp
+    ros-humble-rmw-cyclonedds-cpp \
+    ros-humble-tf-transformations
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 COPY ./vendor/crazyflie_interfaces \
     /home/$USERNAME/dev_ws/libs/crazyflie-controller/src/crazyflie_interfaces

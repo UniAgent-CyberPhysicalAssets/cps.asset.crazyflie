@@ -395,6 +395,7 @@ def main_loop():
             console.print("Shutdown requested", markup=False)
 
 
+# For ds-crazyflie
 def run_dscf_mode(args):
     global drone, positionEstimator
 
@@ -487,6 +488,8 @@ def run_dscf_mode(args):
     main_loop()
 
 
+# For real Crazyflie
+# For sim_cf2
 def run_cflib_mode(args):
     global drone, positionEstimator
 

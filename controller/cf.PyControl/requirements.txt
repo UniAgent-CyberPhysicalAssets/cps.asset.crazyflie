@@ -11,6 +11,9 @@ Jinja2==3.1.4
 kiwisolver==1.4.5
 libusb-package==1.0.26.1
 MarkupSafe==2.1.5
+evdev==1.6.1
+pynput==1.8.2
+python-xlib==0.33
 numpy==2.2
 packaging==25.0
 paho-mqtt==2.1.0
@@ -35,4 +38,5 @@ vispy==0.15.2
 waitress==3.0.0
 webencodings==0.5.1
 Werkzeug==3.0.3
+requests==2.32.3
 websockets==13.1
