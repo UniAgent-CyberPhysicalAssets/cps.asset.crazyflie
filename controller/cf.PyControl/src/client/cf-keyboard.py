@@ -23,6 +23,7 @@ Author: Dominik Grzelak
 import threading
 from typing import Callable
 import logging
+import argparse
 from dataclasses import dataclass
 from typing import Optional, Tuple, Callable
 
@@ -268,17 +269,93 @@ class KeyboardDroneController:
         with keyboard.Listener(on_press=self.on_press) as listener:
             listener.join()
 
-def main():
-    config = KeyboardControlConfig(
-        step_xy=0.25,
-        step_z=0.15,
-        min_z=0.15,
-        max_z=2.00,
-        base_url="http://127.0.0.1:5000",
-        websocket_host="127.0.0.1",
-        websocket_port=8765,
-        websocket_timeout=2.0
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Keyboard controller for cf.PyCtrl REST client."
     )
+
+    parser.add_argument(
+        "--base-url",
+        default="http://127.0.0.1:5000",
+        help="Base URL of the cf.PyCtrl REST API."
+    )
+
+    parser.add_argument(
+        "--websocket-host",
+        "--wshost",
+        default="127.0.0.1",
+        help="WebSocket host for cf.PyCtrl position data."
+    )
+
+    parser.add_argument(
+        "--websocket-port",
+        "--wsport",
+        type=int,
+        default=8765,
+        help="WebSocket port for cf.PyCtrl position data."
+    )
+
+    parser.add_argument(
+        "--step-xy",
+        type=float,
+        default=0.25,
+        help="Movement step for x/y commands in meters."
+    )
+
+    parser.add_argument(
+        "--step-z",
+        type=float,
+        default=0.15,
+        help="Movement step for z commands in meters."
+    )
+
+    parser.add_argument(
+        "--min-z",
+        type=float,
+        default=0.25,
+        help="Minimum allowed z target in meters."
+    )
+
+    parser.add_argument(
+        "--max-z",
+        type=float,
+        default=1.00,
+        help="Maximum allowed z target in meters."
+    )
+
+    parser.add_argument(
+        "--websocket-timeout",
+        "--wstimeout",
+        type=float,
+        default=2.0,
+        help="Timeout in seconds for reading a WebSocket position sample."
+    )
+
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+
+    config = KeyboardControlConfig(
+        step_xy=args.step_xy,
+        step_z=args.step_z,
+        min_z=args.min_z,
+        max_z=args.max_z,
+        base_url=args.base_url,
+        websocket_host=args.websocket_host,
+        websocket_port=args.websocket_port,
+        websocket_timeout=args.websocket_timeout
+    )
+
+    logger.info("Keyboard configuration:")
+    logger.info(f"  base_url          = {config.base_url}")
+    logger.info(f"  websocket_host    = {config.websocket_host}")
+    logger.info(f"  websocket_port    = {config.websocket_port}")
+    logger.info(f"  step_xy           = {config.step_xy}")
+    logger.info(f"  step_z            = {config.step_z}")
+    logger.info(f"  min_z             = {config.min_z}")
+    logger.info(f"  max_z             = {config.max_z}")
+    logger.info(f"  websocket_timeout = {config.websocket_timeout}")
 
     controller = KeyboardDroneController(config)
     controller.run()
