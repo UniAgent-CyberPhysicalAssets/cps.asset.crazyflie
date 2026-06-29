@@ -29,8 +29,8 @@ def run_sequence(drone, sequence):
         logger.error(f"Drone sequence execution failed")
 
 def control_multiple_drones():
-    drone1 = asm.AutoStateMachine(base_url="http://127.0.0.1:5000")
-    drone2 = asm.AutoStateMachine(base_url="http://127.0.0.1:5001")
+    drone1 = asm.CfPyCtrlApiClient(base_url="http://127.0.0.1:5000")
+    drone2 = asm.CfPyCtrlApiClient(base_url="http://127.0.0.1:5001")
 
     sequence1 = [
         {

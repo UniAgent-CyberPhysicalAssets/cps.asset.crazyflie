@@ -52,6 +52,7 @@ $ xhost +local:"$USER"
 $ docker run --rm -it \
 --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
 --net=host --ipc=host --pid=host \
+--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all \
 --env="DISPLAY" \
 --env ROS_DOMAIN_ID=30 \
 --env="XAUTHORITY=$XAUTHORITY" \
@@ -98,9 +99,13 @@ $ docker run --rm -it \
 
 **cfclient**
 
-Just start the cfclient tool:
+Just start the cfclient tool via the script:
 
 ```shell
+$ chmod +x ./cfclient.sh
+$ ./cfclient.sh
+
+# which internally calls:
 $ docker run --rm \
   --device-cgroup-rule='c 189:* rmw' -v /run/udev:/run/udev:ro -v /dev:/dev \
   --net=host --ipc=host --pid=host \

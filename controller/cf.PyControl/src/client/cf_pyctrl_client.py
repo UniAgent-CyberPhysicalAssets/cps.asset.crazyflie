@@ -31,7 +31,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class AutoStateMachine:
+class CfPyCtrlApiClient:
     def __init__(self, base_url: str = "http://127.0.0.1:5000", wshost: str = "127.0.0.1", wsport: int = 8765):  #5001 5002 ...
         """Initialize the automatic state machine controller
 

@@ -15,8 +15,9 @@ Endpoints*](#basic-operations).
     - sim_cf2 simulation mode
     - ds-crazyflie simulation mode
 - Multi-drone coordination:
-  - Control multiple Crazyflie instances through separate `cf.PyCtrl` REST API servers
-  - Execute predefined command sequences per drone (supports `timeout` and `wait_time` per step)
+  - [Coordinate multiple virtual or physical Crazyflie drones by using one `CfPyCtrlApiClient` for each running `cf.PyCtrl` instance](#multi-drone-coordination)
+  - [Keyboard Controller Client](#keyboard-client)
+  - Execute predefined command sequences per drone
 - WebView (Live State Updates)
 
 **Screenshot**
@@ -422,7 +423,188 @@ action:
 
 ## Client API and Monitoring
 
-### Drone State Updates via WebSocket Endpoint
+### Keyboard Client
+
+The keyboard client `cf-keyboard.py` provides manual control of one running `cf.PyCtrl` REST API server.
+
+It reads the latest Crazyflie position from the cf.PyCtrl WebSocket endpoint and sends new absolute navigation targets through the REST API. The client is useful for interactive testing, manual motion checks, and simple keyboard-based control similar to the cfclient interface.
+
+#### Controls
+
+| Key | Action |
+|---|---|
+| `W` | Move forward (`+x`) |
+| `S` | Move backward (`-x`) |
+| `A` | Move left (`+y`) |
+| `D` | Move right (`-y`) |
+| `UP` | Move up (`+z`) |
+| `DOWN` | Move down (`-z`) |
+| `ENTER` | Activate idle |
+| `SPACE` | Takeoff / landing |
+| `Q` / `ESC` | Quit |
+
+#### Example
+
+Start a cf.PyCtrl server first, for example:
+
+```shell
+./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
+```
+
+Then run the keyboard client:
+
+```shell
+python3 client/cf-keyboard.py \
+  --base-url http://127.0.0.1:5000 \
+  --websocket-host 127.0.0.1 \
+  --websocket-port 8765
+```
+
+Optional movement parameters:
+
+```shell
+python3 cf-keyboard.py \
+--base-url http://127.0.0.1:5000 \
+--websocket-host 127.0.0.1 \
+--websocket-port 8765 \
+--step-xy 0.25 \
+--step-z 0.10 \
+--min-z 0.25 \
+--max-z 1.00 \
+--websocket-timeout 2.0
+```
+
+The client uses `cf_pyctrl_client.py` as the REST/WebSocket access layer.
+
+
+### Multi-drone coordination
+
+The `CfPyCtrlClient` in `controller/cf.PyControl/src/client/` is a Python client wrapper for one running `cf.PyCtrl` REST/WebSocket server. It allows to coordinate multiple drones by creating one client object per `cf.PyCtrl` control server.
+
+The actual drone state machine runs inside the `cf.PyCtrl` server. The client only sends REST commands, reads WebSocket position data, and provides helper methods for scripted tests, keyboard control, and multi-drone coordination.
+
+Main responsibilities:
+
+- call REST endpoints such as `/activate_idle`, `/begin_takeoff`, `/begin_landing`, `/navigate`, and `/fly-trajectory`
+- read live position data from the `cf.PyCtrl` WebSocket endpoint
+- execute predefined command sequences with `timeout` and `wait_time`
+
+#### Start one cf.PyCtrl server
+
+Example for a physical Crazyflie using Flow deck / LPS positioning and WebSocket position output:
+
+```shell
+./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "bcFlow2"   --port 5000   --wsendpoint   --wsport 8765
+```
+<small>For LPS, use `LPS`; for hybrid LPS and Flow deck setup, use `LPS|bcFlow2`.</small>
+
+Example for `ds-crazyflie` simulation:
+
+```shell
+./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
+```
+
+#### Use the client in Python
+
+```python
+from cf_pyctrl_client import CfPyCtrlClient
+
+client = CfPyCtrlClient(
+    base_url="http://127.0.0.1:5000",
+    wshost="127.0.0.1",
+    wsport=8765,
+)
+
+client.activate_idle()
+client.begin_takeoff()
+client.navigate_to(0.2, 0.0, 0.5)
+client.begin_landing()
+```
+
+Read one position sample from the WebSocket endpoint:
+
+```python
+position = client.read_position_websocket(timeout=2.0)
+print(position)  # (x, y, z)
+```
+
+#### Execute a scripted sequence
+
+The client can execute a list of steps. Each step defines an `action`, the expected `wait_state`, and optional timing parameters:
+
+- `timeout`: maximum time in seconds to wait until the expected state is reached
+- `wait_time`: optional additional delay in seconds after the step completed successfully
+
+```python
+sequence = [
+    {
+        "action": "activate_idle",
+        "wait_state": "idle",
+        "timeout": 5.0,
+    },
+    {
+        "action": "begin_takeoff",
+        "wait_state": "hovering",
+        "timeout": 10.0,
+        "wait_time": 2.0,
+    },
+    {
+        "action": "navigate",
+        "x": 0.0,
+        "y": -0.5,
+        "z": 0.6,
+        "wait_state": "hovering",
+        "timeout": 60.0,
+    },
+    {
+        "action": "fly_trajectory",
+        "trajectory_file": "../../examples/trajectories/tra-1.json",
+        "wait_state": "hovering",
+        "timeout": 60.0,
+        "wait_time": 1.0,
+    },
+    {
+        "action": "begin_landing",
+        "wait_state": "idle",
+        "timeout": 10.0,
+    },
+]
+
+client.execute_sequence(sequence)
+```
+
+#### Multi-drone coordination
+
+For multiple drones, start one `cf.PyCtrl` server per Crazyflie. 
+Each server must use a different REST port and WebSocket port.
+
+Example with `ds-crazyflie`:
+
+```shell
+./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
+./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
+```
+
+Then create one client per server:
+
+```python
+from cf_pyctrl_client import CfPyCtrlClient
+
+cf0 = CfPyCtrlClient(base_url="http://127.0.0.1:5000", wsport=8765)
+cf1 = CfPyCtrlClient(base_url="http://127.0.0.1:5001", wsport=8766)
+
+cf0.activate_idle()
+cf1.activate_idle()
+
+cf0.begin_takeoff()
+cf1.begin_takeoff()
+```
+
+A script such as `main.py` can run separate sequences for each client, for example using Python threads.
+
+### Monitoring the Drone States
+
+#### Drone State Updates via WebSocket Endpoint
 
 With [websocat](https://github.com/vi/websocat) installed on your system, you can use the following command to test the
 WebSocket endpoint of cf.PyControl:
@@ -437,77 +619,7 @@ Some output will be also visible in the terminal where cf.PyControl is running.
 Therefore, the controller must be started with the `--wsendpoint --wsport 8765` flag.
 The last argument is the port of the WebSocket endpoint, which can be changed.
 
-### AutoStateMachine Client
-
-The `AutoStateMachine` client in the folder `controller/cf.PyControl/src/client/` provides a lightweight Python-based client for coordinating one or more running `cf.PyCtrl` REST API servers, in other words, physical or virtual Crazyflie drones.
-
-It is intended for orchestrating controller behavior across multiple Crazyflie instances, including simulations such as `ds-crazyflie`.
-
-#### Example: Start two cf.PyCtrl servers
-
-Each **cf.PyCtrl** server is addressed through its own REST endpoint, for example, the following cf.PyCtrl endpoints must be started:
-
-- http://127.0.0.1:5000 and http://127.0.0.1:5001 
-- Example for ds-crazyflie:
-  ```shell
-  ./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
-  ./cfpyctrl.sh --dscf --cf-prefix /cf1 --port 5001 --wsendpoint --wsport 8766
-  ```
-
-#### Run the client
-
-This allows simple multi-drone coordination by running one controller service per Crazyflie instance.
-
-Therefore, change the array sequence inside `main.py` (see below) and run :
-
-```
-python3 main.py
-```
-
-#### Sequence JSON Format
-Each client-side sequence step may define timing behavior using:
-
-- `timeout`: maximum time in seconds to wait until the expected `wait_state` is reached.
-- `wait_time`: optional additional delay in seconds after the step completed successfully.
-
-```python
-sequence = [
-  {
-    "action": "activate_idle",
-    "wait_state": "idle",
-    "timeout": 5.0
-  },
-  {
-    "action": "begin_takeoff",
-    "wait_state": "hovering",
-    "timeout": 10.0,
-    "wait_time": 2.0
-  },
-  {
-    "action": "navigate",
-    "x": 0.0,
-    "y": -0.5,
-    "z": 0.6,
-    "wait_state": "hovering",
-    "timeout": 60.0,
-    "wait_time": 0.0
-  },
-  {
-    "action": "fly_trajectory",
-    "trajectory_file": "../../examples/trajectories/tra-1.json",
-    "wait_state": "hovering",
-    "timeout": 60.0,
-    "wait_time": 1.0
-  },
-  {
-    "action": "begin_landing",
-    "wait_state": "idle",
-    "timeout": 10.0
-  }
-]
-```
-
-### Live State Update via WebView
+#### Live State Update via WebView
 
 > This assumes that you have build the Docker image and started the container: [Container-Setup.md](Container-Setup.md).
 

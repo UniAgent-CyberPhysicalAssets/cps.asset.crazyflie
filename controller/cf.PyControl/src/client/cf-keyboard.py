@@ -29,7 +29,7 @@ from typing import Optional, Tuple, Callable
 
 from pynput import keyboard
 
-from auto_state_machine import AutoStateMachine
+from cf_pyctrl_client import CfPyCtrlApiClient
 
 
 logging.basicConfig(
@@ -64,7 +64,7 @@ class KeyboardDroneController:
         self.command_active = False
         self.command_thread = None
 
-        self.client = AutoStateMachine(
+        self.client = CfPyCtrlApiClient(
             base_url=config.base_url,
             wshost=config.websocket_host,
             wsport=config.websocket_port
