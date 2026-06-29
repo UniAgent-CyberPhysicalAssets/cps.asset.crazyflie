@@ -494,7 +494,7 @@ Main responsibilities:
 Example for a physical Crazyflie using Flow deck / LPS positioning and WebSocket position output:
 
 ```shell
-./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "bcFlow2"   --port 5000   --wsendpoint   --wsport 8765
+./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "bcFlow2" --port 5000 --wsendpoint --wsport 8765
 ```
 <small>For LPS, use `LPS`; for hybrid LPS and Flow deck setup, use `LPS|bcFlow2`.</small>
 

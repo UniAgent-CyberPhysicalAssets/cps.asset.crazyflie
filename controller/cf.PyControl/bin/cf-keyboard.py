@@ -21,13 +21,20 @@ and sends a new absolute navigation target via the REST API.
 Author: Dominik Grzelak
 """
 import threading
-from typing import Callable
 import logging
 import argparse
+import sys
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional, Tuple, Callable
 
 from pynput import keyboard
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+CLIENT_SRC = PROJECT_ROOT / "src" / "client"
+
+if str(CLIENT_SRC) not in sys.path:
+    sys.path.insert(0, str(CLIENT_SRC))
 
 from cf_pyctrl_client import CfPyCtrlApiClient
 
