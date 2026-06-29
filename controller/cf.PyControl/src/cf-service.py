@@ -23,7 +23,7 @@ from statemachine import StateMachine, State, exceptions
 from statemachine.contrib.diagram import DotGraphMachine
 from werkzeug.routing import BaseConverter, ValidationError
 
-from routes import drone_blueprint  # Import the blueprint
+from cf_routes import drone_blueprint  # Import the blueprint
 
 try:
     # Optional ROS import. rclpy may not be available on systems that do not use ds-crazyflie.
