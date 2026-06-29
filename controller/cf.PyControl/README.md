@@ -451,10 +451,10 @@ Start a cf.PyCtrl server first, for example:
 ./cfpyctrl.sh --dscf --cf-prefix /cf0 --port 5000 --wsendpoint --wsport 8765
 ```
 
-Then run the keyboard client:
+Then run the keyboard client (inside the `bin` folder):
 
 ```shell
-python3 client/cf-keyboard.py \
+python3 cf-keyboard.py \
   --base-url http://127.0.0.1:5000 \
   --websocket-host 127.0.0.1 \
   --websocket-port 8765
@@ -637,11 +637,11 @@ $ docker ps --filter "ancestor=cf-pyctrl:latest" --format "{{.ID}}"
 Select one of the possible outputs. 
 There is one ID per running Docker container.
 
-Then, execute the following shell script inside the `shared` folder for convenience:
+Then, execute the following shell script inside the `plugin/webview` folder for convenience:
 
 ```shell
 # Change Folder
-$ cd shared
+$ cd plugin/webview
 # Make Executable
 $ chmod +x ./sync-webview.sh
 
@@ -660,7 +660,7 @@ $ ./sync-webview.sh --verbose 8205624872ec
 
 This script uses a loop that periodically copies data from container to host.
 
-Change - in this example - into the `shared/8205624872ec/webview` folder of this project on your host system.
+Change - in this example - into the `plugin/webview/8205624872ec/webview` folder of this project on your host system.
 Open the `webview.html` in the browser to the see the drones status.
 
 For each container, a separate folder is created on the host to enable live updates of each drone's internal state
