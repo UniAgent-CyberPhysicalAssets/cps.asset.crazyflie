@@ -37,10 +37,12 @@ class StateMachineDrone(StateMachine):
         self.current_transition = None
         self._takeoff_height = None
         self._takeoff_velocity = None
+        self._multiranger_min_distance = 0.4
+        self._multiranger_velocity = 0.2
+        self._multiranger_loop_delay = 0.1
 
     # State Machine
-
-    # Define the OSGi lifecycle states
+    # The OSGi lifecycle states
     installed = State('INSTALLED', initial=True)
     resolved = State('RESOLVED')
     starting = State('STARTING')
@@ -48,15 +50,16 @@ class StateMachineDrone(StateMachine):
     stopping = State('STOPPING')
     uninstalled = State('UNINSTALLED', final=True)
 
-    # Define the UAV operation states
+    # The UAV operation states
     idle = State('IDLE')
-    hovering = State('HOVERING')  # takeoff completed
+    hovering = State('HOVERING')
     flying = State('FLYING')
-    flying_trajectory = State('FLYING_TRAJECTORY')  # NEW STATE
+    flying_trajectory = State('FLYING_TRAJECTORY')
+    multiranger_push = State('MULTIRANGER_PUSH')
     landed = State('LANDING')
     shutdown = State('SHUTDOWN')
 
-    # Define the transitions for "OSGi" lifecycle (similar pattern here)
+    # The transitions for a "OSGi"-like software bundle lifecycle
     install = installed.to(resolved, cond='dependencies_resolved')
     start = resolved.to(starting)
     initialize = starting.to(active)
@@ -64,19 +67,45 @@ class StateMachineDrone(StateMachine):
     stopped = stopping.to(resolved)
     uninstall = resolved.to(uninstalled)
 
-    # Define the transitions for UAV operation
+    # The transitions for UAV operation
     activate_idle = active.to(idle)
     begin_takeoff = idle.to(hovering)  # cond="reached_Height"
     begin_landing = hovering.to(landed)
     begin_nav_goal_sequence = hovering.to(flying)
     begin_fly_trajectory = hovering.to(flying_trajectory)
     finish_fly_trajectory = flying_trajectory.to(hovering)
+    begin_multiranger_push = idle.to(multiranger_push)
+    end_multiranger_push = multiranger_push.to(idle)
 
     next_nav_goal = flying.to(flying, cond='goal_reached')
     keep_hovering = flying.to(hovering, cond='goal_reached')
     landing_completed = landed.to(idle, cond="is_not_flying")
     shutdown_command = idle.to(shutdown) | hovering.to(shutdown)
     begin_stopping = shutdown.to(stopping)
+
+    def set_multiranger_push_params(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ):
+        if float(min_distance) <= 0.0:
+            raise ValueError("min_distance must be > 0")
+        if float(velocity) <= 0.0:
+            raise ValueError("velocity must be > 0")
+        if float(loop_delay) <= 0.0:
+            raise ValueError("loop_delay must be > 0")
+
+        self._multiranger_min_distance = float(min_distance)
+        self._multiranger_velocity = float(velocity)
+        self._multiranger_loop_delay = float(loop_delay)
+
+    def get_multiranger_push_params(self):
+        return {
+            "min_distance": self._multiranger_min_distance,
+            "velocity": self._multiranger_velocity,
+            "loop_delay": self._multiranger_loop_delay
+        }
 
     def set_takeoff_params(self, height=None, velocity=None):
         if height is not None and float(height) <= 0.0:
@@ -206,6 +235,17 @@ class StateMachineDrone(StateMachine):
             navigate_to_simple(self)
         if event == "begin_fly_trajectory":
             start_trajectory(self)
+        if event == "begin_multiranger_push":
+            print("Multiranger Push will be started now.")
+            params = self.get_multiranger_push_params()
+            self.uavOpStrategyImpl.multiranger_push_simple(
+                min_distance=params["min_distance"],
+                velocity=params["velocity"],
+                loop_delay=params["loop_delay"]
+            )
+        if event == "end_multiranger_push":
+            print("end_multiranger_push called on transition.")
+            self.uavOpStrategyImpl.stop_multiranger_push()
         if event == "shutdown_command":
             self.uavOpStrategyImpl.shutdown()
 

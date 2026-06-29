@@ -1,22 +1,32 @@
 #!/usr/bin/env python3
 """
-Keyboard controller for cf.PyCtrl REST client.
+Keyboard controller for the cf.PyCtrl REST client.
 
-Controls one Crazyflie through the AutoStateMachine client.
+This script provides a keyboard-driven control interface for one Crazyflie
+connected through a running cf.PyCtrl REST API server. It reads the latest
+position estimate from the cf.PyCtrl WebSocket stream and sends absolute
+navigation targets through the REST API.
 
-Mapping:
+The controller is intended for manual integration testing and lightweight
+interactive operation, similar in spirit to the cfclient control interface.
+
+Key mapping:
     W       -> move forward  (+x)
     S       -> move backward (-x)
     A       -> move left     (+y)
     D       -> move right    (-y)
     UP      -> move up       (+z)
     DOWN    -> move down     (-z)
-    Q / ESC -> quit
-    ENTER   -> activate idle
-    SPACE   -> takeoff / landing
 
-The controller reads the latest Crazyflie position from the cf.PyCtrl WebSocket
-and sends a new absolute navigation target via the REST API.
+    ENTER   -> activate idle
+    SPACE   -> toggle takeoff / landing
+    P       -> begin multiranger push mode
+    O       -> end multiranger push mode
+
+    Q / ESC -> quit
+
+Motion keys use the latest WebSocket position as the current reference and
+apply a predefined step size before sending the next target.
 
 Author: Dominik Grzelak
 """
@@ -54,6 +64,10 @@ class KeyboardControlConfig:
 
     min_z: float = 0.25
     max_z: float = 1.0
+
+    multiranger_min_distance: float = 0.4
+    multiranger_velocity: float = 0.2
+    multiranger_loop_delay: float = 0.1
 
     base_url: str = "http://127.0.0.1:5000"
     websocket_host: str = "127.0.0.1"
@@ -198,6 +212,56 @@ class KeyboardDroneController:
         self.running = False
         return False
 
+    def begin_multiranger_push_command(self):
+        current_state = self.client.get_current_state()
+        logger.info(f"[P] current state: {current_state}")
+
+        if current_state not in ("idle"): # "hovering"
+            logger.warning(
+                f"[P] ignored: multiranger push can only start from "
+                f"'idle', current state is '{current_state}'" # or 'hovering'
+            )
+            return
+
+        logger.info("[P] begin multiranger push")
+
+        success = self.client.begin_multiranger_push(
+            min_distance=self.config.multiranger_min_distance,
+            velocity=self.config.multiranger_velocity,
+            loop_delay=self.config.multiranger_loop_delay
+        )
+
+        if success:
+            self.client.wait_for_state("multiranger_push", timeout=5.0)
+
+
+    def end_multiranger_push_command(self):
+        current_state = self.client.get_current_state()
+        logger.info(f"[O] current state: {current_state}")
+
+        if current_state == "idle":
+            logger.info("[O] multiranger push already ended; current state is idle")
+            self.read_position()
+            self.print_status()
+            return
+
+        if current_state != "multiranger_push":
+            logger.warning(
+                f"[O] ignored: end multiranger push can only run from "
+                f"'multiranger_push' or be ignored from 'idle', "
+                f"current state is '{current_state}'"
+            )
+            return
+
+        logger.info("[O] end multiranger push")
+
+        success = self.client.end_multiranger_push()
+
+        if success:
+            self.client.wait_for_state("idle", timeout=5.0)
+            self.read_position()
+            self.print_status()
+
     def on_press(self, key):
         try:
             char = key.char
@@ -217,6 +281,10 @@ class KeyboardDroneController:
                 return self.run_guarded_command("D", self.move_right)
             elif char == " ":
                 return self.run_guarded_command("SPACE", self.toggle_takeoff_landing)
+            elif char == "p":
+                return self.run_guarded_command("P", self.begin_multiranger_push_command)
+            elif char == "o":
+                return self.run_non_guarded_command("O", self.end_multiranger_push_command)
             elif char == "q":
                 return self.quit()
 
@@ -249,6 +317,15 @@ class KeyboardDroneController:
 
         return None
 
+    def run_non_guarded_command(self, command_name: str, command: Callable[[], object]):
+        thread = threading.Thread(
+            target=self._run_command_worker,
+            args=(command_name, command),
+            daemon=True
+        )
+        thread.start()
+        return None
+
     def _run_command_worker(self, command_name: str, command: Callable[[], object]):
         try:
             logger.info(f"Started [{command_name}]")
@@ -262,7 +339,9 @@ class KeyboardDroneController:
         logger.info("Keyboard controller started")
         logger.info(
             "Use W/S/A/D + UP/DOWN. ENTER activates idle. "
-            "SPACE toggles takeoff/landing. Press Q or ESC to quit."
+            "SPACE toggles takeoff/landing. "
+            "P starts multiranger push. O ends multiranger push. "
+            "Press Q or ESC to quit."
         )
         logger.info(f"REST API: ws={self.config.base_url}")
         logger.info(
@@ -303,6 +382,14 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--websocket-timeout",
+        "--wstimeout",
+        type=float,
+        default=2.0,
+        help="Timeout in seconds for reading a WebSocket position sample."
+    )
+
+    parser.add_argument(
         "--step-xy",
         type=float,
         default=0.25,
@@ -331,11 +418,24 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--websocket-timeout",
-        "--wstimeout",
+        "--multiranger-min-distance",
         type=float,
-        default=2.0,
-        help="Timeout in seconds for reading a WebSocket position sample."
+        default=0.4,
+        help="Minimum obstacle distance in meters for multiranger push."
+    )
+
+    parser.add_argument(
+        "--multiranger-velocity",
+        type=float,
+        default=0.2,
+        help="Push velocity in m/s for multiranger push."
+    )
+
+    parser.add_argument(
+        "--multiranger-loop-delay",
+        type=float,
+        default=0.1,
+        help="Control-loop delay in seconds for multiranger push."
     )
 
     return parser.parse_args()
@@ -351,18 +451,25 @@ def main():
         base_url=args.base_url,
         websocket_host=args.websocket_host,
         websocket_port=args.websocket_port,
-        websocket_timeout=args.websocket_timeout
+        websocket_timeout=args.websocket_timeout,
+        multiranger_min_distance=args.multiranger_min_distance,
+        multiranger_velocity=args.multiranger_velocity,
+        multiranger_loop_delay=args.multiranger_loop_delay
     )
 
     logger.info("Keyboard configuration:")
     logger.info(f"  base_url          = {config.base_url}")
     logger.info(f"  websocket_host    = {config.websocket_host}")
     logger.info(f"  websocket_port    = {config.websocket_port}")
+    logger.info(f"  websocket_timeout = {config.websocket_timeout}")
     logger.info(f"  step_xy           = {config.step_xy}")
     logger.info(f"  step_z            = {config.step_z}")
     logger.info(f"  min_z             = {config.min_z}")
     logger.info(f"  max_z             = {config.max_z}")
-    logger.info(f"  websocket_timeout = {config.websocket_timeout}")
+    logger.info(f"  multiranger_min_distance = {config.multiranger_min_distance}")
+    logger.info(f"  multiranger_velocity     = {config.multiranger_velocity}")
+    logger.info(f"  multiranger_loop_delay   = {config.multiranger_loop_delay}")
+
 
     controller = KeyboardDroneController(config)
     controller.run()

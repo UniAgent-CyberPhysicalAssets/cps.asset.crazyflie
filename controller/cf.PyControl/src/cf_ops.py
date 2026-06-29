@@ -17,6 +17,8 @@ from flask import Flask, jsonify, request
 from statemachine import StateMachine, State, exceptions
 from statemachine.contrib.diagram import DotGraphMachine
 from werkzeug.routing import BaseConverter, ValidationError
+import threading
+from cflib.utils.multiranger import Multiranger
 
 from cf_ops_util import activate_mellinger_controller, upload_trajectory, rotate_beizer_node, create_circle_trajectory, \
     build_trajectory
@@ -61,6 +63,8 @@ class CFOperationStrategy(ABC):
         self.mc = None
         self._IS_DEBUG = debug
         self.console = console
+        self._multiranger_push_stop_event = None
+        self._multiranger_push_thread = None
 
     def require_scf(self):
         if self._scf is None:
@@ -81,6 +85,27 @@ class CFOperationStrategy(ABC):
     def printDebug(self, msg: str):
         if self._IS_DEBUG:
             print(msg)
+
+    def _print_ranges(self, multi_ranger):
+        self.printDebug(
+            "Multiranger: "
+            f"front={multi_ranger.front}, "
+            f"back={multi_ranger.back}, "
+            f"left={multi_ranger.left}, "
+            f"right={multi_ranger.right}, "
+            f"up={multi_ranger.up}"
+        )
+
+    def _is_close(self, name: str, value, min_distance: float) -> bool:
+        if value is None:
+            return False
+
+        is_close = value < min_distance
+        if is_close:
+            self.printDebug(f"Multiranger close: {name}={value:.3f} < {min_distance:.3f}")
+
+        return is_close
+
 
     @abstractmethod
     def activate_idle_simple(self):
@@ -106,8 +131,23 @@ class CFOperationStrategy(ABC):
     def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
         pass
 
+    @abstractmethod
+    def multiranger_push_simple(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ):
+        pass
+
+    @abstractmethod
+    def stop_multiranger_push(self):
+        pass
 
 class HlCommanderCFOperationImpl(CFOperationStrategy):
+
+    def __init__(self, scf: SyncCrazyflie | None = None, debug: bool = False, console=None):
+        super().__init__(scf, debug, console)
 
     def requires_scf(self) -> bool:
         return True
@@ -187,6 +227,125 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
             time.sleep(0.1)
         # commander.stop()
 
+    def multiranger_push_simple(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ):
+        self.require_scf()
+        self.printDebug("multiranger_push_simple()")
+
+        if self._multiranger_push_stop_event is None:
+            self._multiranger_push_stop_event = threading.Event()
+
+        self._multiranger_push_stop_event.clear()
+
+        def _worker():
+            motion_commander = None
+            externallyTriggeredEvent = False
+
+            try:
+                print(
+                    f"Taking off to {DEFAULT_HEIGHT:.3f} m "
+                    f"with {DEFAULT_VELOCITY:.3f} m/s ..."
+                )
+
+                motion_commander = MotionCommander(
+                    self._scf,
+                    default_height=DEFAULT_HEIGHT
+                )
+
+                motion_commander.take_off(
+                    height=DEFAULT_HEIGHT,
+                    velocity=DEFAULT_VELOCITY
+                )
+
+                time.sleep(1.0)
+
+                with Multiranger(self._scf) as multi_ranger:
+                    while not self._multiranger_push_stop_event.is_set():
+                        velocity_x = 0.0
+                        velocity_y = 0.0
+
+                        self._print_ranges(multi_ranger)
+
+                        if self._is_close("front", multi_ranger.front, min_distance):
+                            velocity_x -= velocity
+
+                        if self._is_close("back", multi_ranger.back, min_distance):
+                            velocity_x += velocity
+
+                        if self._is_close("left", multi_ranger.left, min_distance):
+                            velocity_y -= velocity
+
+                        if self._is_close("right", multi_ranger.right, min_distance):
+                            velocity_y += velocity
+
+                        if self._is_close("up", multi_ranger.up, min_distance):
+                            print("I must now land ...")
+                            externallyTriggeredEvent = True
+                            self._multiranger_push_stop_event.set()
+                            break
+
+                        motion_commander.start_linear_motion(
+                            velocity_x,
+                            velocity_y,
+                            0.0
+                        )
+
+                        time.sleep(loop_delay)
+
+            except Exception as e:
+                print(f"Error in multiranger push: {e}")
+                self.printDebug(f"Error in multiranger push: {e}")
+
+            finally:
+                print("Stopping ...")
+                self._multiranger_push_stop_event.set()
+
+                if motion_commander is not None:
+                    try:
+                        if getattr(motion_commander, "_is_flying", False):
+                            motion_commander.start_linear_motion(0.0, 0.0, 0.0)
+                            time.sleep(0.1)
+                    except Exception as e:
+                        print(f"Stop horizontal motion skipped: {e}")
+
+                    try:
+                        print("Landing ...")
+                        if getattr(motion_commander, "_is_flying", False):
+                            motion_commander.land()
+                    except Exception as e:
+                        print(f"Landing error: {e}")
+
+                self.printDebug("finished:multiranger_push_simple()")
+                self._multiranger_push_thread = None
+
+                if externallyTriggeredEvent:
+                    self.printDebug("finished:externallyTriggeredEvent")
+                    self.stop_multiranger_push()
+
+        self._multiranger_push_thread = threading.Thread(
+            target=_worker,
+            name="multiranger_push_worker",
+            daemon=True
+        )
+        self._multiranger_push_thread.start()
+        # _worker()
+        print("Worker was finished ...")
+
+    def stop_multiranger_push(self):
+        self.printDebug("stop_multiranger_push()")
+
+        if hasattr(self, "_multiranger_push_stop_event"):
+            self._multiranger_push_stop_event.set()
+
+        if (
+                self._multiranger_push_thread is not None
+                and self._multiranger_push_thread.is_alive()
+        ):
+            self._multiranger_push_thread.join(timeout=2.0)
 
 class DebugLoggingCFOperationImpl(CFOperationStrategy):
     timeSleep = 0.1
@@ -221,6 +380,20 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         time.sleep(self.timeSleep)
         self.printDebug("\tRunSequence: Finished.")
 
+    def multiranger_push_simple(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ):
+        self.printDebug(
+            f"Debug multiranger push: "
+            f"min_distance={min_distance}, velocity={velocity}, loop_delay={loop_delay}"
+        )
+        time.sleep(self.timeSleep)
+
+    def stop_multiranger_push(self):
+        self.printDebug("Debug stop multiranger push")
 
 # for dscf simulator
 class RosTopicCFOperationImpl(CFOperationStrategy, Node):
@@ -440,3 +613,17 @@ class RosTopicCFOperationImpl(CFOperationStrategy, Node):
             time.sleep(0.05)
 
         return False
+
+    def multiranger_push_simple(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ):
+        self.printDebug(
+            "ROS multiranger push is not implemented for ds-crazyflie yet "
+            f"(min_distance={min_distance}, velocity={velocity}, loop_delay={loop_delay})"
+        )
+
+    def stop_multiranger_push(self):
+        self.printDebug("ROS stop multiranger push (no-op)")

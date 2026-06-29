@@ -33,7 +33,7 @@ Endpoints*](#basic-operations).
 > (For Developers) For instructions on setting up the local workspace for cf.PyControl and getting started with
 > development: [Development.md](Development.md).
 
-## tl;dr;
+## tl;dr; (API)
 
 - **Start**
     - Connect the Crazyradio 2.0 to a USB port
@@ -41,7 +41,7 @@ Endpoints*](#basic-operations).
     - Start the Crazyflie Client (Test): `cfclient`
 - **Webserver and Websocket Ports**
     - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --port 5000
-    - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7B1 --port 5000 --wsendpoint --wsport 8765
+    - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E7 --port 5000 --wsendpoint --wsport 8765
     - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E7E1 --ps "LPS|bcFlow2" --port 5000 --wsendpoint --wsport 8765
     - ./cfpyctrl.sh --uri radio://1/80/2M/E7E7E7E7E2 --ps "LPS|bcFlow2" --port 5001 --wsendpoint --wsport 8766
 - **Positioning System**
@@ -60,6 +60,23 @@ Endpoints*](#basic-operations).
     - sim_cf2:
         - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E701 --wsendpoint --sim
         - ./cfpyctrl.sh --uri radio://0/80/2M/E7E7E7E702 --port 5001 --wsendpoint --wsport 8766 --sim
+- **Keyboard Controller**
+  - Inside `bin/` directory (start cfpyctrl.sh before in 2nd terminal):
+  ```shell
+  $ python3 cf-keyboard.py \
+  --base-url http://127.0.0.1:5000 \
+  --websocket-host 127.0.0.1 \
+  --websocket-port 8765 \
+  --websocket-timeout 2.0 \
+  --step-xy 0.25 \
+  --step-z 0.15 \
+  --min-z 0.25 \
+  --max-z 1.50 \
+  --multiranger-min-distance 0.3 \
+  --multiranger-velocity 0.3 \
+  --multiranger-loop-delay 0.1
+  ```
+
 
 ## Getting Started
 
@@ -96,11 +113,36 @@ $ curl http://127.0.0.1:5000/status
 
 Now, view the live state machine overview in your browser.
 
+#### cf.PyCtrol Runtime Configuration
+
+**Webserver and Websocket:**
+
+- use `--port` for the web server port to access the drone actions
+- use `--wshost` and `--wsport` for web socket server that publishes state information about the drone (e.g.,
+  position) - only in combination with the argument `--wsendpoint`. The rate can be set via `--wsrate` (ms).
+
+**Mode:**
+
+- `--sim` when using with _sim_cf2_ simulator
+- `--dscf --cf-prefix /cf0` for _ds-crazyflie_ simulator
+- `--debug` for more debug and verbose output in the terminal
+
+**Positioning System:**
+
+- use `--ps` to specify which positioning backend to use for the drone
+- available options:
+  - `"bcFlow2"` Flow deck–based optical positioning (default)
+  - `"LPS"` Local Positioning System
+  - `"LPS|bcFlow2"` hybrid mode (uses both)
+
+#### Operations, Composition and Client APIs
+
 The following sections:
 
 - Explain available drone actions via the REST API
 - Describe advanced use cases
 - Show how to configure the service
+
 
 ## Basic Operations
 
@@ -340,27 +382,41 @@ See here for examples:
 - https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
 - https://github.com/bitcraze/crazyflie-lib-python/blob/master/cflib/crazyflie/mem/trajectory_memory.py#L103
 
-### Controller Configuration
+### Multiranger Push
 
-**Webserver and Websocket:**
+Starts the `MULTIRANGER_PUSH` mode from `IDLE` only.
 
-- use `--port` for the web server port to access the drone actions
-- use `--wshost` and `--wsport` for web socket server that publishes state information about the drone (e.g.,
-  position) - only in combination with the argument `--wsendpoint`. The rate can be set via `--wsrate` (ms).
+```shell
+$ curl -d '{
+    "min_distance": 0.4,
+    "velocity": 0.2,
+    "loop_delay": 0.1
+  }' \
+  http://127.0.0.1:5000/begin_multiranger_push
+```
 
-**Mode:**
+Parameters:
 
-- `--sim` when using with _sim_cf2_ simulator
-- `--dscf --cf-prefix /cf0` for _ds-crazyflie_ simulator
-- `--debug` for more debug and verbose output in the terminal
+- min_distance: obstacle threshold in meters
+- velocity: push-away velocity in m/s
+- loop_delay: control-loop delay in seconds
 
-**Positioning System:**
+Stops MULTIRANGER_PUSH and returns to IDLE:
 
-- use `--ps` to specify which positioning backend to use for the drone
-- available options:
-    - `"bcFlow2"` Flow deck–based optical positioning (default)
-    - `"LPS"` Local Positioning System
-    - `"LPS|bcFlow2"` hybrid mode (uses both)
+```shell
+$ curl -d {} http://127.0.0.1:5000/end_multiranger_push
+```
+
+**Example (Full Test Sequence):**
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle
+$ curl -d '{"height": 0.5, "velocity": 0.3}' \
+http://127.0.0.1:5000/begin_takeoff
+$ curl -d '{"min_distance": 0.3, "velocity": 0.3, "loop_delay": 0.1}' \
+http://127.0.0.1:5000/begin_multiranger_push
+$ curl -d {} http://127.0.0.1:5000/end_multiranger_push
+```
 
 ## Composed Operations
 
@@ -656,6 +712,7 @@ Arguments:
 # Example  
 $ ./sync-webview.sh 8205624872ec
 $ ./sync-webview.sh --verbose 8205624872ec 
+$ CONTAINER_ID="$(docker ps --filter "ancestor=cf-pyctrl:latest" --format "{{.ID}}" | head -n 1)" && [ -n "$CONTAINER_ID" ] && ./sync-webview.sh "$CONTAINER_ID" --verbose || echo "No running container found for image cf-pyctrl:latest"
 ```
 
 This script uses a loop that periodically copies data from container to host.

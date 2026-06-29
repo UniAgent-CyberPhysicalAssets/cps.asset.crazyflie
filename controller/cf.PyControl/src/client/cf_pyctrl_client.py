@@ -355,6 +355,59 @@ class CfPyCtrlApiClient:
             i += 1
         return True
 
+    def begin_multiranger_push(
+            self,
+            min_distance: float = 0.4,
+            velocity: float = 0.2,
+            loop_delay: float = 0.1
+    ) -> bool:
+        try:
+            payload = {
+                "min_distance": min_distance,
+                "velocity": velocity,
+                "loop_delay": loop_delay
+            }
+
+            response = requests.post(
+                f"{self.base_url}/begin_multiranger_push",
+                json=payload
+            )
+
+            if response.status_code == 200:
+                self.current_state = response.json().get("state")
+                logger.info(
+                    f"Multiranger push started, current state: {self.current_state}"
+                )
+                return True
+
+            logger.error(f"Failed to start multiranger push: {response.status_code}")
+            logger.error(response.text)
+            return False
+
+        except Exception as e:
+            logger.error(f"An error occurred while starting multiranger push: {str(e)}")
+            return False
+
+
+    def end_multiranger_push(self) -> bool:
+        try:
+            response = requests.post(f"{self.base_url}/end_multiranger_push")
+
+            if response.status_code == 200:
+                self.current_state = response.json().get("state")
+                logger.info(
+                    f"Multiranger push ended, current state: {self.current_state}"
+                )
+                return True
+
+            logger.error(f"Failed to end multiranger push: {response.status_code}")
+            logger.error(response.text)
+            return False
+
+        except Exception as e:
+            logger.error(f"An error occurred while ending multiranger push: {str(e)}")
+            return False
+
     def read_position_websocket(
             self,
             timeout: float = 5.0

@@ -168,6 +168,58 @@ def fly_trajectory():
             "state": drone.get_current_state()
         }), 500
 
+@drone_blueprint.route('/begin_multiranger_push', methods=['POST'])
+def begin_multiranger_push():
+    drone = current_app.config['DRONE']
+    data = request.get_json(silent=True) or {}
+
+    try:
+        min_distance = float(data.get("min_distance", 0.4))
+        velocity = float(data.get("velocity", 0.2))
+        loop_delay = float(data.get("loop_delay", 0.1))
+
+        drone.set_multiranger_push_params(
+            min_distance=min_distance,
+            velocity=velocity,
+            loop_delay=loop_delay
+        )
+
+        drone.begin_multiranger_push()
+
+        return jsonify({
+            "message": "Transitioned to",
+            "state": drone.get_current_state(),
+            "multiranger_push": {
+                "min_distance": min_distance,
+                "velocity": velocity,
+                "loop_delay": loop_delay
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "state": drone.get_current_state()
+        }), 400
+
+
+@drone_blueprint.route('/end_multiranger_push', methods=['POST'])
+def end_multiranger_push():
+    drone = current_app.config['DRONE']
+
+    try:
+        drone.end_multiranger_push()
+
+        return jsonify({
+            "message": "Transitioned to",
+            "state": drone.get_current_state()
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "state": drone.get_current_state()
+        }), 400
 
 @drone_blueprint.route('/shutdown_command', methods=['POST'])
 def begin_stopping():
