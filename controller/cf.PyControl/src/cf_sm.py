@@ -156,6 +156,15 @@ class StateMachineDrone(StateMachine):
                 f"uavOpsImpl must be set and cannot be None or empty. uavOpsImpl must be of type {CFOperationStrategy.__qualname__}")
         self.uavOpStrategyImpl = uavOpsImpl
 
+        if hasattr(self.uavOpStrategyImpl, "set_multiranger_push_finished_callback"):
+            self.uavOpStrategyImpl.set_multiranger_push_finished_callback(self._on_multiranger_push_finished)
+
+    def _on_multiranger_push_finished(self):
+        self.printDebug("External multiranger event received; ending multiranger push state")
+
+        if self.current_state == self.multiranger_push:
+            self.end_multiranger_push()
+
     def printDebug(self, msg: str):
         if self._IS_DEBUG:
             print(msg)

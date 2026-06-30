@@ -14,7 +14,15 @@ Author: Dominik Grzelak
 """
 
 import threading
-import auto_state_machine as asm
+import sys
+from pathlib import Path
+
+CLIENT_DIR = Path(__file__).resolve().parents[1]
+
+if str(CLIENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CLIENT_DIR))
+import cf_pyctrl_client as asm
+
 import logging
 logging.basicConfig(
     level=logging.INFO,

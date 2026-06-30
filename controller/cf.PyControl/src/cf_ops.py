@@ -49,9 +49,9 @@ except ImportError as e:
         "  source install/setup.bash"
     ) from e
 
+
 DEFAULT_HEIGHT = 0.55
 DEFAULT_VELOCITY = 0.3
-BOX_LIMIT = 0.4
 
 
 class CFOperationStrategy(ABC):
@@ -65,6 +65,10 @@ class CFOperationStrategy(ABC):
         self.console = console
         self._multiranger_push_stop_event = None
         self._multiranger_push_thread = None
+        self._multiranger_push_finished_callback = None
+
+    def set_multiranger_push_finished_callback(self, callback):
+        self._multiranger_push_finished_callback = callback
 
     def require_scf(self):
         if self._scf is None:
@@ -325,6 +329,8 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
                 if externallyTriggeredEvent:
                     self.printDebug("finished:externallyTriggeredEvent")
                     self.stop_multiranger_push()
+                    if self._multiranger_push_finished_callback is not None:
+                        self._multiranger_push_finished_callback()
 
         self._multiranger_push_thread = threading.Thread(
             target=_worker,
@@ -346,6 +352,8 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
                 and self._multiranger_push_thread.is_alive()
         ):
             self._multiranger_push_thread.join(timeout=2.0)
+
+        print("stop multiranger push OK")
 
 class DebugLoggingCFOperationImpl(CFOperationStrategy):
     timeSleep = 0.1
