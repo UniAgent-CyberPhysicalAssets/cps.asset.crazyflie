@@ -69,6 +69,14 @@ def control_multiple_drones():
             "wait_time": 1.0
         },
         {
+            "action": "start_rotating",
+            "wait_state": "hovering",
+            "timeout": 5.0,
+            "wait_time": 2.0,
+            "yaw_deg": 90.0,
+            "duration_s": 2.0
+        },
+        {
             "action": "begin_landing",
             "wait_state": "idle",
             "timeout": 10.0
@@ -122,6 +130,14 @@ def control_multiple_drones():
             "wait_state": "hovering",
             "timeout": 60.0,
             "wait_time": 0.0
+        },
+        {
+            "action": "start_rotating",
+            "wait_state": "hovering",
+            "timeout": 5.0,
+            "wait_time": 2.0,
+            "yaw_deg": 90.0,
+            "duration_s": 2.0
         },
         {
             "action": "begin_landing",

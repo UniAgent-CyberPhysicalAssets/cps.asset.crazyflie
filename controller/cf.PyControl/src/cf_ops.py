@@ -19,6 +19,7 @@ from statemachine.contrib.diagram import DotGraphMachine
 from werkzeug.routing import BaseConverter, ValidationError
 import threading
 from cflib.utils.multiranger import Multiranger
+import math
 
 from cf_ops_util import activate_mellinger_controller, upload_trajectory, rotate_beizer_node, create_circle_trajectory, \
     build_trajectory
@@ -136,6 +137,10 @@ class CFOperationStrategy(ABC):
         pass
 
     @abstractmethod
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+        pass
+
+    @abstractmethod
     def multiranger_push_simple(
             self,
             min_distance: float = 0.4,
@@ -230,6 +235,30 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
             time.sleep(duration)
             time.sleep(0.1)
         # commander.stop()
+
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+        self.require_scf()
+        self.printDebug(
+            f"rotate_yaw_simple(): yaw_deg={yaw_deg}, duration_s={duration_s}"
+        )
+
+        yaw_rad = math.radians(float(yaw_deg))
+
+        commander = self.getSCF().cf.high_level_commander
+
+        commander.go_to(
+            x=0.0,
+            y=0.0,
+            z=0.0,
+            yaw=yaw_rad,
+            duration_s=float(duration_s + 0.5),
+            relative=True,
+            linear=False
+        )
+
+        time.sleep(float(duration_s))
+
+        self.printDebug("finished:rotate_yaw_simple()")
 
     def multiranger_push_simple(
             self,
@@ -387,6 +416,12 @@ class DebugLoggingCFOperationImpl(CFOperationStrategy):
         self.printDebug(f"\tRunSequence: {sequence}")
         time.sleep(self.timeSleep)
         self.printDebug("\tRunSequence: Finished.")
+
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+        self.printDebug(
+            f"Debug rotate yaw: yaw_deg={yaw_deg}, duration_s={duration_s}"
+        )
+        time.sleep(self.timeSleep)
 
     def multiranger_push_simple(
             self,
@@ -576,6 +611,12 @@ class RosTopicCFOperationImpl(CFOperationStrategy, Node):
 
         self.printDebug("ROS run_sequence() completed successfully")
         return True
+
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+        self.printDebug(
+            f"ROS rotate_yaw_simple is not implemented yet "
+            f"(yaw_deg={yaw_deg}, duration_s={duration_s})"
+        )
 
     # Helper
     def wait_takeoff_landing_complete(

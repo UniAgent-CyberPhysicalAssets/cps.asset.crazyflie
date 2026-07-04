@@ -40,6 +40,8 @@ class StateMachineDrone(StateMachine):
         self._multiranger_min_distance = 0.4
         self._multiranger_velocity = 0.2
         self._multiranger_loop_delay = 0.1
+        self._rotate_yaw_deg = 90.0
+        self._rotate_duration_s = 2.0
 
     # State Machine
     # The OSGi lifecycle states
@@ -74,6 +76,7 @@ class StateMachineDrone(StateMachine):
     begin_nav_goal_sequence = hovering.to(flying)
     begin_fly_trajectory = hovering.to(flying_trajectory)
     finish_fly_trajectory = flying_trajectory.to(hovering)
+    start_rotating = hovering.to(hovering)
     begin_multiranger_push = idle.to(multiranger_push)
     end_multiranger_push = multiranger_push.to(idle)
 
@@ -82,6 +85,20 @@ class StateMachineDrone(StateMachine):
     landing_completed = landed.to(idle, cond="is_not_flying")
     shutdown_command = idle.to(shutdown) | hovering.to(shutdown)
     begin_stopping = shutdown.to(stopping)
+
+    def set_rotate_yaw_params(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+        if float(duration_s) <= 0.0:
+            raise ValueError("duration_s must be > 0")
+
+        self._rotate_yaw_deg = float(yaw_deg)
+        self._rotate_duration_s = float(duration_s)
+
+
+    def get_rotate_yaw_params(self):
+        return {
+            "yaw_deg": self._rotate_yaw_deg,
+            "duration_s": self._rotate_duration_s
+        }
 
     def set_multiranger_push_params(
             self,
@@ -244,6 +261,12 @@ class StateMachineDrone(StateMachine):
             navigate_to_simple(self)
         if event == "begin_fly_trajectory":
             start_trajectory(self)
+        if event == "start_rotating":
+            params = self.get_rotate_yaw_params()
+            self.uavOpStrategyImpl.rotate_yaw_simple(
+                yaw_deg=params["yaw_deg"],
+                duration_s=params["duration_s"]
+            )
         if event == "begin_multiranger_push":
             print("Multiranger Push will be started now.")
             params = self.get_multiranger_push_params()

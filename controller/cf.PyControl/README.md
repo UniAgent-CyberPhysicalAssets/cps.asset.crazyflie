@@ -382,6 +382,58 @@ See here for examples:
 - https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
 - https://github.com/bitcraze/crazyflie-lib-python/blob/master/cflib/crazyflie/mem/trajectory_memory.py#L103
 
+### Rotate Yaw
+
+Rotates the Crazyflie around its yaw axis while staying in `HOVERING`.
+
+The operation uses the Crazyflie high-level commander and keeps the current position by sending a relative `go_to` command with zero translation and a yaw target.
+
+The drone must already be in `HOVERING`, for example after calling `/begin_takeoff`.
+
+```shell
+$ curl -H "Content-Type: application/json" \
+  -d '{"yaw_deg": 90.0, "duration_s": 2.0}' \
+  http://127.0.0.1:5000/start_rotating
+```
+
+Parameters:
+
+* `yaw_deg`: yaw rotation target in degrees
+* `duration_s`: duration of the rotation in seconds
+
+Example response:
+
+```json
+{
+  "message": "Transitioned to",
+  "state": "hovering",
+  "rotate_yaw": {
+    "yaw_deg": 90.0,
+    "duration_s": 2.0
+  }
+}
+```
+
+**Example: Full hover test**
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -H "Content-Type: application/json" \
+  -d '{"height": 0.5, "velocity": 0.3}' \
+  http://127.0.0.1:5000/begin_takeoff && \
+curl -H "Content-Type: application/json" \
+  -d '{"yaw_deg": 90.0, "duration_s": 2.0}' \
+  http://127.0.0.1:5000/start_rotating && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+```
+
+Notes:
+
+- Rotation is only allowed from `HOVERING`.
+- Positive `yaw_deg` rotates in the positive yaw direction.
+- Avoid sending overlapping rotation commands. Wait until the configured `duration_s` has completed before sending another rotation command.
+
+
 ### Multiranger Push
 
 Starts the `MULTIRANGER_PUSH` mode from `IDLE` only.
@@ -618,6 +670,14 @@ sequence = [
         "wait_state": "hovering",
         "timeout": 60.0,
         "wait_time": 1.0,
+    },
+    {
+      "action": "start_rotating",
+      "wait_state": "hovering",
+      "timeout": 5.0,
+      "wait_time": 2.0,
+      "yaw_deg": 90.0,
+      "duration_s": 2.0
     },
     {
         "action": "begin_landing",

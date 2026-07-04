@@ -168,6 +168,37 @@ def fly_trajectory():
             "state": drone.get_current_state()
         }), 500
 
+@drone_blueprint.route('/start_rotating', methods=['POST'])
+def start_rotating():
+    drone = current_app.config['DRONE']
+    data = request.get_json(silent=True) or {}
+
+    try:
+        yaw_deg = float(data.get("yaw_deg", 90.0))
+        duration_s = float(data.get("duration_s", 2.0))
+
+        drone.set_rotate_yaw_params(
+            yaw_deg=yaw_deg,
+            duration_s=duration_s
+        )
+
+        drone.start_rotating()
+
+        return jsonify({
+            "message": "Transitioned to",
+            "state": drone.get_current_state(),
+            "rotate_yaw": {
+                "yaw_deg": yaw_deg,
+                "duration_s": duration_s
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "state": drone.get_current_state()
+        }), 400
+
 @drone_blueprint.route('/begin_multiranger_push', methods=['POST'])
 def begin_multiranger_push():
     drone = current_app.config['DRONE']

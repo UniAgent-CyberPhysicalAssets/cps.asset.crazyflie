@@ -161,6 +161,48 @@ class CfPyCtrlApiClient:
             logger.error(f"An error occurred while executing trajectory: {str(e)}")
             return False
 
+    def start_rotating(
+            self,
+            yaw_deg: float = 90.0,
+            duration_s: float = 2.0
+    ) -> bool:
+        """Rotate the Crazyflie yaw via the /start_rotating endpoint.
+
+        Args:
+            yaw_deg: Target yaw rotation in degrees.
+            duration_s: Duration of the rotation in seconds.
+
+        Returns:
+            bool: Whether the rotation command was accepted successfully.
+        """
+        try:
+            payload = {
+                "yaw_deg": yaw_deg,
+                "duration_s": duration_s
+            }
+
+            response = requests.post(
+                f"{self.base_url}/start_rotating",
+                json=payload
+            )
+
+            if response.status_code == 200:
+                self.current_state = response.json().get("state")
+                logger.info(
+                    f"Yaw rotation started "
+                    f"(yaw_deg={yaw_deg}, duration_s={duration_s}), "
+                    f"current state: {self.current_state}"
+                )
+                return True
+
+            logger.error(f"Failed to start yaw rotation: {response.status_code}")
+            logger.error(response.text)
+            return False
+
+        except Exception as e:
+            logger.error(f"An error occurred while starting yaw rotation: {str(e)}")
+            return False
+
     def navigate_to(self, x: float, y: float, z: float) -> bool:
         """Navigate to specified position
 
@@ -292,6 +334,13 @@ class CfPyCtrlApiClient:
                     return False
             elif action == "begin_landing":
                 success = self.begin_landing()
+                if not success or not self.wait_for_state(wait_state, timeout):
+                    return False
+            elif action == "start_rotating":
+                success = self.start_rotating(
+                    yaw_deg=step.get("yaw_deg", 90.0),
+                    duration_s=step.get("duration_s", 2.0)
+                )
                 if not success or not self.wait_for_state(wait_state, timeout):
                     return False
             elif action == "fly_trajectory":
