@@ -22,8 +22,10 @@ Key mapping:
     SPACE   -> toggle takeoff / landing
     P       -> begin multiranger push mode
     O       -> end multiranger push mode
+    Q       -> rotate yaw left  (-yaw)
+    E       -> rotate yaw right (+yaw)
 
-    Q / ESC -> quit
+    ESC -> quit
 
 Motion keys use the latest WebSocket position as the current reference and
 apply a predefined step size before sending the next target.
@@ -64,6 +66,9 @@ class KeyboardControlConfig:
 
     min_z: float = 0.25
     max_z: float = 1.0
+
+    min_rotate_degree_angle: float = 10.0
+    rotate_duration_s: float = 1.2
 
     multiranger_min_distance: float = 0.4
     multiranger_velocity: float = 0.2
@@ -212,6 +217,42 @@ class KeyboardDroneController:
         self.running = False
         return False
 
+    def rotate_yaw(self, yaw_deg: float):
+        current_state = self.client.get_current_state()
+        logger.info(f"[ROTATE] current state: {current_state}")
+
+        if current_state != "hovering":
+            logger.warning(
+                f"[ROTATE] ignored: yaw rotation is only allowed from "
+                f"'hovering', current state is '{current_state}'"
+            )
+            return
+
+        logger.info(
+            f"[ROTATE] yaw_deg={yaw_deg}, "
+            f"duration_s={self.config.rotate_duration_s}"
+        )
+
+        success = self.client.start_rotating(
+            yaw_deg=yaw_deg,
+            duration_s=self.config.rotate_duration_s
+        )
+
+        if success:
+            self.client.wait_for_state("hovering", timeout=5.0)
+            self.read_position()
+            self.print_status()
+
+    def rotate_left(self):
+        angle = -abs(self.config.min_rotate_degree_angle)
+        logger.info(f"[J] rotate yaw left by {angle} deg")
+        self.rotate_yaw(yaw_deg=angle)
+
+    def rotate_right(self):
+        angle = abs(self.config.min_rotate_degree_angle)
+        logger.info(f"[L] rotate yaw right by {angle} deg")
+        self.rotate_yaw(yaw_deg=angle)
+
     def begin_multiranger_push_command(self):
         current_state = self.client.get_current_state()
         logger.info(f"[P] current state: {current_state}")
@@ -279,14 +320,16 @@ class KeyboardDroneController:
                 return self.run_guarded_command("A", self.move_left)
             elif char == "d":
                 return self.run_guarded_command("D", self.move_right)
+            elif char == "q":
+                return self.run_guarded_command("Q", self.rotate_left)
+            elif char == "e":
+                return self.run_guarded_command("E", self.rotate_right)
             elif char == " ":
                 return self.run_guarded_command("SPACE", self.toggle_takeoff_landing)
             elif char == "p":
                 return self.run_guarded_command("P", self.begin_multiranger_push_command)
             elif char == "o":
                 return self.run_non_guarded_command("O", self.end_multiranger_push_command)
-            elif char == "q":
-                return self.quit()
 
         except AttributeError:
             if key == keyboard.Key.up:
@@ -338,7 +381,9 @@ class KeyboardDroneController:
     def run(self):
         logger.info("Keyboard controller started")
         logger.info(
-            "Use W/S/A/D + UP/DOWN. ENTER activates idle. "
+            "Use W/S/A/D + UP/DOWN. "
+            "J/L rotate yaw. "
+            "ENTER activates idle. "
             "SPACE toggles takeoff/landing. "
             "P starts multiranger push. O ends multiranger push. "
             "Press Q or ESC to quit."
@@ -418,6 +463,13 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--min-rotate-degree-angle",
+        type=float,
+        default=10.0,
+        help="Yaw rotation step in degrees for J/L keyboard commands."
+    )
+
+    parser.add_argument(
         "--multiranger-min-distance",
         type=float,
         default=0.4,
@@ -448,6 +500,8 @@ def main():
         step_z=args.step_z,
         min_z=args.min_z,
         max_z=args.max_z,
+        min_rotate_degree_angle=args.min_rotate_degree_angle,
+        rotate_duration_s=2.0,
         base_url=args.base_url,
         websocket_host=args.websocket_host,
         websocket_port=args.websocket_port,
@@ -466,6 +520,8 @@ def main():
     logger.info(f"  step_z            = {config.step_z}")
     logger.info(f"  min_z             = {config.min_z}")
     logger.info(f"  max_z             = {config.max_z}")
+    logger.info(f"  min_rotate_degree_angle = {config.min_rotate_degree_angle}")
+    logger.info(f"  rotate_duration_s       = {config.rotate_duration_s}")
     logger.info(f"  multiranger_min_distance = {config.multiranger_min_distance}")
     logger.info(f"  multiranger_velocity     = {config.multiranger_velocity}")
     logger.info(f"  multiranger_loop_delay   = {config.multiranger_loop_delay}")

@@ -52,6 +52,7 @@ Endpoints*](#basic-operations).
     - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5001/activate_idle
     - curl -d {} http://127.0.0.1:5000/begin_takeoff
     - curl -d {} http://127.0.0.1:5000/activate_idle && curl -d {} http://127.0.0.1:5000/begin_takeoff
+    - curl -H "Content-Type: application/json" -d '{"yaw_deg": 90.0, "duration_s": 3.0}' http://127.0.0.1:5000/start_rotating
     - curl -d {} http://127.0.0.1:5000/begin_landing
 - **Simulation Mode** _(requires running Simulator)_
     - ds-crazflie:
@@ -72,6 +73,7 @@ Endpoints*](#basic-operations).
   --step-z 0.15 \
   --min-z 0.25 \
   --max-z 1.50 \
+  --min-rotate-degree-angle 10 \
   --multiranger-min-distance 0.3 \
   --multiranger-velocity 0.3 \
   --multiranger-loop-delay 0.1
@@ -470,64 +472,6 @@ http://127.0.0.1:5000/begin_multiranger_push
 $ curl -d {} http://127.0.0.1:5000/end_multiranger_push
 ```
 
-## Composed Operations
-
-#### TakeOff → Landing
-
-You can initiate the simple drone mission "TakeOff-Landing" as follows by composing HTTP POST requests in a row (order
-is important):
-
-```shell
-$ curl -d {} http://127.0.0.1:5000/activate_idle && \
-curl -d {} http://127.0.0.1:5000/begin_takeoff && \
-curl -d {} http://127.0.0.1:5000/begin_landing
-```
-
-#### 2x TakeOff → Navigate → Landing
-
-```shell
-$ curl -d {} http://127.0.0.1:5000/activate_idle && \
-curl -d {} http://127.0.0.1:5000/begin_takeoff && \
-curl -d {} http://localhost:5000/navigate/0.2/0.2/0.6 && \
-curl -d {} http://127.0.0.1:5000/begin_landing
-
-# And back
-$ curl -d {} http://127.0.0.1:5000/activate_idle && \
-curl -d {} http://127.0.0.1:5000/begin_takeoff && \
-curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/begin_landing
-```
-
-#### TakeOff → Navigate → Navigate →... → Landing
-
-- Each target is represented as one Flying state
-
-```shell
-$ curl -d {} http://127.0.0.1:5000/activate_idle && \
-curl -d {} http://127.0.0.1:5000/begin_takeoff && \
-curl -d {} http://127.0.0.1:5000/navigate/0.3/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/navigate/0.0/0.3/0.4 && \
-curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/begin_landing
-```
-
-#### TakeOff → Navigate → Navigate →... → Landing (Continuous)
-
-All targets are managed within a single Flying state:
-
-```shell
-$ curl -d {} http://127.0.0.1:5000/activate_idle && \
-curl -d {} http://127.0.0.1:5000/begin_takeoff && \
-curl -d {} http://127.0.0.1:5000/navigate/append/0.3/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/navigate/append/0.0/0.0/0.5 && \
-curl -d {} http://127.0.0.1:5000/navigate/append/0.0/0.3/0.6 && \
-curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
-curl -d {} http://127.0.0.1:5000/begin_landing
-```
-
-By using the following approach, the drone hovers briefly upon reaching each target before proceeding to the next
-action:
 
 ## Client API and Monitoring
 
@@ -539,16 +483,18 @@ It reads the latest Crazyflie position from the cf.PyCtrl WebSocket endpoint and
 
 #### Controls
 
-| Key | Action |
-|---|---|
-| `W` | Move forward (`+x`) |
-| `S` | Move backward (`-x`) |
-| `A` | Move left (`+y`) |
-| `D` | Move right (`-y`) |
-| `UP` | Move up (`+z`) |
-| `DOWN` | Move down (`-z`) |
-| `ENTER` | Activate idle |
-| `SPACE` | Takeoff / landing |
+| Key         | Action |
+|-------------|---|
+| `W`         | Move forward (`+x`) |
+| `S`         | Move backward (`-x`) |
+| `A`         | Move left (`+y`) |
+| `D`         | Move right (`-y`) |
+| `Q`         | Rotate yaw left (`-10°` by default) |
+| `E`         | Rotate yaw right (`+10°` by default) |
+| `UP`        | Move up (`+z`) |
+| `DOWN`      | Move down (`-z`) |
+| `ENTER`     | Activate idle |
+| `SPACE`     | Takeoff / landing |
 | `Q` / `ESC` | Quit |
 
 #### Example
@@ -579,6 +525,7 @@ python3 cf-keyboard.py \
 --step-z 0.10 \
 --min-z 0.25 \
 --max-z 1.00 \
+--min-rotate-degree-angle -45 \
 --websocket-timeout 2.0
 ```
 
@@ -782,6 +729,62 @@ Open the `webview.html` in the browser to the see the drones status.
 
 For each container, a separate folder is created on the host to enable live updates of each drone's internal state
 machine for parallel monitoring and debugging purposes.
+
+## Composed Operations
+
+#### TakeOff → Landing
+
+You can initiate the simple drone mission "TakeOff-Landing" as follows by composing HTTP POST requests in a row (order
+is important):
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+```
+
+#### 2x TakeOff → Navigate → Landing
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://localhost:5000/navigate/0.2/0.2/0.6 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+
+# And back
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+```
+
+#### TakeOff → Navigate → Navigate →... → Landing
+
+- Each target is represented as one Flying state
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/navigate/0.3/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.3/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+```
+
+#### TakeOff → Navigate → Navigate →... → Landing (Continuous)
+
+All targets are managed within a single Flying state:
+
+```shell
+$ curl -d {} http://127.0.0.1:5000/activate_idle && \
+curl -d {} http://127.0.0.1:5000/begin_takeoff && \
+curl -d {} http://127.0.0.1:5000/navigate/append/0.3/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/navigate/append/0.0/0.0/0.5 && \
+curl -d {} http://127.0.0.1:5000/navigate/append/0.0/0.3/0.6 && \
+curl -d {} http://localhost:5000/navigate/0.0/0.0/0.4 && \
+curl -d {} http://127.0.0.1:5000/begin_landing
+```
 
 ## Error Handling
 

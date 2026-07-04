@@ -67,6 +67,7 @@ class CFOperationStrategy(ABC):
         self._multiranger_push_stop_event = None
         self._multiranger_push_thread = None
         self._multiranger_push_finished_callback = None
+        self._current_yaw_rad = 0.0
 
     def set_multiranger_push_finished_callback(self, callback):
         self._multiranger_push_finished_callback = callback
@@ -137,7 +138,7 @@ class CFOperationStrategy(ABC):
         pass
 
     @abstractmethod
-    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 1.0):
         pass
 
     @abstractmethod
@@ -206,8 +207,46 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
 
     def navigate_to_simple(self, targetPoint: Point3D):
         self.require_scf()
-        self.printDebug(f"\tnavigate_to_simple(): {targetPoint.x}, {targetPoint.y}, {targetPoint.z}")
-        self.mc.go_to(targetPoint.x, targetPoint.y, targetPoint.z, velocity=DEFAULT_VELOCITY)
+
+        velocity = DEFAULT_VELOCITY
+
+        try:
+            current_x, current_y, current_z = self.mc.get_position()
+            dx = targetPoint.x - current_x
+            dy = targetPoint.y - current_y
+            dz = targetPoint.z - current_z
+            distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+            duration_s = max(distance / velocity, 2.0)
+        except Exception:
+            duration_s = 2.0
+
+        self.printDebug(
+            f"\tnavigate_to_simple(): "
+            f"{targetPoint.x}, {targetPoint.y}, {targetPoint.z}, "
+            f"yaw={self._current_yaw_rad}, duration_s={duration_s}"
+        )
+
+        commander = self.getSCF().cf.high_level_commander
+
+        commander.go_to(
+            x=targetPoint.x,
+            y=targetPoint.y,
+            z=targetPoint.z,
+            yaw=self._current_yaw_rad,
+            duration_s=duration_s,
+            relative=False,
+            linear=False
+        )
+
+        time.sleep(duration_s)
+
+        # Keep PositionHlCommander's internal position roughly synchronized
+        # if you still use self.mc elsewhere.
+        if self.mc is not None:
+            self.mc._x = targetPoint.x
+            self.mc._y = targetPoint.y
+            self.mc._z = targetPoint.z
+
         self.printDebug("\tfinished:navigate_to_simple()")
 
     def run_sequence(self, sequence, origin_x, origin_y, origin_z, origin_yaw, loops: int = 1):
@@ -236,7 +275,7 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
             time.sleep(0.1)
         # commander.stop()
 
-    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 2.0):
+    def rotate_yaw_simple(self, yaw_deg: float = 90.0, duration_s: float = 1.0):
         self.require_scf()
         self.printDebug(
             f"rotate_yaw_simple(): yaw_deg={yaw_deg}, duration_s={duration_s}"
@@ -256,7 +295,9 @@ class HlCommanderCFOperationImpl(CFOperationStrategy):
             linear=False
         )
 
-        time.sleep(float(duration_s))
+        time.sleep(float(duration_s + 0.6))
+
+        self._current_yaw_rad = yaw_rad
 
         self.printDebug("finished:rotate_yaw_simple()")
 
